@@ -1,3 +1,5 @@
+-- Убедитесь, что этот код запускается в Roblox Executor.
+
 local player = game:GetService("Players").LocalPlayer
 local playerGui = player:FindFirstChildOfClass("PlayerGui")
 
@@ -30,7 +32,7 @@ header.BorderSizePixel = 0
 header.Parent = mainFrame
 
 local titleLabel = Instance.new("TextLabel")
-titleLabel.Text = "Script Hub v1.0"
+titleLabel.Text = "Script Hub v1.2"
 titleLabel.Size = UDim2.new(0.8, 0, 1, 0)
 titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 titleLabel.BackgroundTransparency = 1
