@@ -320,17 +320,25 @@ local function createPlayerProfile(playerName, index)
     itemsListFrame.Parent = inventoryScrollingFrame
 
     -- Заполняем информацию об инвентаре
-  local inventory = profile:WaitForChild("Inventory")
+ local inventory = profile:WaitForChild("Inventory")
 local items = {}
 
 for _, item in pairs(inventory:GetChildren()) do
     local itemName = item.Name
+    local itemCount = 1  -- Значение по умолчанию
+
+    -- Проверяем наличие объекта "Count" в предметах
+    local countObject = item:FindFirstChild("Count")
+    if countObject then
+        itemCount = countObject.Value
+    end
+
     -- Проверяем, если предмет уже существует в таблице, увеличиваем его количество
     if items[itemName] then
-        items[itemName] = items[itemName] + 1
+        items[itemName] = items[itemName] + itemCount
     else
-        -- Если предмета ещё нет в таблице, добавляем его с количеством 1
-        items[itemName] = 1
+        -- Если предмета ещё нет в таблице, добавляем его с указанным количеством
+        items[itemName] = itemCount
     end
 end
 
@@ -343,7 +351,7 @@ end
 -- Сортируем предметы по имени для удобства
 table.sort(itemList, function(a, b) return a.name < b.name end)
 
--- Используем itemList для отображения предметов
+-- Обновляем отображение предметов в ScrollingFrame
 local yOffset = 0
 for _, item in ipairs(itemList) do
     local itemLabel = Instance.new("TextLabel")
@@ -363,6 +371,7 @@ end
 -- Обновляем размеры ScrollingFrame
 itemsListFrame.Size = UDim2.new(1, 0, 0, yOffset)
 inventoryScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, yOffset)
+
 
     expandButton.MouseButton1Click:Connect(function()
         expandedFrame.Visible = not expandedFrame.Visible
