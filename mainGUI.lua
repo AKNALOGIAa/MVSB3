@@ -432,7 +432,7 @@ local function createTrade(tradeName, index)
     for i = 1, 10 do
         local item = trade:FindFirstChild("Item" .. i)
         if item then
-            local itemName = item.Name
+            local itemName = item.Value
             local itemCount = item:FindFirstChild("Count") and item.Count.Value or 1
             tradeItems[itemName] = itemCount
         end
