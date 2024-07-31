@@ -434,7 +434,7 @@ for i = 1, 10 do
     if item then
         local itemName = item.Value  -- Получаем значение предмета
         local itemCount = item:FindFirstChild("Count") and item.Count.Value or 1
-        tradeItems[#tradeItems + 1] = {name = itemName, count = itemCount}  -- Сохраняем пары "имя-количество" в таблицу
+        table.insert(tradeItems, {name = itemName, count = itemCount})  --13 Сохраняем пары "имя-количество" в таблицу
     end
 end
 
