@@ -32,7 +32,7 @@ header.BorderSizePixel = 0
 header.Parent = mainFrame
 
 local titleLabel = Instance.new("TextLabel")
-titleLabel.Text = "Script Hub v1.1"
+titleLabel.Text = "Script Hub v1.2"
 titleLabel.Size = UDim2.new(0.8, 0, 1, 0)
 titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 titleLabel.BackgroundTransparency = 1
@@ -54,24 +54,71 @@ minimizeButton.Font = Enum.Font.SourceSansBold
 minimizeButton.TextSize = 24
 minimizeButton.Parent = header
 
+local restoreButton = Instance.new("TextButton")
+restoreButton.Size = UDim2.new(0.1, 0, 0.1, 0)
+restoreButton.Position = UDim2.new(0, 0, 0, 0)
+restoreButton.Text = "Restore"
+restoreButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+restoreButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+restoreButton.BorderSizePixel = 0
+restoreButton.Font = Enum.Font.SourceSansBold
+restoreButton.TextSize = 24
+restoreButton.Parent = screenGui
+restoreButton.Visible = false
+
 local isMinimized = false
 
 minimizeButton.MouseButton1Click:Connect(function()
     isMinimized = not isMinimized
     if isMinimized then
-        mainFrame:TweenSize(UDim2.new(0.6, 0, 0.1, 0), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.5)
-        for _, child in ipairs(mainFrame:GetChildren()) do
-            if child.Name ~= "Header" then
-                child.Visible = false
-            end
-        end
+        mainFrame.Visible = false
+        restoreButton.Visible = true
     else
-        mainFrame:TweenSize(UDim2.new(0.6, 0, 0.8, 0), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.5)
-        for _, child in ipairs(mainFrame:GetChildren()) do
-            if child.Name ~= "Header" then
-                child.Visible = true
+        mainFrame.Visible = true
+        restoreButton.Visible = false
+    end
+end)
+
+restoreButton.MouseButton1Click:Connect(function()
+    isMinimized = false
+    mainFrame.Visible = true
+    restoreButton.Visible = false
+end)
+
+-- Перетаскивание окна
+local dragging
+local dragInput
+local dragStart
+local startPos
+
+local function update(input)
+    local delta = input.Position - dragStart
+    mainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+end
+
+mainFrame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+        dragStart = input.Position
+        startPos = mainFrame.Position
+        
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
             end
-        end
+        end)
+    end
+end)
+
+mainFrame.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+        dragInput = input
+    end
+end)
+
+game:GetService("UserInputService").InputChanged:Connect(function(input)
+    if input == dragInput and dragging then
+        update(input)
     end
 end)
 
