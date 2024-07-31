@@ -432,7 +432,7 @@ local function createTrade(tradeName, index)
     for i = 1, 10 do
         local item = trade:FindFirstChild("Item" .. i)
         if item then
-            local itemName = item.Value  -- Correctly reference the name stored in the value
+            local itemName = item.Value  -- Accessing the item name stored in the Value property
             local itemCount = item:FindFirstChild("Count") and item.Count.Value or 1
             tradeItems[itemName] = itemCount
         end
@@ -444,6 +444,7 @@ local function createTrade(tradeName, index)
     end
     itemsList.Text = itemsText
 end
+
 
 -- Обновление списка трейдов
 local function updateTrades()
