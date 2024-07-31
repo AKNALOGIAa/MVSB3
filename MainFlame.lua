@@ -326,14 +326,14 @@ local function createPlayerProfile(playerName, index)
         if expandedFrame.Visible then
             for _, frame in ipairs(profileList:GetChildren()) do
                 if frame:IsA("Frame") and frame ~= playerFrame then
-                    frame.Position = frame.Position + UDim2.new(0, 0, 0, 2000)
+                    frame.Position = frame.Position + UDim2.new(0, 0, 0, 200)
                 end
             end
             profileList.CanvasSize = UDim2.new(0, 0, 0, profileList.CanvasSize.Y.Offset + 200)
         else
             for _, frame in ipairs(profileList:GetChildren()) do
                 if frame:IsA("Frame") and frame ~= playerFrame then
-                    frame.Position = frame.Position - UDim2.new(0, 0, 0, 2000)
+                    frame.Position = frame.Position - UDim2.new(0, 0, 0, 200)
                 end
             end
             profileList.CanvasSize = UDim2.new(0, 0, 0, profileList.CanvasSize.Y.Offset - 200)
