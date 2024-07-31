@@ -27,7 +27,7 @@ header.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
 header.BorderSizePixel = 0
 
 local titleLabel = Instance.new("TextLabel", header)
-titleLabel.Text = "Script Hub v1.1"
+titleLabel.Text = "Script Hub v1.0"
 titleLabel.Size = UDim2.new(0.8, 0, 1, 0)
 titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 titleLabel.BackgroundTransparency = 1
@@ -127,6 +127,7 @@ local function createSection(name)
     local frame = Instance.new("Frame", content)
     frame.Name = name
     frame.Size = UDim2.new(1, 0, 1, 0)
+    frame.Position = UDim2.new(0, 0, 0, 0)  -- Установим позицию в (0, 0) для всех разделов
     frame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
     frame.Visible = false
     frame.BorderSizePixel = 0
@@ -140,35 +141,6 @@ local function createSection(name)
     titleLabel.TextSize = 24
     titleLabel.TextXAlignment = Enum.TextXAlignment.Center
     titleLabel.TextYAlignment = Enum.TextYAlignment.Center
-
-    -- Создаем содержимое раздела в зависимости от имени
-    if name == "Настройки" then
-        local transparencyLabel = Instance.new("TextLabel", frame)
-        transparencyLabel.Text = "Transparency"
-        transparencyLabel.Size = UDim2.new(0.5, 0, 0, 30)
-        transparencyLabel.Position = UDim2.new(0, 10, 0, 60)
-        transparencyLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-        transparencyLabel.BackgroundTransparency = 1
-        transparencyLabel.Font = Enum.Font.SourceSans
-        transparencyLabel.TextSize = 18
-
-        local transparencySlider = Instance.new("TextBox", frame)
-        transparencySlider.Size = UDim2.new(0.8, 0, 0, 30)
-        transparencySlider.Position = UDim2.new(0, 10, 0, 100)
-        transparencySlider.Text = "20"
-        transparencySlider.TextColor3 = Color3.fromRGB(255, 255, 255)
-        transparencySlider.BackgroundTransparency = 0
-        transparencySlider.Font = Enum.Font.SourceSans
-        transparencySlider.TextSize = 18
-        transparencySlider.TextStrokeTransparency = 0.8
-        transparencySlider.TextWrapped = true
-        transparencySlider.FocusLost:Connect(function()
-            local value = tonumber(transparencySlider.Text)
-            if value then
-                mainFrame.BackgroundTransparency = math.clamp(value / 100, 0, 1)
-            end
-        end)
-    end
 end
 
 -- Создание кнопок и разделов
