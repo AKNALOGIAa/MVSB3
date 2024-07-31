@@ -322,11 +322,18 @@ local function createPlayerProfile(playerName, index)
     -- Заполняем информацию об инвентаре
     local inventory = profile:WaitForChild("Inventory")
     local items = {}
-    for _, item in pairs(inventory:GetChildren()) do
-        local itemName = item.Name
-        local itemCount = item.Value
-        table.insert(items, {name = itemName, count = itemCount})
+
+        for _, item in pairs(inventory:GetChildren()) do
+            local itemName = item.Name
+                -- Проверяем, если предмет уже существует в таблице, увеличиваем его количество
+            if items[itemName] then
+        items[itemName] = items[itemName] + 1
+            else
+                -- Если предмета ещё нет в таблице, добавляем его с количеством 1
+        items[itemName] = 1
     end
+end
+
 
     -- Сортируем предметы по имени для удобства
     table.sort(items, function(a, b) return a.name < b.name end)
