@@ -428,21 +428,21 @@ local function createTrade(tradeName, index)
     itemsList.TextWrapped = true
     itemsList.Parent = tradeFrame
 
-    local tradeItems = {}
-    for i = 1, 10 do
-        local item = trade:FindFirstChild("Item" .. i)
-        if item then
-            local itemName = item.Name
-            local itemCount = item:FindFirstChild("Count") and item.Count.Value or 1
-            tradeItems[itemName] = itemCount
-        end
+   local tradeItems = {}
+for i = 1, 10 do
+    local item = trade:FindFirstChild("Item" .. i)
+    if item then
+        local itemName = item.Value  -- Получаем значение предмета
+        local itemCount = item:FindFirstChild("Count") and item.Count.Value or 1
+        tradeItems["Item" .. i] = itemCount  -- Сохраняем количество предмета в таблицу
     end
+end
 
-    local itemsText = ""
-    for itemName, itemCount in pairs(tradeItems) do
-        itemsText = itemsText .. itemName .. ": " .. itemCount .. "\n"
-    end
-    itemsList.Text = itemsText
+local itemsText = ""
+for itemName, itemCount in pairs(tradeItems) do
+    itemsText = itemsText .. itemName .. ": " .. tostring(itemCount) .. "\n"
+end
+itemsList.Text = itemsText
 end
 
 -- Обновление списка трейдов
