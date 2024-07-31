@@ -305,10 +305,20 @@ local function createPlayerProfile(playerName, index)
     inventoryLabel.TextYAlignment = Enum.TextYAlignment.Top
     inventoryLabel.Parent = expandedFrame
 
+    -- Создаём ScrollingFrame для списка предметов
+    local inventoryScrollingFrame = Instance.new("ScrollingFrame")
+    inventoryScrollingFrame.Size = UDim2.new(1, 0, 1, -30)
+    inventoryScrollingFrame.Position = UDim2.new(0, 0, 0, 30)
+    inventoryScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+    inventoryScrollingFrame.ScrollBarThickness = 8
+    inventoryScrollingFrame.BackgroundTransparency = 1
+    inventoryScrollingFrame.Parent = expandedFrame
+
+    -- Добавляем TextLabel внутрь ScrollingFrame для отображения предметов
     local inventoryList = Instance.new("TextLabel")
     inventoryList.Text = ""
-    inventoryList.Size = UDim2.new(1, 0, 1, -30)
-    inventoryList.Position = UDim2.new(0, 0, 0, 30)
+    inventoryList.Size = UDim2.new(1, -10, 0, 0)
+    inventoryList.Position = UDim2.new(0, 5, 0, 0)
     inventoryList.TextColor3 = Color3.fromRGB(255, 255, 255)
     inventoryList.BackgroundTransparency = 1
     inventoryList.Font = Enum.Font.SourceSans
@@ -316,7 +326,7 @@ local function createPlayerProfile(playerName, index)
     inventoryList.TextXAlignment = Enum.TextXAlignment.Left
     inventoryList.TextYAlignment = Enum.TextYAlignment.Top
     inventoryList.TextWrapped = true
-    inventoryList.Parent = expandedFrame
+    inventoryList.Parent = inventoryScrollingFrame
 
     expandButton.MouseButton1Click:Connect(function()
         expandedFrame.Visible = not expandedFrame.Visible
@@ -354,7 +364,12 @@ local function createPlayerProfile(playerName, index)
         inventoryText = inventoryText .. itemName .. ": " .. itemCount .. "\n"
     end
     inventoryList.Text = inventoryText
+
+    -- Настройка высоты TextLabel и CanvasSize в ScrollingFrame
+    inventoryList.Size = UDim2.new(1, -10, 0, inventoryList.TextBounds.Y)
+    inventoryScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, inventoryList.TextBounds.Y)
 end
+
 
 -- Отображение профилей игроков
 local function updatePlayerProfiles()
