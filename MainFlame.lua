@@ -27,7 +27,7 @@ header.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
 header.BorderSizePixel = 0
 
 local titleLabel = Instance.new("TextLabel", header)
-titleLabel.Text = "Script Hub v1.0"
+titleLabel.Text = "Script Hub v1.1"
 titleLabel.Size = UDim2.new(0.8, 0, 1, 0)
 titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 titleLabel.BackgroundTransparency = 1
