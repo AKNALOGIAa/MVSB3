@@ -32,7 +32,7 @@ header.BorderSizePixel = 0
 header.Parent = mainFrame
 
 local titleLabel = Instance.new("TextLabel")
-titleLabel.Text = "Akanlogia MMSB3 script v1.2TEST"
+titleLabel.Text = "Akanlogia MMSB3 script v1.2"
 titleLabel.Size = UDim2.new(0.8, 0, 1, 0)
 titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 titleLabel.BackgroundTransparency = 1
@@ -306,18 +306,49 @@ local function createPlayerProfile(playerName, index)
     inventoryLabel.TextYAlignment = Enum.TextYAlignment.Top
     inventoryLabel.Parent = expandedFrame
 
-    local inventoryList = Instance.new("TextLabel")
-    inventoryList.Text = ""
-    inventoryList.Size = UDim2.new(1, 0, 1, -30)
-    inventoryList.Position = UDim2.new(0, 0, 0, 30)
-    inventoryList.TextColor3 = Color3.fromRGB(255, 255, 255)
-    inventoryList.BackgroundTransparency = 1
-    inventoryList.Font = Enum.Font.SourceSans
-    inventoryList.TextSize = 16
-    inventoryList.TextXAlignment = Enum.TextXAlignment.Left
-    inventoryList.TextYAlignment = Enum.TextYAlignment.Top
-    inventoryList.TextWrapped = true
-    inventoryList.Parent = expandedFrame
+local inventory = profile:WaitForChild("Inventory")
+local items = {}
+for _, item in pairs(inventory:GetChildren()) do
+    if items[item.Name] then
+        items[item.Name] = items[item.Name] + 1
+    else
+        items[item.Name] = 1
+    end
+end
+
+local yOffset = 0
+local itemHeight = 30
+local itemSpacing = 5
+
+for itemName, itemCount in pairs(items) do
+    local itemLabel = Instance.new("TextLabel")
+    itemLabel.Text = itemName .. ": " .. itemCount
+    itemLabel.Size = UDim2.new(1, 0, 0, itemHeight)
+    itemLabel.Position = UDim2.new(0, 0, 0, yOffset)
+    itemLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    itemLabel.BackgroundTransparency = 1
+    itemLabel.Font = Enum.Font.SourceSans
+    itemLabel.TextSize = 16
+    itemLabel.TextXAlignment = Enum.TextXAlignment.Left
+    itemLabel.TextYAlignment = Enum.TextYAlignment.Top
+    itemLabel.TextWrapped = true
+    itemLabel.Parent = inventoryScrollFrame
+
+    yOffset = yOffset + itemHeight + itemSpacing
+end
+
+inventoryScrollFrame.CanvasSize = UDim2.new(0, 0, 0, yOffset)
+
+
+   local inventoryScrollFrame = Instance.new("ScrollingFrame")
+inventoryScrollFrame.Name = "InventoryScrollFrame"
+inventoryScrollFrame.Size = UDim2.new(1, 0, 1, -30)
+inventoryScrollFrame.Position = UDim2.new(0, 0, 0, 30)
+inventoryScrollFrame.BackgroundTransparency = 1
+inventoryScrollFrame.ScrollBarThickness = 8
+inventoryScrollFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+inventoryScrollFrame.Parent = expandedFrame
+
 
     expandButton.MouseButton1Click:Connect(function()
         expandedFrame.Visible = not expandedFrame.Visible
@@ -428,22 +459,22 @@ local function createTrade(tradeName, index)
     itemsList.TextWrapped = true
     itemsList.Parent = tradeFrame
 
-local tradeItems = {}
-for i = 1, 10 do
-    local item = trade:FindFirstChild("Item" .. i)
-    if item and item:FindFirstChild("Value") then
-        local itemName = item.Value -- Получаем название предмета
-        local itemCount = item:FindFirstChild("Count") and item.Count.Value or 1
-        tradeItems[itemName] = itemCount
+    local tradeItems = {}
+    for i = 1, 10 do
+        local item = trade:FindFirstChild("Item" .. i)
+        if item then
+            local itemName = item.Name
+            local itemCount = item:FindFirstChild("Count") and item.Count.Value or 1
+            tradeItems[itemName] = itemCount
+        end
     end
-end
 
- local itemsText = ""
-for itemName, itemCount in pairs(tradeItems) do
-    itemsText = itemsText .. itemName .. ": " .. itemCount .. "\n"
+    local itemsText = ""
+    for itemName, itemCount in pairs(tradeItems) do
+        itemsText = itemsText .. itemName .. ": " .. itemCount .. "\n"
+    end
+    itemsList.Text = itemsText
 end
-itemsList.Text = itemsText
-
 
 -- Обновление списка трейдов
 local function updateTrades()
