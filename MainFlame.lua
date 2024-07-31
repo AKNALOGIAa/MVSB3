@@ -33,7 +33,7 @@ header.BorderSizePixel = 0
 header.Parent = mainFrame
 
 local titleLabel = Instance.new("TextLabel")
-titleLabel.Text = "Script Hub v1.2Vel"
+titleLabel.Text = "Script Hub v1.3vel"
 titleLabel.Size = UDim2.new(0.8, 0, 1, 0)
 titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 titleLabel.BackgroundTransparency = 1
@@ -200,7 +200,7 @@ local function createSection(name)
     titleLabel.Font = Enum.Font.SourceSansBold
     titleLabel.TextSize = 24
     titleLabel.TextXAlignment = Enum.TextXAlignment.Center
-    titleLabel.TextYAlignment = Enum.TextYAlignment.Center
+    titleLabel.TextYAlignment = Enum.TextXAlignment.Center
     titleLabel.Parent = frame
 end
 
@@ -217,7 +217,17 @@ for index, category in ipairs(categories) do
     createSection(category.section)
 end
 
--- Функция для создания профиля игрока
+-- Контейнер для списка профилей игроков
+local profileList = Instance.new("ScrollingFrame")
+profileList.Name = "ProfileList"
+profileList.Size = UDim2.new(1, 0, 1, -50)
+profileList.Position = UDim2.new(0, 0, 0, 50)
+profileList.CanvasSize = UDim2.new(0, 0, 2, 0)  -- Рамка для скроллинга (настраиваем по необходимости)
+profileList.ScrollBarThickness = 8
+profileList.BackgroundTransparency = 1
+profileList.Parent = content:FindFirstChild("PlayerProfile")
+
+-- Шаблон для профилей игроков
 local function createPlayerProfile(playerName, index)
     local profile = replicatedStorage:WaitForChild("Profiles"):WaitForChild(playerName)
     local vel = profile:WaitForChild("Vel").Value
@@ -229,7 +239,7 @@ local function createPlayerProfile(playerName, index)
     playerFrame.Position = UDim2.new(0, 0, 0, index * 55)
     playerFrame.BackgroundColor3 = Color3.fromRGB(55, 55, 55)
     playerFrame.BorderSizePixel = 0
-    playerFrame.Parent = content.PlayerProfile
+    playerFrame.Parent = profileList
 
     local playerNameLabel = Instance.new("TextLabel")
     playerNameLabel.Text = playerName
@@ -265,10 +275,77 @@ local function createPlayerProfile(playerName, index)
     gemsLabel.TextXAlignment = Enum.TextXAlignment.Left
     gemsLabel.TextYAlignment = Enum.TextYAlignment.Center
     gemsLabel.Parent = playerFrame
+
+    -- Кнопка для разворачивания подробной информации
+    local expandButton = Instance.new("TextButton")
+    expandButton.Size = UDim2.new(0.1, 0, 1, 0)
+    expandButton.Position = UDim2.new(0.9, 0, 0, 0)
+    expandButton.Text = "+"
+    expandButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    expandButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    expandButton.BorderSizePixel = 0
+    expandButton.Font = Enum.Font.SourceSansBold
+    expandButton.TextSize = 18
+    expandButton.Parent = playerFrame
+
+    local expandedFrame = Instance.new("Frame")
+    expandedFrame.Size = UDim2.new(1, 0, 0, 200)
+    expandedFrame.Position = UDim2.new(0, 0, 1, 0)
+    expandedFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+    expandedFrame.BorderSizePixel = 0
+    expandedFrame.Visible = false
+    expandedFrame.Parent = playerFrame
+
+    local inventoryLabel = Instance.new("TextLabel")
+    inventoryLabel.Text = "Inventory:"
+    inventoryLabel.Size = UDim2.new(1, 0, 0, 30)
+    inventoryLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    inventoryLabel.BackgroundTransparency = 1
+    inventoryLabel.Font = Enum.Font.SourceSansBold
+    inventoryLabel.TextSize = 18
+    inventoryLabel.TextXAlignment = Enum.TextXAlignment.Left
+    inventoryLabel.TextYAlignment = Enum.TextYAlignment.Top
+    inventoryLabel.Parent = expandedFrame
+
+    local inventoryList = Instance.new("TextLabel")
+    inventoryList.Text = ""
+    inventoryList.Size = UDim2.new(1, 0, 1, -30)
+    inventoryList.Position = UDim2.new(0, 0, 0, 30)
+    inventoryList.TextColor3 = Color3.fromRGB(255, 255, 255)
+    inventoryList.BackgroundTransparency = 1
+    inventoryList.Font = Enum.Font.SourceSans
+    inventoryList.TextSize = 16
+    inventoryList.TextXAlignment = Enum.TextXAlignment.Left
+    inventoryList.TextYAlignment = Enum.TextYAlignment.Top
+    inventoryList.TextWrapped = true
+    inventoryList.Parent = expandedFrame
+
+    expandButton.MouseButton1Click:Connect(function()
+        expandedFrame.Visible = not expandedFrame.Visible
+        expandButton.Text = expandedFrame.Visible and "-" or "+"
+    end)
+
+    -- Заполнение информации об инвентаре
+    local inventory = profile:WaitForChild("Inventory")
+    local items = {}
+    for _, item in pairs(inventory:GetChildren()) do
+        if items[item.Name] then
+            items[item.Name] = items[item.Name] + 1
+        else
+            items[item.Name] = 1
+        end
+    end
+
+    local inventoryText = ""
+    for itemName, itemCount in pairs(items) do
+        inventoryText = inventoryText .. itemName .. ": " .. itemCount .. "\n"
+    end
+    inventoryList.Text = inventoryText
 end
 
 -- Отображение профилей игроков
 local function updatePlayerProfiles()
+    profileList:ClearAllChildren()
     for i, player in ipairs(game:GetService("Players"):GetPlayers()) do
         createPlayerProfile(player.Name, i - 1)
     end
