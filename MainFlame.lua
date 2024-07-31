@@ -2,6 +2,7 @@
 
 local player = game:GetService("Players").LocalPlayer
 local playerGui = player:FindFirstChildOfClass("PlayerGui")
+local replicatedStorage = game:GetService("ReplicatedStorage")
 
 -- Удаление старого GUI, если существует
 if playerGui:FindFirstChild("CustomUI") then
@@ -32,7 +33,7 @@ header.BorderSizePixel = 0
 header.Parent = mainFrame
 
 local titleLabel = Instance.new("TextLabel")
-titleLabel.Text = "Script Hub v1.2"
+titleLabel.Text = "Script Hub v1.2Vel"
 titleLabel.Size = UDim2.new(0.8, 0, 1, 0)
 titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 titleLabel.BackgroundTransparency = 1
@@ -46,7 +47,7 @@ titleLabel.Parent = header
 local minimizeButton = Instance.new("TextButton")
 minimizeButton.Size = UDim2.new(0.1, 0, 0.5, 0)
 minimizeButton.Position = UDim2.new(0.9, -10, 0.25, 0)
-minimizeButton.Text = "_"
+minimizeButton.Text = "-"
 minimizeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 minimizeButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
 minimizeButton.BorderSizePixel = 0
@@ -215,6 +216,65 @@ for index, category in ipairs(categories) do
     createSidebarButton(category.name, category.section, index)
     createSection(category.section)
 end
+
+-- Функция для создания профиля игрока
+local function createPlayerProfile(playerName, index)
+    local profile = replicatedStorage:WaitForChild("Profiles"):WaitForChild(playerName)
+    local vel = profile:WaitForChild("Vel").Value
+    local gems = profile:WaitForChild("Gems").Value
+
+    local playerFrame = Instance.new("Frame")
+    playerFrame.Name = playerName
+    playerFrame.Size = UDim2.new(1, 0, 0, 50)
+    playerFrame.Position = UDim2.new(0, 0, 0, index * 55)
+    playerFrame.BackgroundColor3 = Color3.fromRGB(55, 55, 55)
+    playerFrame.BorderSizePixel = 0
+    playerFrame.Parent = content.PlayerProfile
+
+    local playerNameLabel = Instance.new("TextLabel")
+    playerNameLabel.Text = playerName
+    playerNameLabel.Size = UDim2.new(0.4, 0, 1, 0)
+    playerNameLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    playerNameLabel.BackgroundTransparency = 1
+    playerNameLabel.Font = Enum.Font.SourceSansBold
+    playerNameLabel.TextSize = 18
+    playerNameLabel.TextXAlignment = Enum.TextXAlignment.Left
+    playerNameLabel.TextYAlignment = Enum.TextYAlignment.Center
+    playerNameLabel.Parent = playerFrame
+
+    local velLabel = Instance.new("TextLabel")
+    velLabel.Text = "Vel: " .. vel
+    velLabel.Size = UDim2.new(0.3, 0, 1, 0)
+    velLabel.Position = UDim2.new(0.4, 0, 0, 0)
+    velLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    velLabel.BackgroundTransparency = 1
+    velLabel.Font = Enum.Font.SourceSans
+    velLabel.TextSize = 18
+    velLabel.TextXAlignment = Enum.TextXAlignment.Left
+    velLabel.TextYAlignment = Enum.TextYAlignment.Center
+    velLabel.Parent = playerFrame
+
+    local gemsLabel = Instance.new("TextLabel")
+    gemsLabel.Text = "Gems: " .. gems
+    gemsLabel.Size = UDim2.new(0.3, 0, 1, 0)
+    gemsLabel.Position = UDim2.new(0.7, 0, 0, 0)
+    gemsLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    gemsLabel.BackgroundTransparency = 1
+    gemsLabel.Font = Enum.Font.SourceSans
+    gemsLabel.TextSize = 18
+    gemsLabel.TextXAlignment = Enum.TextXAlignment.Left
+    gemsLabel.TextYAlignment = Enum.TextYAlignment.Center
+    gemsLabel.Parent = playerFrame
+end
+
+-- Отображение профилей игроков
+local function updatePlayerProfiles()
+    for i, player in ipairs(game:GetService("Players"):GetPlayers()) do
+        createPlayerProfile(player.Name, i - 1)
+    end
+end
+
+updatePlayerProfiles()
 
 -- Отображение первого раздела по умолчанию
 if content:FindFirstChild("Main") then
