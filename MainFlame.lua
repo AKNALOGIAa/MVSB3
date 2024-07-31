@@ -378,7 +378,6 @@ tradeList.ScrollBarThickness = 8
 tradeList.BackgroundTransparency = 1
 tradeList.Parent = content:FindFirstChild("Trades")
 
--- Функция для создания трейда
 local function createTrade(tradeName, index)
     local trade = replicatedStorage:WaitForChild("Trades"):WaitForChild(tradeName)
     local otherPlayer = trade:WaitForChild("OtherPlayer").Value
@@ -428,22 +427,40 @@ local function createTrade(tradeName, index)
     itemsList.TextWrapped = true
     itemsList.Parent = tradeFrame
 
-local tradeItems = {}
+    -- Получение элементов и их количества
+    local tradeItems = {}
     for i = 1, 10 do
-        local item = trade:FindFirstChild("Item" .. i)
-        if item then
-            local itemName = item.Name
-            local itemCount = item:FindFirstChild("Count") and item.Count.Value or 1
-            tradeItems[itemName] = itemCount
+        local itemName = trade:FindFirstChild("Item" .. i) and trade["Item" .. i].Value
+        if itemName then
+            local item = trade:FindFirstChild(itemName)
+            if item then
+                local itemCount = item:FindFirstChild("Count") and item.Count.Value or 1
+                tradeItems[itemName] = itemCount
+            end
         end
     end
 
+    -- Создание текста с количеством элементов
     local itemsText = ""
     for itemName, itemCount in pairs(tradeItems) do
         itemsText = itemsText .. itemName .. ": " .. itemCount .. "\n"
     end
     itemsList.Text = itemsText
 end
+
+-- Обновление списка трейдов
+local function updateTrades()
+    tradeList:ClearAllChildren()
+    local trades = replicatedStorage:WaitForChild("Trades"):GetChildren()
+    tradeList.CanvasSize = UDim2.new(0, 0, 0, #trades * 105)  -- Обновляем CanvasSize для прокрутки
+    for i, trade in ipairs(trades) do
+        if trade:IsA("Folder") then
+            local tradeName = trade.Name
+            createTrade(tradeName, i - 1)
+        end
+    end
+end
+
 
 -- Обновление списка трейдов
 local function updateTrades()
