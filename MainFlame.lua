@@ -275,7 +275,6 @@ local function createPlayerProfile(playerName, index)
     gemsLabel.TextYAlignment = Enum.TextYAlignment.Center
     gemsLabel.Parent = playerFrame
 
-    -- Кнопка для разворачивания подробной информации
     local expandButton = Instance.new("TextButton")
     expandButton.Size = UDim2.new(0.1, 0, 1, 0)
     expandButton.Position = UDim2.new(0.9, 0, 0, 0)
@@ -322,21 +321,20 @@ local function createPlayerProfile(playerName, index)
     expandButton.MouseButton1Click:Connect(function()
         expandedFrame.Visible = not expandedFrame.Visible
         expandButton.Text = expandedFrame.Visible and "-" or "+"
-        -- Сдвиг профилей вниз, если меню инвентаря раскрыто
         if expandedFrame.Visible then
             for _, frame in ipairs(profileList:GetChildren()) do
                 if frame:IsA("Frame") and frame ~= playerFrame then
-                    frame.Position = frame.Position + UDim2.new(0, 0, 0, 200)
+                    frame.Position = frame.Position + UDim2.new(0, 0, 0, expandedFrame.Size.Y.Offset)
                 end
             end
-            profileList.CanvasSize = UDim2.new(0, 0, 0, profileList.CanvasSize.Y.Offset + 200)
+            profileList.CanvasSize = UDim2.new(0, 0, 0, profileList.CanvasSize.Y.Offset + expandedFrame.Size.Y.Offset)
         else
             for _, frame in ipairs(profileList:GetChildren()) do
                 if frame:IsA("Frame") and frame ~= playerFrame then
-                    frame.Position = frame.Position - UDim2.new(0, 0, 0, 200)
+                    frame.Position = frame.Position - UDim2.new(0, 0, 0, expandedFrame.Size.Y.Offset)
                 end
             end
-            profileList.CanvasSize = UDim2.new(0, 0, 0, profileList.CanvasSize.Y.Offset - 200)
+            profileList.CanvasSize = UDim2.new(0, 0, 0, profileList.CanvasSize.Y.Offset - expandedFrame.Size.Y.Offset)
         end
     end)
 
