@@ -32,7 +32,7 @@ header.BorderSizePixel = 0
 header.Parent = mainFrame
 
 local titleLabel = Instance.new("TextLabel")
-titleLabel.Text = "Akanlogia MMSB3 script v1.2"
+titleLabel.Text = "Akanlogia MMSB3 script v1.2TEST"
 titleLabel.Size = UDim2.new(0.8, 0, 1, 0)
 titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 titleLabel.BackgroundTransparency = 1
@@ -438,12 +438,12 @@ for i = 1, 10 do
     end
 end
 
-    local itemsText = ""
-    for itemName, itemCount in pairs(tradeItems) do
-        itemsText = itemsText .. itemName .. ": " .. itemCount .. "\n"
-    end
-    itemsList.Text = itemsText
+ local itemsText = ""
+for itemName, itemCount in pairs(tradeItems) do
+    itemsText = itemsText .. itemName .. ": " .. itemCount .. "\n"
 end
+itemsList.Text = itemsText
+
 
 -- Обновление списка трейдов
 local function updateTrades()
