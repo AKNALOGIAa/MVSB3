@@ -436,10 +436,21 @@ local function updatePlayerProfiles()
     profileList:ClearAllChildren()
     local players = game:GetService("Players"):GetPlayers()
     profileList.CanvasSize = UDim2.new(0, 0, 0, #players * 55)  -- Обновляем CanvasSize для прокрутки
+    
     for i, player in ipairs(players) do
+        print("Loading profile for:", player.Name)  -- Отладочное сообщение
         createPlayerProfile(player.Name, i - 1)
     end
 end
+
+Players.PlayerAdded:Connect(function()
+    updatePlayerProfiles()
+end)
+
+-- Вызов функции обновления при удалении игрока
+Players.PlayerRemoving:Connect(function()
+    updatePlayerProfiles()
+end)
 
 -- Контейнер для списка трейдов
 local tradeList = Instance.new("ScrollingFrame")
