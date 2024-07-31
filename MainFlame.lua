@@ -378,6 +378,20 @@ tradeList.ScrollBarThickness = 8
 tradeList.BackgroundTransparency = 1
 tradeList.Parent = content:FindFirstChild("Trades")
 
+-- Функция для получения предметов игрока
+local function getTradeItemsForPlayer(playerTrade)
+    local tradeItems = {}
+    for i = 1, 10 do
+        local item = playerTrade:FindFirstChild("Item" .. i)
+        if item then
+            local itemName = item.Value
+            local itemCount = item:FindFirstChild("Count") and item.Count.Value or 1
+            tradeItems[itemName] = itemCount
+        end
+    end
+    return tradeItems
+end
+
 -- Функция для создания трейда
 local function createTrade(tradeName, index)
     local trade = replicatedStorage:WaitForChild("Trades"):WaitForChild(tradeName)
@@ -428,24 +442,13 @@ local function createTrade(tradeName, index)
     itemsList.TextWrapped = true
     itemsList.Parent = tradeFrame
 
-   local tradeItems = {}
-for i = 1, 10 do
-    local item = trade:FindFirstChild("Item" .. i)
-    if item then
-        local itemName = item.Value  -- Получаем значение предмета
-        local itemCount = item:FindFirstChild("Count") and item.Count.Value or 1
-        table.insert(tradeItems, {name = itemName, count = itemCount})  --13 Сохраняем пары "имя-количество" в таблицу
+    local tradeItems = getTradeItemsForPlayer(trade)
+
+    local itemsText = ""
+    for itemName, itemCount in pairs(tradeItems) do
+        itemsText = itemsText .. itemName .. ": " .. itemCount .. "\n"
     end
-end
-
--- Функция для сортировки по имени предмета
-table.sort(tradeItems, function(a, b) return a.name < b.name end)
-
-local itemsText = ""
-for _, item in ipairs(tradeItems) do
-    itemsText = itemsText .. item.name .. ": " .. tostring(item.count) .. "\n"
-end
-itemsList.Text = itemsText
+    itemsList.Text = itemsText
 end
 
 -- Обновление списка трейдов
