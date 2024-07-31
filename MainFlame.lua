@@ -309,24 +309,47 @@ local function createPlayerProfile(playerName, index)
     local inventoryScrollingFrame = Instance.new("ScrollingFrame")
     inventoryScrollingFrame.Size = UDim2.new(1, 0, 1, -30)
     inventoryScrollingFrame.Position = UDim2.new(0, 0, 0, 30)
-    inventoryScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
-    inventoryScrollingFrame.ScrollBarThickness = 8
     inventoryScrollingFrame.BackgroundTransparency = 1
+    inventoryScrollingFrame.ScrollBarThickness = 8
     inventoryScrollingFrame.Parent = expandedFrame
 
-    -- Добавляем TextLabel внутрь ScrollingFrame для отображения предметов
-    local inventoryList = Instance.new("TextLabel")
-    inventoryList.Text = ""
-    inventoryList.Size = UDim2.new(1, -10, 0, 0)
-    inventoryList.Position = UDim2.new(0, 5, 0, 0)
-    inventoryList.TextColor3 = Color3.fromRGB(255, 255, 255)
-    inventoryList.BackgroundTransparency = 1
-    inventoryList.Font = Enum.Font.SourceSans
-    inventoryList.TextSize = 16
-    inventoryList.TextXAlignment = Enum.TextXAlignment.Left
-    inventoryList.TextYAlignment = Enum.TextYAlignment.Top
-    inventoryList.TextWrapped = true
-    inventoryList.Parent = inventoryScrollingFrame
+    -- Добавляем рамку для отображения предметов
+    local itemsListFrame = Instance.new("Frame")
+    itemsListFrame.Size = UDim2.new(1, 0, 1, 0)
+    itemsListFrame.BackgroundTransparency = 1
+    itemsListFrame.Parent = inventoryScrollingFrame
+
+    -- Заполняем информацию об инвентаре
+    local inventory = profile:WaitForChild("Inventory")
+    local items = {}
+    for _, item in pairs(inventory:GetChildren()) do
+        local itemName = item.Name
+        local itemCount = item.Value
+        table.insert(items, {name = itemName, count = itemCount})
+    end
+
+    -- Сортируем предметы по имени для удобства
+    table.sort(items, function(a, b) return a.name < b.name end)
+
+    local yOffset = 0
+    for _, item in ipairs(items) do
+        local itemLabel = Instance.new("TextLabel")
+        itemLabel.Text = item.name .. ": " .. item.count
+        itemLabel.Size = UDim2.new(1, -10, 0, 30)
+        itemLabel.Position = UDim2.new(0, 5, 0, yOffset)
+        itemLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+        itemLabel.BackgroundTransparency = 1
+        itemLabel.Font = Enum.Font.SourceSans
+        itemLabel.TextSize = 16
+        itemLabel.TextXAlignment = Enum.TextXAlignment.Left
+        itemLabel.TextYAlignment = Enum.TextYAlignment.Top
+        itemLabel.Parent = itemsListFrame
+        yOffset = yOffset + 30
+    end
+
+    -- Обновляем размеры ScrollingFrame
+    itemsListFrame.Size = UDim2.new(1, 0, 0, yOffset)
+    inventoryScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, yOffset)
 
     expandButton.MouseButton1Click:Connect(function()
         expandedFrame.Visible = not expandedFrame.Visible
@@ -347,28 +370,8 @@ local function createPlayerProfile(playerName, index)
             profileList.CanvasSize = UDim2.new(0, 0, 0, profileList.CanvasSize.Y.Offset - expandedFrame.Size.Y.Offset)
         end
     end)
-
-    -- Заполнение информации об инвентаре
-    local inventory = profile:WaitForChild("Inventory")
-    local items = {}
-    for _, item in pairs(inventory:GetChildren()) do
-        if items[item.Name] then
-            items[item.Name] = items[item.Name] + 1
-        else
-            items[item.Name] = 1
-        end
-    end
-
-    local inventoryText = ""
-    for itemName, itemCount in pairs(items) do
-        inventoryText = inventoryText .. itemName .. ": " .. itemCount .. "\n"
-    end
-    inventoryList.Text = inventoryText
-
-    -- Настройка высоты TextLabel и CanvasSize в ScrollingFrame
-    inventoryList.Size = UDim2.new(1, -10, 0, inventoryList.TextBounds.Y)
-    inventoryScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, inventoryList.TextBounds.Y)
 end
+
 
 -- Отображение профилей игроков
 local function updatePlayerProfiles()
