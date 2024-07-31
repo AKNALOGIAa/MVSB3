@@ -378,20 +378,6 @@ tradeList.ScrollBarThickness = 8
 tradeList.BackgroundTransparency = 1
 tradeList.Parent = content:FindFirstChild("Trades")
 
--- Функция для получения предметов игрока
-local function getTradeItemsForPlayer(playerTrade)
-    local tradeItems = {}
-    for i = 1, 10 do
-        local item = playerTrade:FindFirstChild("Item" .. i)
-        if item then
-            local itemName = item.Value
-            local itemCount = item:FindFirstChild("Count") and item.Count.Value or 1
-            tradeItems[itemName] = itemCount
-        end
-    end
-    return tradeItems
-end
-
 -- Функция для создания трейда
 local function createTrade(tradeName, index)
     local trade = replicatedStorage:WaitForChild("Trades"):WaitForChild(tradeName)
@@ -442,7 +428,15 @@ local function createTrade(tradeName, index)
     itemsList.TextWrapped = true
     itemsList.Parent = tradeFrame
 
-    local tradeItems = getTradeItemsForPlayer(trade)
+    local tradeItems = {}
+    for i = 1, 10 do
+        local item = trade:FindFirstChild("Item" .. i)
+        if item then
+            local itemName = item.Value  -- Correctly reference the name stored in the value
+            local itemCount = item:FindFirstChild("Count") and item.Count.Value or 1
+            tradeItems[itemName] = itemCount
+        end
+    end
 
     local itemsText = ""
     for itemName, itemCount in pairs(tradeItems) do
