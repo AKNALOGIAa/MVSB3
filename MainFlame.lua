@@ -131,76 +131,6 @@ sidebar.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
 sidebar.BorderSizePixel = 0
 sidebar.Parent = mainFrame
 
--- Создание раздела настроек
-local settingsFrame = content:FindFirstChild("Settings")
-local settingsPanel = Instance.new("Frame")
-settingsPanel.Size = UDim2.new(1, 0, 1, 0)
-settingsPanel.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-settingsPanel.BorderSizePixel = 0
-settingsPanel.Parent = settingsFrame
-
--- Переключатель автосброса таймера
-local autoUpdateSwitch = Instance.new("TextButton")
-autoUpdateSwitch.Size = UDim2.new(0.8, 0, 0, 50)
-autoUpdateSwitch.Position = UDim2.new(0.1, 0, 0, 50)
-autoUpdateSwitch.Text = "Auto Update: ON"
-autoUpdateSwitch.TextColor3 = Color3.fromRGB(255, 255, 255)
-autoUpdateSwitch.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-autoUpdateSwitch.BorderSizePixel = 0
-autoUpdateSwitch.Font = Enum.Font.SourceSansBold
-autoUpdateSwitch.TextSize = 18
-autoUpdateSwitch.Parent = settingsPanel
-
--- Поле для ввода времени
-local timeInput = Instance.new("TextBox")
-timeInput.Size = UDim2.new(0.8, 0, 0, 50)
-timeInput.Position = UDim2.new(0.1, 0, 0, 120)
-timeInput.Text = "15" -- Начальное значение
-timeInput.TextColor3 = Color3.fromRGB(255, 255, 255)
-timeInput.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-timeInput.BorderSizePixel = 0
-timeInput.Font = Enum.Font.SourceSans
-timeInput.TextSize = 18
-timeInput.Parent = settingsPanel
-
--- Кнопка для немедленного обновления данных
-local updateNowButton = Instance.new("TextButton")
-updateNowButton.Size = UDim2.new(0.8, 0, 0, 50)
-updateNowButton.Position = UDim2.new(0.1, 0, 0, 190)
-updateNowButton.Text = "Update Now"
-updateNowButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-updateNowButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-updateNowButton.BorderSizePixel = 0
-updateNowButton.Font = Enum.Font.SourceSansBold
-updateNowButton.TextSize = 18
-updateNowButton.Parent = settingsPanel
-
-local autoUpdateEnabled = true
-local updateInterval = tonumber(timeInput.Text) or 15
-
--- Переключение автосброса таймера
-autoUpdateSwitch.MouseButton1Click:Connect(function()
-    autoUpdateEnabled = not autoUpdateEnabled
-    autoUpdateSwitch.Text = autoUpdateEnabled and "Auto Update: ON" or "Auto Update: OFF"
-end)
-
--- Изменение интервала обновления
-timeInput.FocusLost:Connect(function(enterPressed)
-    if enterPressed then
-        local inputTime = tonumber(timeInput.Text)
-        if inputTime then
-            updateInterval = inputTime
-        end
-    end
-end)
-
--- Кнопка для немедленного обновления
-updateNowButton.MouseButton1Click:Connect(function()
-    updatePlayerProfiles()
-    updateTrades()
-end)
-
-
 -- Основная область
 local content = Instance.new("Frame")
 content.Name = "Content"
@@ -285,6 +215,42 @@ for index, category in ipairs(categories) do
     createSidebarButton(category.name, category.section, index)
     createSection(category.section)
 end
+-- Переключатель для включения/отключения автоматического обновления
+local autoUpdateSwitch = Instance.new("TextButton")
+autoUpdateSwitch.Size = UDim2.new(0.8, 0, 0, 40)
+autoUpdateSwitch.Position = UDim2.new(0.1, 0, 0.2, 0)
+autoUpdateSwitch.Text = "Auto Update: OFF"
+autoUpdateSwitch.TextColor3 = Color3.fromRGB(255, 255, 255)
+autoUpdateSwitch.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+autoUpdateSwitch.BorderSizePixel = 0
+autoUpdateSwitch.Font = Enum.Font.SourceSansBold
+autoUpdateSwitch.TextSize = 18
+autoUpdateSwitch.Parent = content:FindFirstChild("Settings")
+
+-- Поле ввода для времени обновления
+local timeInput = Instance.new("TextBox")
+timeInput.Size = UDim2.new(0.8, 0, 0, 40)
+timeInput.Position = UDim2.new(0.1, 0, 0.4, 0)
+timeInput.Text = "15"
+timeInput.TextColor3 = Color3.fromRGB(255, 255, 255)
+timeInput.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+timeInput.BorderSizePixel = 0
+timeInput.Font = Enum.Font.SourceSans
+timeInput.TextSize = 18
+timeInput.Parent = content:FindFirstChild("Settings")
+
+-- Кнопка для сброса таймера
+local resetButton = Instance.new("TextButton")
+resetButton.Size = UDim2.new(0.8, 0, 0, 40)
+resetButton.Position = UDim2.new(0.1, 0, 0.6, 0)
+resetButton.Text = "Reset Timer"
+resetButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+resetButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+resetButton.BorderSizePixel = 0
+resetButton.Font = Enum.Font.SourceSansBold
+resetButton.TextSize = 18
+resetButton.Parent = content:FindFirstChild("Settings")
+    
 
 -- Контейнер для списка профилей игроков
 local profileList = Instance.new("ScrollingFrame")
@@ -565,13 +531,32 @@ local function updateTrades()
     end
 end
 
--- Обновление данных с учетом настроек
-while true do
-    if autoUpdateEnabled then
-        updatePlayerProfiles()
-        updateTrades()
-        wait(updateInterval)
-    else
-        wait(1) -- Период ожидания, если автосброс отключен
+local autoUpdate = false
+local updateInterval = 15
+local updateTimer = tick()
+
+-- Переключатель для включения/отключения автоматического обновления
+autoUpdateSwitch.MouseButton1Click:Connect(function()
+    autoUpdate = not autoUpdate
+    autoUpdateSwitch.Text = autoUpdate and "Auto Update: ON" or "Auto Update: OFF"
+    if not autoUpdate then
+        updateTimer = tick()  -- Сбросить таймер, чтобы обновление не происходило
     end
-end
+end)
+
+-- Кнопка для сброса таймера
+resetButton.MouseButton1Click:Connect(function()
+    updateTimer = tick()
+end)
+
+-- Поле ввода для времени обновления
+timeInput.FocusLost:Connect(function(enterPressed)
+    if enterPressed then
+        local inputTime = tonumber(timeInput.Text)
+        if inputTime and inputTime > 0 then
+            updateInterval = inputTime
+        else
+            timeInput.Text = tostring(updateInterval)  -- Возвращаем предыдущее значение в случае ошибки
+        end
+    end
+end)
