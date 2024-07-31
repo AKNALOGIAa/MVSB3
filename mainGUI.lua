@@ -54,14 +54,14 @@ minimizeButton.MouseButton1Click:Connect(function()
     if isMinimized then
         mainFrame:TweenSize(UDim2.new(0.6, 0, 0.1, 0), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.5)
         for _, child in ipairs(mainFrame:GetChildren()) do
-            if child ~= header then
+            if child.Name ~= "Header" then
                 child.Visible = false
             end
         end
     else
         mainFrame:TweenSize(UDim2.new(0.6, 0, 0.8, 0), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.5)
         for _, child in ipairs(mainFrame:GetChildren()) do
-            if child ~= header then
+            if child.Name ~= "Header" then
                 child.Visible = true
             end
         end
@@ -96,19 +96,16 @@ local function createSidebarButton(text, sectionName)
     button.BorderSizePixel = 0
     button.Name = sectionName
     button.MouseButton1Click:Connect(function()
-        -- Анимация перехода
-        local previousContent = content:FindFirstChildWhichIsA("Frame")
-        if previousContent then
-            previousContent:TweenPosition(UDim2.new(-1, 0, previousContent.Position.Y.Scale, 0), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.25, true, function()
-                previousContent.Visible = false
-                previousContent.Position = UDim2.new(1, 0, 0, 0) -- Сброс позиции
-            end)
+        -- Скрытие всех разделов
+        for _, child in ipairs(content:GetChildren()) do
+            if child:IsA("Frame") then
+                child.Visible = false
+            end
         end
+        -- Отображение выбранного раздела
         local targetContent = content:FindFirstChild(sectionName)
         if targetContent then
-            targetContent.Position = UDim2.new(1, 0, 0, 0)
             targetContent.Visible = true
-            targetContent:TweenPosition(UDim2.new(0, 0, 0, 0), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.25, true)
         end
         -- Обновляем цвет кнопок
         for _, btn in ipairs(sidebar:GetChildren()) do
@@ -120,15 +117,11 @@ local function createSidebarButton(text, sectionName)
     end)
 end
 
--- Создание кнопок в боковом меню
-createSidebarButton("Settings", "Settings")
-
 -- Функция для создания раздела
-local function createSection(name)
+local function createSection(name, contentCreator)
     local frame = Instance.new("Frame", content)
     frame.Name = name
     frame.Size = UDim2.new(1, 0, 1, 0)
-    frame.Position = UDim2.new(1, 0, 0, 0)  -- Позиция для анимации
     frame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
     frame.Visible = false
     frame.BorderSizePixel = 0
@@ -143,28 +136,55 @@ local function createSection(name)
     titleLabel.TextXAlignment = Enum.TextXAlignment.Center
     titleLabel.TextYAlignment = Enum.TextYAlignment.Center
 
-    if name == "Settings" then
-        local transparencyLabel = Instance.new("TextLabel", frame)
-        transparencyLabel.Text = "Transparency"
-        transparencyLabel.Size = UDim2.new(0.5, 0, 0, 30)
-        transparencyLabel.Position = UDim2.new(0, 10, 0, 60)
-        transparencyLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-        transparencyLabel.BackgroundTransparency = 1
-        transparencyLabel.Font = Enum.Font.SourceSans
-        transparencyLabel.TextSize = 18
+    -- Создаем содержимое раздела через callback
+    contentCreator(frame)
+end
 
-        local transparencySlider = Instance.new("TextBox", frame)
-        transparencySlider.Size = UDim2.new(0.8, 0, 0, 30)
-        transparencySlider.Position = UDim2.new(0, 10, 0, 100)
-        transparencySlider.Text = "20"
-        transparencySlider.TextColor3 = Color3.fromRGB(255, 255, 255)
-        transparencySlider.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-        transparencySlider.BorderSizePixel = 0
-        transparencySlider.Font = Enum.Font.SourceSans
-        transparencySlider.TextSize = 18
-        transparencySlider.TextStrokeTransparency = 0.8
-        transparencySlider.TextWrapped = true
-        transparencySlider.FocusLost:Connect(function()
-            local value = tonumber(transparencySlider.Text)
-            if value then
-                mainFrame.BackgroundTransparency = math.clamp(value / 100, 0,
+-- Создание кнопок и разделов
+createSidebarButton("Settings", "Settings")
+createSidebarButton("Other", "Other")
+
+createSection("Settings", function(parent)
+    local transparencyLabel = Instance.new("TextLabel", parent)
+    transparencyLabel.Text = "Transparency"
+    transparencyLabel.Size = UDim2.new(0.5, 0, 0, 30)
+    transparencyLabel.Position = UDim2.new(0, 10, 0, 60)
+    transparencyLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    transparencyLabel.BackgroundTransparency = 1
+    transparencyLabel.Font = Enum.Font.SourceSans
+    transparencyLabel.TextSize = 18
+
+    local transparencySlider = Instance.new("TextBox", parent)
+    transparencySlider.Size = UDim2.new(0.8, 0, 0, 30)
+    transparencySlider.Position = UDim2.new(0, 10, 0, 100)
+    transparencySlider.Text = "20"
+    transparencySlider.TextColor3 = Color3.fromRGB(255, 255, 255)
+    transparencySlider.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+    transparencySlider.BorderSizePixel = 0
+    transparencySlider.Font = Enum.Font.SourceSans
+    transparencySlider.TextSize = 18
+    transparencySlider.TextStrokeTransparency = 0.8
+    transparencySlider.TextWrapped = true
+    transparencySlider.FocusLost:Connect(function()
+        local value = tonumber(transparencySlider.Text)
+        if value then
+            mainFrame.BackgroundTransparency = math.clamp(value / 100, 0, 1)
+        end
+    end)
+end)
+
+createSection("Other", function(parent)
+    local exampleLabel = Instance.new("TextLabel", parent)
+    exampleLabel.Text = "This is another section!"
+    exampleLabel.Size = UDim2.new(1, 0, 1, 0)
+    exampleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    exampleLabel.BackgroundTransparency = 1
+    exampleLabel.Font = Enum.Font.SourceSans
+    exampleLabel.TextSize = 18
+    exampleLabel.TextXAlignment = Enum.TextXAlignment.Center
+    exampleLabel.TextYAlignment = Enum.TextYAlignment.Center
+end)
+
+-- Отображение первого раздела по умолчанию
+content.Settings.Visible = true
+sidebar.Settings.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
