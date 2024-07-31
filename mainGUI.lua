@@ -141,8 +141,46 @@ local function createSection(name, contentCreator)
 end
 
 -- Создание кнопок и разделов
-createSidebarButton("Settings", "Settings")
-createSidebarButton("Other", "Other")
+createSidebarButton("Основные", "Main")
+createSidebarButton("Профиль Игроков", "PlayerProfile")
+createSidebarButton("Трейды", "Trades")
+createSidebarButton("Настройки", "Settings")
+
+createSection("Main", function(parent)
+    local exampleLabel = Instance.new("TextLabel", parent)
+    exampleLabel.Text = "Это раздел Основные!"
+    exampleLabel.Size = UDim2.new(1, 0, 1, 0)
+    exampleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    exampleLabel.BackgroundTransparency = 1
+    exampleLabel.Font = Enum.Font.SourceSans
+    exampleLabel.TextSize = 18
+    exampleLabel.TextXAlignment = Enum.TextXAlignment.Center
+    exampleLabel.TextYAlignment = Enum.TextYAlignment.Center
+end)
+
+createSection("PlayerProfile", function(parent)
+    local exampleLabel = Instance.new("TextLabel", parent)
+    exampleLabel.Text = "Это раздел Профиль Игроков!"
+    exampleLabel.Size = UDim2.new(1, 0, 1, 0)
+    exampleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    exampleLabel.BackgroundTransparency = 1
+    exampleLabel.Font = Enum.Font.SourceSans
+    exampleLabel.TextSize = 18
+    exampleLabel.TextXAlignment = Enum.TextXAlignment.Center
+    exampleLabel.TextYAlignment = Enum.TextYAlignment.Center
+end)
+
+createSection("Trades", function(parent)
+    local exampleLabel = Instance.new("TextLabel", parent)
+    exampleLabel.Text = "Это раздел Трейды!"
+    exampleLabel.Size = UDim2.new(1, 0, 1, 0)
+    exampleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    exampleLabel.BackgroundTransparency = 1
+    exampleLabel.Font = Enum.Font.SourceSans
+    exampleLabel.TextSize = 18
+    exampleLabel.TextXAlignment = Enum.TextXAlignment.Center
+    exampleLabel.TextYAlignment = Enum.TextYAlignment.Center
+end)
 
 createSection("Settings", function(parent)
     local transparencyLabel = Instance.new("TextLabel", parent)
@@ -159,8 +197,7 @@ createSection("Settings", function(parent)
     transparencySlider.Position = UDim2.new(0, 10, 0, 100)
     transparencySlider.Text = "20"
     transparencySlider.TextColor3 = Color3.fromRGB(255, 255, 255)
-    transparencySlider.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-    transparencySlider.BorderSizePixel = 0
+    transparencySlider.BackgroundTransparency = 0
     transparencySlider.Font = Enum.Font.SourceSans
     transparencySlider.TextSize = 18
     transparencySlider.TextStrokeTransparency = 0.8
@@ -173,18 +210,6 @@ createSection("Settings", function(parent)
     end)
 end)
 
-createSection("Other", function(parent)
-    local exampleLabel = Instance.new("TextLabel", parent)
-    exampleLabel.Text = "This is another section!"
-    exampleLabel.Size = UDim2.new(1, 0, 1, 0)
-    exampleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-    exampleLabel.BackgroundTransparency = 1
-    exampleLabel.Font = Enum.Font.SourceSans
-    exampleLabel.TextSize = 18
-    exampleLabel.TextXAlignment = Enum.TextXAlignment.Center
-    exampleLabel.TextYAlignment = Enum.TextYAlignment.Center
-end)
-
 -- Отображение первого раздела по умолчанию
-content.Settings.Visible = true
-sidebar.Settings.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+content.Main.Visible = true
+sidebar.Main.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
