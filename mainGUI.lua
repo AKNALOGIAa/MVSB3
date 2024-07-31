@@ -34,6 +34,37 @@ titleLabel.BackgroundTransparency = 1
 titleLabel.Font = Enum.Font.SourceSansBold
 titleLabel.TextSize = 24
 
+-- Кнопка свернуть/развернуть
+local minimizeButton = Instance.new("TextButton", header)
+minimizeButton.Size = UDim2.new(0.1, 0, 0.5, 0)
+minimizeButton.Position = UDim2.new(0.9, -10, 0.25, 0)
+minimizeButton.Text = "_"
+minimizeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+minimizeButton.BackgroundTransparency = 1
+minimizeButton.Font = Enum.Font.SourceSansBold
+minimizeButton.TextSize = 24
+
+local isMinimized = false
+
+minimizeButton.MouseButton1Click:Connect(function()
+    isMinimized = not isMinimized
+    if isMinimized then
+        mainFrame:TweenSize(UDim2.new(0.6, 0, 0.1, 0), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.5)
+        for _, child in ipairs(mainFrame:GetChildren()) do
+            if child ~= header then
+                child.Visible = false
+            end
+        end
+    else
+        mainFrame:TweenSize(UDim2.new(0.6, 0, 0.8, 0), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.5)
+        for _, child in ipairs(mainFrame:GetChildren()) do
+            if child ~= header then
+                child.Visible = true
+            end
+        end
+    end
+end)
+
 -- Боковое меню
 local sidebar = Instance.new("Frame", mainFrame)
 sidebar.Name = "Sidebar"
@@ -65,14 +96,16 @@ local function createSidebarButton(text, sectionName)
         -- Анимация перехода
         local previousContent = content:FindFirstChildWhichIsA("Frame")
         if previousContent then
-            previousContent:TweenPosition(UDim2.new(1, 0, previousContent.Position.Y.Scale, 0), Enum.EasingDirection.In, Enum.EasingStyle.Quad, 0.25, true, function()
+            previousContent:TweenPosition(UDim2.new(-1, 0, previousContent.Position.Y.Scale, 0), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.25, true, function()
                 previousContent.Visible = false
-                frame:TweenPosition(UDim2.new(0, 0, frame.Position.Y.Scale, 0), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.25, true)
+                previousContent.Position = UDim2.new(0, 0, 0, 0) -- Сброс позиции
             end)
         end
-        -- Отображаем нужный раздел и скрываем остальные
-        for _, child in ipairs(content:GetChildren()) do
-            child.Visible = (child.Name == sectionName)
+        local targetContent = content:FindFirstChild(sectionName)
+        if targetContent then
+            targetContent.Position = UDim2.new(1, 0, 0, 0)
+            targetContent.Visible = true
+            targetContent:TweenPosition(UDim2.new(0, 0, 0, 0), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.25, true)
         end
         -- Обновляем цвет кнопок
         for _, btn in ipairs(sidebar:GetChildren()) do
@@ -116,16 +149,21 @@ local function createSection(name)
         transparencyLabel.Font = Enum.Font.SourceSans
         transparencyLabel.TextSize = 18
 
-        local transparencySlider = Instance.new("Slider", frame)
+        local transparencySlider = Instance.new("TextBox", frame)
         transparencySlider.Size = UDim2.new(0.8, 0, 0, 30)
         transparencySlider.Position = UDim2.new(0, 10, 0, 100)
-        transparencySlider.BackgroundTransparency = 1
-        transparencySlider.MaxValue = 100
-        transparencySlider.MinValue = 0
-        transparencySlider.Value = 20
-        transparencySlider.Step = 1
-        transparencySlider.ValueChanged:Connect(function(value)
-            mainFrame.BackgroundTransparency = value / 100
+        transparencySlider.Text = "20"
+        transparencySlider.TextColor3 = Color3.fromRGB(255, 255, 255)
+        transparencySlider.BackgroundTransparency = 0
+        transparencySlider.Font = Enum.Font.SourceSans
+        transparencySlider.TextSize = 18
+        transparencySlider.TextStrokeTransparency = 0.8
+        transparencySlider.TextWrapped = true
+        transparencySlider.FocusLost:Connect(function()
+            local value = tonumber(transparencySlider.Text)
+            if value then
+                mainFrame.BackgroundTransparency = math.clamp(value / 100, 0, 1)
+            end
         end)
     end
 end
