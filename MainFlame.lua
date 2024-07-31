@@ -131,6 +131,76 @@ sidebar.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
 sidebar.BorderSizePixel = 0
 sidebar.Parent = mainFrame
 
+-- Создание раздела настроек
+local settingsFrame = content:FindFirstChild("Settings")
+local settingsPanel = Instance.new("Frame")
+settingsPanel.Size = UDim2.new(1, 0, 1, 0)
+settingsPanel.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+settingsPanel.BorderSizePixel = 0
+settingsPanel.Parent = settingsFrame
+
+-- Переключатель автосброса таймера
+local autoUpdateSwitch = Instance.new("TextButton")
+autoUpdateSwitch.Size = UDim2.new(0.8, 0, 0, 50)
+autoUpdateSwitch.Position = UDim2.new(0.1, 0, 0, 50)
+autoUpdateSwitch.Text = "Auto Update: ON"
+autoUpdateSwitch.TextColor3 = Color3.fromRGB(255, 255, 255)
+autoUpdateSwitch.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+autoUpdateSwitch.BorderSizePixel = 0
+autoUpdateSwitch.Font = Enum.Font.SourceSansBold
+autoUpdateSwitch.TextSize = 18
+autoUpdateSwitch.Parent = settingsPanel
+
+-- Поле для ввода времени
+local timeInput = Instance.new("TextBox")
+timeInput.Size = UDim2.new(0.8, 0, 0, 50)
+timeInput.Position = UDim2.new(0.1, 0, 0, 120)
+timeInput.Text = "15" -- Начальное значение
+timeInput.TextColor3 = Color3.fromRGB(255, 255, 255)
+timeInput.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+timeInput.BorderSizePixel = 0
+timeInput.Font = Enum.Font.SourceSans
+timeInput.TextSize = 18
+timeInput.Parent = settingsPanel
+
+-- Кнопка для немедленного обновления данных
+local updateNowButton = Instance.new("TextButton")
+updateNowButton.Size = UDim2.new(0.8, 0, 0, 50)
+updateNowButton.Position = UDim2.new(0.1, 0, 0, 190)
+updateNowButton.Text = "Update Now"
+updateNowButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+updateNowButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+updateNowButton.BorderSizePixel = 0
+updateNowButton.Font = Enum.Font.SourceSansBold
+updateNowButton.TextSize = 18
+updateNowButton.Parent = settingsPanel
+
+local autoUpdateEnabled = true
+local updateInterval = tonumber(timeInput.Text) or 15
+
+-- Переключение автосброса таймера
+autoUpdateSwitch.MouseButton1Click:Connect(function()
+    autoUpdateEnabled = not autoUpdateEnabled
+    autoUpdateSwitch.Text = autoUpdateEnabled and "Auto Update: ON" or "Auto Update: OFF"
+end)
+
+-- Изменение интервала обновления
+timeInput.FocusLost:Connect(function(enterPressed)
+    if enterPressed then
+        local inputTime = tonumber(timeInput.Text)
+        if inputTime then
+            updateInterval = inputTime
+        end
+    end
+end)
+
+-- Кнопка для немедленного обновления
+updateNowButton.MouseButton1Click:Connect(function()
+    updatePlayerProfiles()
+    updateTrades()
+end)
+
+
 -- Основная область
 local content = Instance.new("Frame")
 content.Name = "Content"
@@ -213,38 +283,8 @@ local categories = {
 
 for index, category in ipairs(categories) do
     createSidebarButton(category.name, category.section, index)
-end
--- Создание разделов
-for _, category in ipairs(categories) do
     createSection(category.section)
 end
-
--- Создание кнопок обновления
-local updatePlayerProfilesButton = Instance.new("TextButton")
-updatePlayerProfilesButton.Size = UDim2.new(0.5, 0, 0, buttonHeight)
-updatePlayerProfilesButton.Position = UDim2.new(0.25, 0, 0.1, 0)
-updatePlayerProfilesButton.Text = "Обновить профили"
-updatePlayerProfilesButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-updatePlayerProfilesButton.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
-updatePlayerProfilesButton.BorderSizePixel = 0
-updatePlayerProfilesButton.Font = Enum.Font.SourceSansBold
-updatePlayerProfilesButton.TextSize = 18
-updatePlayerProfilesButton.Parent = content:FindFirstChild("PlayerProfile")
-
-updatePlayerProfilesButton.MouseButton1Click:Connect(updatePlayerProfiles)
-
-local updateTradesButton = Instance.new("TextButton")
-updateTradesButton.Size = UDim2.new(0.5, 0, 0, buttonHeight)
-updateTradesButton.Position = UDim2.new(0.25, 0, 0.1, 0)
-updateTradesButton.Text = "Обновить трейды"
-updateTradesButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-updateTradesButton.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
-updateTradesButton.BorderSizePixel = 0
-updateTradesButton.Font = Enum.Font.SourceSansBold
-updateTradesButton.TextSize = 18
-updateTradesButton.Parent = content:FindFirstChild("Trades")
-
-updateTradesButton.MouseButton1Click:Connect(updateTrades)
 
 -- Контейнер для списка профилей игроков
 local profileList = Instance.new("ScrollingFrame")
@@ -525,9 +565,13 @@ local function updateTrades()
     end
 end
 
--- Обновление данных каждую секунду
+-- Обновление данных с учетом настроек
 while true do
-    updatePlayerProfiles()
-    updateTrades()
-    wait(60)
+    if autoUpdateEnabled then
+        updatePlayerProfiles()
+        updateTrades()
+        wait(updateInterval)
+    else
+        wait(1) -- Период ожидания, если автосброс отключен
+    end
 end
