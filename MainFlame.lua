@@ -213,8 +213,38 @@ local categories = {
 
 for index, category in ipairs(categories) do
     createSidebarButton(category.name, category.section, index)
+end
+-- Создание разделов
+for _, category in ipairs(categories) do
     createSection(category.section)
 end
+
+-- Создание кнопок обновления
+local updatePlayerProfilesButton = Instance.new("TextButton")
+updatePlayerProfilesButton.Size = UDim2.new(0.5, 0, 0, buttonHeight)
+updatePlayerProfilesButton.Position = UDim2.new(0.25, 0, 0.1, 0)
+updatePlayerProfilesButton.Text = "Обновить профили"
+updatePlayerProfilesButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+updatePlayerProfilesButton.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+updatePlayerProfilesButton.BorderSizePixel = 0
+updatePlayerProfilesButton.Font = Enum.Font.SourceSansBold
+updatePlayerProfilesButton.TextSize = 18
+updatePlayerProfilesButton.Parent = content:FindFirstChild("PlayerProfile")
+
+updatePlayerProfilesButton.MouseButton1Click:Connect(updatePlayerProfiles)
+
+local updateTradesButton = Instance.new("TextButton")
+updateTradesButton.Size = UDim2.new(0.5, 0, 0, buttonHeight)
+updateTradesButton.Position = UDim2.new(0.25, 0, 0.1, 0)
+updateTradesButton.Text = "Обновить трейды"
+updateTradesButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+updateTradesButton.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+updateTradesButton.BorderSizePixel = 0
+updateTradesButton.Font = Enum.Font.SourceSansBold
+updateTradesButton.TextSize = 18
+updateTradesButton.Parent = content:FindFirstChild("Trades")
+
+updateTradesButton.MouseButton1Click:Connect(updateTrades)
 
 -- Контейнер для списка профилей игроков
 local profileList = Instance.new("ScrollingFrame")
