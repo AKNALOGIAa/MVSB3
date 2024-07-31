@@ -27,7 +27,7 @@ header.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
 header.BorderSizePixel = 0
 
 local titleLabel = Instance.new("TextLabel", header)
-titleLabel.Text = "Script Hub v1.0"
+titleLabel.Text = "Script Hub v1.3"
 titleLabel.Size = UDim2.new(0.8, 0, 1, 0)
 titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 titleLabel.BackgroundTransparency = 1
@@ -157,5 +157,9 @@ for index, category in ipairs(categories) do
 end
 
 -- Отображение первого раздела по умолчанию
-content.Main.Visible = true
-sidebar.Main.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+if content:FindFirstChild("Main") then
+    content.Main.Visible = true
+end
+if sidebar:FindFirstChild("Main") then
+    sidebar.Main.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+end
