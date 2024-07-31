@@ -33,6 +33,8 @@ titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 titleLabel.BackgroundTransparency = 1
 titleLabel.Font = Enum.Font.SourceSansBold
 titleLabel.TextSize = 24
+titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+titleLabel.TextYAlignment = Enum.TextYAlignment.Center
 
 -- Кнопка свернуть/развернуть
 local minimizeButton = Instance.new("TextButton", header)
@@ -119,9 +121,6 @@ local function createSidebarButton(text, sectionName)
 end
 
 -- Создание кнопок в боковом меню
-createSidebarButton("Main", "Main")
-createSidebarButton("Player Profile", "PlayerProfile")
-createSidebarButton("Trades", "Trades")
 createSidebarButton("Settings", "Settings")
 
 -- Функция для создания раздела
@@ -141,6 +140,8 @@ local function createSection(name)
     titleLabel.BackgroundTransparency = 1
     titleLabel.Font = Enum.Font.SourceSansBold
     titleLabel.TextSize = 24
+    titleLabel.TextXAlignment = Enum.TextXAlignment.Center
+    titleLabel.TextYAlignment = Enum.TextYAlignment.Center
 
     if name == "Settings" then
         local transparencyLabel = Instance.new("TextLabel", frame)
@@ -166,19 +167,4 @@ local function createSection(name)
         transparencySlider.FocusLost:Connect(function()
             local value = tonumber(transparencySlider.Text)
             if value then
-                mainFrame.BackgroundTransparency = math.clamp(value / 100, 0, 1)
-            end
-        end)
-    end
-end
-
--- Создание всех разделов
-createSection("Main")
-createSection("PlayerProfile")
-createSection("Trades")
-createSection("Settings")
-
--- Отображение первого раздела по умолчанию
-content.Main.Visible = true
-content.Main.Position = UDim2.new(0, 0, 0, 0)
-sidebar.Main.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+                mainFrame.BackgroundTransparency = math.clamp(value / 100, 0,
