@@ -529,5 +529,5 @@ end
 while true do
     updatePlayerProfiles()
     updateTrades()
-    wait(15)
+    wait(60)
 end
