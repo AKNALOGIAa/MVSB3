@@ -208,260 +208,92 @@ local categories = {
     {name = "Основные", section = "Main"},
     {name = "Профиль Игроков", section = "PlayerProfile"},
     {name = "Трейды", section = "Trades"},
-    {name = "Настройки", section = "Settings"}
+    {name = "Настройки", section = "Settings"},
 }
 
-for index, category in ipairs(categories) do
-    createSidebarButton(category.name, category.section, index)
+for i, category in ipairs(categories) do
+    createSidebarButton(category.name, category.section, i - 1)
     createSection(category.section)
 end
 
--- Контейнер для списка профилей игроков
-local profileList = Instance.new("ScrollingFrame")
-profileList.Name = "ProfileList"
-profileList.Size = UDim2.new(1, 0, 1, -50)
-profileList.Position = UDim2.new(0, 0, 0, 50)
-profileList.CanvasSize = UDim2.new(0, 0, 0, 0)  -- CanvasSize обновляется динамически
-profileList.ScrollBarThickness = 8
-profileList.BackgroundTransparency = 1
-profileList.Parent = content:FindFirstChild("PlayerProfile")
+-- Отображение первого раздела по умолчанию
+content.Main.Visible = true
+sidebar.Main.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
 
--- Функция для создания профиля игрока
-local function createPlayerProfile(playerName, index)
-    local profile = replicatedStorage:WaitForChild("Profiles"):WaitForChild(playerName)
-    local vel = profile:WaitForChild("Vel").Value
-    local gems = profile:WaitForChild("Gems").Value
+-- Функции для работы с профилями игроков
+local function showPlayerProfile(playerName)
+    local playerProfileSection = content.PlayerProfile
+    playerProfileSection:ClearAllChildren()
 
-    local playerFrame = Instance.new("Frame")
-    playerFrame.Name = playerName
-    playerFrame.Size = UDim2.new(1, 0, 0, 50)
-    playerFrame.Position = UDim2.new(0, 0, 0, index * 55)
-    playerFrame.BackgroundColor3 = Color3.fromRGB(55, 55, 55)
-    playerFrame.BorderSizePixel = 0
-    playerFrame.Parent = profileList
+    local titleLabel = Instance.new("TextLabel")
+    titleLabel.Size = UDim2.new(1, 0, 0, 40)
+    titleLabel.Text = "Профиль игрока: " .. playerName
+    titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    titleLabel.BackgroundTransparency = 1
+    titleLabel.Font = Enum.Font.SourceSansBold
+    titleLabel.TextSize = 24
+    titleLabel.TextXAlignment = Enum.TextXAlignment.Center
+    titleLabel.TextYAlignment = Enum.TextYAlignment.Center
+    titleLabel.Parent = playerProfileSection
 
-    local playerNameLabel = Instance.new("TextLabel")
-    playerNameLabel.Text = playerName
-    playerNameLabel.Size = UDim2.new(0.4, 0, 1, 0)
-    playerNameLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-    playerNameLabel.BackgroundTransparency = 1
-    playerNameLabel.Font = Enum.Font.SourceSansBold
-    playerNameLabel.TextSize = 18
-    playerNameLabel.TextXAlignment = Enum.TextXAlignment.Left
-    playerNameLabel.TextYAlignment = Enum.TextYAlignment.Center
-    playerNameLabel.Parent = playerFrame
+    -- Место для информации о профиле (инвентарь и т.д.)
+end
 
-    local velLabel = Instance.new("TextLabel")
-    velLabel.Text = "Vel: " .. vel
-    velLabel.Size = UDim2.new(0.3, 0, 1, 0)
-    velLabel.Position = UDim2.new(0.4, 0, 0, 0)
-    velLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-    velLabel.BackgroundTransparency = 1
-    velLabel.Font = Enum.Font.SourceSans
-    velLabel.TextSize = 18
-    velLabel.TextXAlignment = Enum.TextXAlignment.Left
-    velLabel.TextYAlignment = Enum.TextYAlignment.Center
-    velLabel.Parent = playerFrame
+-- Функции для работы с трейдами
+local function showTrade(tradeId)
+    local tradesSection = content.Trades
+    tradesSection:ClearAllChildren()
 
-    local gemsLabel = Instance.new("TextLabel")
-    gemsLabel.Text = "Gems: " .. gems
-    gemsLabel.Size = UDim2.new(0.3, 0, 1, 0)
-    gemsLabel.Position = UDim2.new(0.7, 0, 0, 0)
-    gemsLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-    gemsLabel.BackgroundTransparency = 1
-    gemsLabel.Font = Enum.Font.SourceSans
-    gemsLabel.TextSize = 18
-    gemsLabel.TextXAlignment = Enum.TextXAlignment.Left
-    gemsLabel.TextYAlignment = Enum.TextYAlignment.Center
-    gemsLabel.Parent = playerFrame
+    local titleLabel = Instance.new("TextLabel")
+    titleLabel.Size = UDim2.new(1, 0, 0, 40)
+    titleLabel.Text = "Трейд: " .. tradeId
+    titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    titleLabel.BackgroundTransparency = 1
+    titleLabel.Font = Enum.Font.SourceSansBold
+    titleLabel.TextSize = 24
+    titleLabel.TextXAlignment = Enum.TextXAlignment.Center
+    titleLabel.TextYAlignment = Enum.TextYAlignment.Center
+    titleLabel.Parent = tradesSection
 
-    -- Кнопка для разворачивания подробной информации
-    local expandButton = Instance.new("TextButton")
-    expandButton.Size = UDim2.new(0.1, 0, 1, 0)
-    expandButton.Position = UDim2.new(0.9, 0, 0, 0)
-    expandButton.Text = "+"
-    expandButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-    expandButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-    expandButton.BorderSizePixel = 0
-    expandButton.Font = Enum.Font.SourceSansBold
-    expandButton.TextSize = 18
-    expandButton.Parent = playerFrame
+    -- Место для информации о трейде
+end
 
-    local expandedFrame = Instance.new("Frame")
-    expandedFrame.Size = UDim2.new(1, 0, 0, 200)
-    expandedFrame.Position = UDim2.new(0, 0, 1, 0)
-    expandedFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
-    expandedFrame.BorderSizePixel = 0
-    expandedFrame.Visible = false
-    expandedFrame.Parent = playerFrame
+-- Пример добавления игроков в раздел профилей
+local examplePlayers = {"Player1", "Player2", "Player3"}
 
-    local inventoryLabel = Instance.new("TextLabel")
-    inventoryLabel.Text = "Inventory:"
-    inventoryLabel.Size = UDim2.new(1, 0, 0, 30)
-    inventoryLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-    inventoryLabel.BackgroundTransparency = 1
-    inventoryLabel.Font = Enum.Font.SourceSansBold
-    inventoryLabel.TextSize = 18
-    inventoryLabel.TextXAlignment = Enum.TextXAlignment.Left
-    inventoryLabel.TextYAlignment = Enum.TextYAlignment.Top
-    inventoryLabel.Parent = expandedFrame
-
-    local inventoryList = Instance.new("TextLabel")
-    inventoryList.Text = ""
-    inventoryList.Size = UDim2.new(1, 0, 1, -30)
-    inventoryList.Position = UDim2.new(0, 0, 0, 30)
-    inventoryList.TextColor3 = Color3.fromRGB(255, 255, 255)
-    inventoryList.BackgroundTransparency = 1
-    inventoryList.Font = Enum.Font.SourceSans
-    inventoryList.TextSize = 16
-    inventoryList.TextXAlignment = Enum.TextXAlignment.Left
-    inventoryList.TextYAlignment = Enum.TextYAlignment.Top
-    inventoryList.TextWrapped = true
-    inventoryList.Parent = expandedFrame
-
-    expandButton.MouseButton1Click:Connect(function()
-        expandedFrame.Visible = not expandedFrame.Visible
-        expandButton.Text = expandedFrame.Visible and "-" or "+"
-        -- Сдвиг профилей вниз, если меню инвентаря раскрыто
-        if expandedFrame.Visible then
-            for _, frame in ipairs(profileList:GetChildren()) do
-                if frame:IsA("Frame") and frame ~= playerFrame then
-                    frame.Position = frame.Position + UDim2.new(0, 0, 0, 200)
-                end
-            end
-            profileList.CanvasSize = UDim2.new(0, 0, 0, profileList.CanvasSize.Y.Offset + 200)
-        else
-            for _, frame in ipairs(profileList:GetChildren()) do
-                if frame:IsA("Frame") and frame ~= playerFrame then
-                    frame.Position = frame.Position - UDim2.new(0, 0, 0, 200)
-                end
-            end
-            profileList.CanvasSize = UDim2.new(0, 0, 0, profileList.CanvasSize.Y.Offset - 200)
-        end
+for i, playerName in ipairs(examplePlayers) do
+    local playerButton = Instance.new("TextButton")
+    playerButton.Size = UDim2.new(1, 0, 0, buttonHeight)
+    playerButton.Position = UDim2.new(0, 0, 40 + (i - 1) * (buttonHeight + buttonSpacing), 0)
+    playerButton.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+    playerButton.Text = playerName
+    playerButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    playerButton.Font = Enum.Font.SourceSans
+    playerButton.TextSize = 18
+    playerButton.BorderSizePixel = 0
+    playerButton.Parent = content.PlayerProfile
+    
+    playerButton.MouseButton1Click:Connect(function()
+        showPlayerProfile(playerName)
     end)
-
-    -- Заполнение информации об инвентаре
-    local inventory = profile:WaitForChild("Inventory")
-    local items = {}
-    for _, item in pairs(inventory:GetChildren()) do
-        if items[item.Name] then
-            items[item.Name] = items[item.Name] + 1
-        else
-            items[item.Name] = 1
-        end
-    end
-
-    local inventoryText = ""
-    for itemName, itemCount in pairs(items) do
-        inventoryText = inventoryText .. itemName .. ": " .. itemCount .. "\n"
-    end
-    inventoryList.Text = inventoryText
 end
 
--- Отображение профилей игроков
-local function updatePlayerProfiles()
-    profileList:ClearAllChildren()
-    local players = game:GetService("Players"):GetPlayers()
-    profileList.CanvasSize = UDim2.new(0, 0, 0, #players * 55)  -- Обновляем CanvasSize для прокрутки
-    for i, player in ipairs(players) do
-        createPlayerProfile(player.Name, i - 1)
-    end
-end
+-- Пример добавления трейдов в раздел трейдов
+local exampleTrades = {"Trade1", "Trade2", "Trade3"}
 
--- Контейнер для списка трейдов
-local tradeList = Instance.new("ScrollingFrame")
-tradeList.Name = "TradeList"
-tradeList.Size = UDim2.new(1, 0, 1, -50)
-tradeList.Position = UDim2.new(0, 0, 0, 50)
-tradeList.CanvasSize = UDim2.new(0, 0, 0, 0)  -- CanvasSize обновляется динамически
-tradeList.ScrollBarThickness = 8
-tradeList.BackgroundTransparency = 1
-tradeList.Parent = content:FindFirstChild("Trades")
-
--- Функция для создания трейда
-local function createTrade(tradeName, index)
-    local trade = replicatedStorage:WaitForChild("Trades"):WaitForChild(tradeName)
-    local otherPlayer = trade:WaitForChild("OtherPlayer").Value
-    local vel = trade:WaitForChild("Vel").Value
-
-    local tradeFrame = Instance.new("Frame")
-    tradeFrame.Name = tradeName
-    tradeFrame.Size = UDim2.new(1, 0, 0, 100)
-    tradeFrame.Position = UDim2.new(0, 0, 0, index * 105)
-    tradeFrame.BackgroundColor3 = Color3.fromRGB(55, 55, 55)
-    tradeFrame.BorderSizePixel = 0
-    tradeFrame.Parent = tradeList
-
-    local tradeNameLabel = Instance.new("TextLabel")
-    tradeNameLabel.Text = tradeName
-    tradeNameLabel.Size = UDim2.new(0.4, 0, 0, 50)
-    tradeNameLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-    tradeNameLabel.BackgroundTransparency = 1
-    tradeNameLabel.Font = Enum.Font.SourceSansBold
-    tradeNameLabel.TextSize = 18
-    tradeNameLabel.TextXAlignment = Enum.TextXAlignment.Left
-    tradeNameLabel.TextYAlignment = Enum.TextYAlignment.Center
-    tradeNameLabel.Parent = tradeFrame
-
-    local velLabel = Instance.new("TextLabel")
-    velLabel.Text = "Vel: " .. vel
-    velLabel.Size = UDim2.new(0.3, 0, 0, 50)
-    velLabel.Position = UDim2.new(0.4, 0, 0, 0)
-    velLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-    velLabel.BackgroundTransparency = 1
-    velLabel.Font = Enum.Font.SourceSans
-    velLabel.TextSize = 18
-    velLabel.TextXAlignment = Enum.TextXAlignment.Left
-    velLabel.TextYAlignment = Enum.TextYAlignment.Center
-    velLabel.Parent = tradeFrame
-
-    local itemsList = Instance.new("TextLabel")
-    itemsList.Text = "Items:\n"
-    itemsList.Size = UDim2.new(1, 0, 1, -50)
-    itemsList.Position = UDim2.new(0, 0, 0, 50)
-    itemsList.TextColor3 = Color3.fromRGB(255, 255, 255)
-    itemsList.BackgroundTransparency = 1
-    itemsList.Font = Enum.Font.SourceSans
-    itemsList.TextSize = 16
-    itemsList.TextXAlignment = Enum.TextXAlignment.Left
-    itemsList.TextYAlignment = Enum.TextYAlignment.Top
-    itemsList.TextWrapped = true
-    itemsList.Parent = tradeFrame
-
-    local tradeItems = {}
-    for i = 1, 10 do
-        local item = trade:FindFirstChild("Item" .. i)
-        if item then
-            local itemName = item.Value  -- Accessing the item name stored in the Value property
-            local itemCount = item:FindFirstChild("Count") and item.Count.Value or 1
-            tradeItems[itemName] = itemCount
-        end
-    end
-
-    local itemsText = ""
-    for itemName, itemCount in pairs(tradeItems) do
-        itemsText = itemsText .. itemName .. ": " .. itemCount .. "\n"
-    end
-    itemsList.Text = itemsText
-end
-
-
--- Обновление списка трейдов
-local function updateTrades()
-    tradeList:ClearAllChildren()
-    local trades = replicatedStorage:WaitForChild("Trades"):GetChildren()
-    tradeList.CanvasSize = UDim2.new(0, 0, 0, #trades * 105)  -- Обновляем CanvasSize для прокрутки
-    for i, trade in ipairs(trades) do
-        if trade:IsA("Folder") then
-            local tradeName = trade.Name
-            createTrade(tradeName, i - 1)
-        end
-    end
-end
-
--- Обновление данных каждую секунду
-while true do
-    updatePlayerProfiles()
-    updateTrades()
-    wait(15)
+for i, tradeId in ipairs(exampleTrades) do
+    local tradeButton = Instance.new("TextButton")
+    tradeButton.Size = UDim2.new(1, 0, 0, buttonHeight)
+    tradeButton.Position = UDim2.new(0, 0, 40 + (i - 1) * (buttonHeight + buttonSpacing), 0)
+    tradeButton.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+    tradeButton.Text = tradeId
+    tradeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    tradeButton.Font = Enum.Font.SourceSans
+    tradeButton.TextSize = 18
+    tradeButton.BorderSizePixel = 0
+    tradeButton.Parent = content.Trades
+    
+    tradeButton.MouseButton1Click:Connect(function()
+        showTrade(tradeId)
+    end)
 end
