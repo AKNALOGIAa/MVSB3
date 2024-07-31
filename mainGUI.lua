@@ -275,7 +275,6 @@ local function createPlayerProfile(playerName, index)
     gemsLabel.TextYAlignment = Enum.TextYAlignment.Center
     gemsLabel.Parent = playerFrame
 
-    -- Кнопка для разворачивания подробной информации
     local expandButton = Instance.new("TextButton")
     expandButton.Size = UDim2.new(0.1, 0, 1, 0)
     expandButton.Position = UDim2.new(0.9, 0, 0, 0)
@@ -306,57 +305,95 @@ local function createPlayerProfile(playerName, index)
     inventoryLabel.TextYAlignment = Enum.TextYAlignment.Top
     inventoryLabel.Parent = expandedFrame
 
-    local inventoryList = Instance.new("TextLabel")
-    inventoryList.Text = ""
-    inventoryList.Size = UDim2.new(1, 0, 1, -30)
-    inventoryList.Position = UDim2.new(0, 0, 0, 30)
-    inventoryList.TextColor3 = Color3.fromRGB(255, 255, 255)
-    inventoryList.BackgroundTransparency = 1
-    inventoryList.Font = Enum.Font.SourceSans
-    inventoryList.TextSize = 16
-    inventoryList.TextXAlignment = Enum.TextXAlignment.Left
-    inventoryList.TextYAlignment = Enum.TextYAlignment.Top
-    inventoryList.TextWrapped = true
-    inventoryList.Parent = expandedFrame
+    -- Создаём ScrollingFrame для списка предметов
+    local inventoryScrollingFrame = Instance.new("ScrollingFrame")
+    inventoryScrollingFrame.Size = UDim2.new(1, 0, 1, -30)
+    inventoryScrollingFrame.Position = UDim2.new(0, 0, 0, 30)
+    inventoryScrollingFrame.BackgroundTransparency = 1
+    inventoryScrollingFrame.ScrollBarThickness = 8
+    inventoryScrollingFrame.Parent = expandedFrame
+
+    -- Добавляем рамку для отображения предметов
+    local itemsListFrame = Instance.new("Frame")
+    itemsListFrame.Size = UDim2.new(1, 0, 1, 0)
+    itemsListFrame.BackgroundTransparency = 1
+    itemsListFrame.Parent = inventoryScrollingFrame
+
+    -- Заполняем информацию об инвентаре
+ local inventory = profile:WaitForChild("Inventory")
+local items = {}
+
+for _, item in pairs(inventory:GetChildren()) do
+    local itemName = item.Name
+    local itemCount = 1  -- Значение по умолчанию
+
+    -- Проверяем наличие объекта "Count" в предметах
+    local countObject = item:FindFirstChild("Count")
+    if countObject then
+        itemCount = countObject.Value
+    end
+
+    -- Проверяем, если предмет уже существует в таблице, увеличиваем его количество
+    if items[itemName] then
+        items[itemName] = items[itemName] + itemCount
+    else
+        -- Если предмета ещё нет в таблице, добавляем его с указанным количеством
+        items[itemName] = itemCount
+    end
+end
+
+-- Преобразуем таблицу items в массив для упрощения работы с элементами
+local itemList = {}
+for name, count in pairs(items) do
+    table.insert(itemList, {name = name, count = count})
+end
+
+-- Сортируем предметы по имени для удобства
+table.sort(itemList, function(a, b) return a.name < b.name end)
+
+-- Обновляем отображение предметов в ScrollingFrame
+local yOffset = 0
+for _, item in ipairs(itemList) do
+    local itemLabel = Instance.new("TextLabel")
+    itemLabel.Text = item.name .. ": " .. item.count
+    itemLabel.Size = UDim2.new(1, -10, 0, 30)
+    itemLabel.Position = UDim2.new(0, 5, 0, yOffset)
+    itemLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    itemLabel.BackgroundTransparency = 1
+    itemLabel.Font = Enum.Font.SourceSans
+    itemLabel.TextSize = 16
+    itemLabel.TextXAlignment = Enum.TextXAlignment.Left
+    itemLabel.TextYAlignment = Enum.TextYAlignment.Top
+    itemLabel.Parent = itemsListFrame
+    yOffset = yOffset + 30
+end
+
+-- Обновляем размеры ScrollingFrame
+itemsListFrame.Size = UDim2.new(1, 0, 0, yOffset)
+inventoryScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, yOffset)
+
 
     expandButton.MouseButton1Click:Connect(function()
         expandedFrame.Visible = not expandedFrame.Visible
         expandButton.Text = expandedFrame.Visible and "-" or "+"
-        -- Сдвиг профилей вниз, если меню инвентаря раскрыто
         if expandedFrame.Visible then
             for _, frame in ipairs(profileList:GetChildren()) do
                 if frame:IsA("Frame") and frame ~= playerFrame then
-                    frame.Position = frame.Position + UDim2.new(0, 0, 0, 200)
+                    frame.Position = frame.Position + UDim2.new(0, 0, 0, expandedFrame.Size.Y.Offset)
                 end
             end
-            profileList.CanvasSize = UDim2.new(0, 0, 0, profileList.CanvasSize.Y.Offset + 200)
+            profileList.CanvasSize = UDim2.new(0, 0, 0, profileList.CanvasSize.Y.Offset + expandedFrame.Size.Y.Offset)
         else
             for _, frame in ipairs(profileList:GetChildren()) do
                 if frame:IsA("Frame") and frame ~= playerFrame then
-                    frame.Position = frame.Position - UDim2.new(0, 0, 0, 200)
+                    frame.Position = frame.Position - UDim2.new(0, 0, 0, expandedFrame.Size.Y.Offset)
                 end
             end
-            profileList.CanvasSize = UDim2.new(0, 0, 0, profileList.CanvasSize.Y.Offset - 200)
+            profileList.CanvasSize = UDim2.new(0, 0, 0, profileList.CanvasSize.Y.Offset - expandedFrame.Size.Y.Offset)
         end
     end)
-
-    -- Заполнение информации об инвентаре
-    local inventory = profile:WaitForChild("Inventory")
-    local items = {}
-    for _, item in pairs(inventory:GetChildren()) do
-        if items[item.Name] then
-            items[item.Name] = items[item.Name] + 1
-        else
-            items[item.Name] = 1
-        end
-    end
-
-    local inventoryText = ""
-    for itemName, itemCount in pairs(items) do
-        inventoryText = inventoryText .. itemName .. ": " .. itemCount .. "\n"
-    end
-    inventoryList.Text = inventoryText
 end
+
 
 -- Отображение профилей игроков
 local function updatePlayerProfiles()
@@ -432,7 +469,7 @@ local function createTrade(tradeName, index)
     for i = 1, 10 do
         local item = trade:FindFirstChild("Item" .. i)
         if item then
-            local itemName = item.Name
+            local itemName = item.Value
             local itemCount = item:FindFirstChild("Count") and item.Count.Value or 1
             tradeItems[itemName] = itemCount
         end
@@ -464,4 +501,3 @@ while true do
     updateTrades()
     wait(15)
 end
-
