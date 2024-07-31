@@ -370,7 +370,6 @@ local function createPlayerProfile(playerName, index)
     inventoryScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, inventoryList.TextBounds.Y)
 end
 
-
 -- Отображение профилей игроков
 local function updatePlayerProfiles()
     profileList:ClearAllChildren()
