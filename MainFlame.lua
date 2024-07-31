@@ -27,7 +27,7 @@ header.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
 header.BorderSizePixel = 0
 
 local titleLabel = Instance.new("TextLabel", header)
-titleLabel.Text = "Script Hub v1.2"
+titleLabel.Text = "Script Hub v1.0"
 titleLabel.Size = UDim2.new(0.8, 0, 1, 0)
 titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 titleLabel.BackgroundTransparency = 1
@@ -92,7 +92,7 @@ local buttonSpacing = 10
 local function createSidebarButton(text, sectionName, index)
     local button = Instance.new("TextButton", sidebar)
     button.Size = UDim2.new(1, 0, 0, buttonHeight)
-    button.Position = UDim2.new(0, 0, index * (buttonHeight + buttonSpacing) / sidebar.Size.Y.Offset, 0)  -- Позиция кнопки с учетом отступа
+    button.Position = UDim2.new(0, 0, index * (buttonHeight + buttonSpacing) / sidebar.Size.Y.Offset, 0)
     button.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
     button.Text = text
     button.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -127,7 +127,7 @@ local function createSection(name)
     local frame = Instance.new("Frame", content)
     frame.Name = name
     frame.Size = UDim2.new(1, 0, 1, 0)
-    frame.Position = UDim2.new(0, 0, 0, 0)  -- Установим позицию в (0, 0) для всех разделов
+    frame.Position = UDim2.new(0, 0, 0, 0)
     frame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
     frame.Visible = false
     frame.BorderSizePixel = 0
