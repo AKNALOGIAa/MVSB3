@@ -85,9 +85,10 @@ content.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 content.BorderSizePixel = 0
 
 -- Функция для создания кнопок в боковом меню
-local function createSidebarButton(text, sectionName)
+local function createSidebarButton(text, sectionName, index)
     local button = Instance.new("TextButton", sidebar)
     button.Size = UDim2.new(1, 0, 0, 40)
+    button.Position = UDim2.new(0, 0, index * 0.05, 0)  -- Позиция кнопки в зависимости от индекса
     button.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
     button.Text = text
     button.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -137,7 +138,7 @@ local function createSection(name)
     titleLabel.TextYAlignment = Enum.TextYAlignment.Center
 
     -- Создаем содержимое раздела в зависимости от имени
-    if name == "Settings" then
+    if name == "Настройки" then
         local transparencyLabel = Instance.new("TextLabel", frame)
         transparencyLabel.Text = "Transparency"
         transparencyLabel.Size = UDim2.new(0.5, 0, 0, 30)
@@ -167,15 +168,17 @@ local function createSection(name)
 end
 
 -- Создание кнопок и разделов
-createSidebarButton("Основные", "Main")
-createSidebarButton("Профиль Игроков", "PlayerProfile")
-createSidebarButton("Трейды", "Trades")
-createSidebarButton("Настройки", "Settings")
+local categories = {
+    {name = "Основные", section = "Main"},
+    {name = "Профиль Игроков", section = "PlayerProfile"},
+    {name = "Трейды", section = "Trades"},
+    {name = "Настройки", section = "Settings"}
+}
 
-createSection("Main")
-createSection("PlayerProfile")
-createSection("Trades")
-createSection("Settings")
+for index, category in ipairs(categories) do
+    createSidebarButton(category.name, category.section, index - 1)
+    createSection(category.section)
+end
 
 -- Отображение первого раздела по умолчанию
 content.Main.Visible = true
