@@ -28,7 +28,7 @@ header.BorderSizePixel = 0
 
 local titleLabel = Instance.new("TextLabel", header)
 titleLabel.Text = "Script Hub"
-titleLabel.Size = UDim2.new(1, 0, 1, 0)
+titleLabel.Size = UDim2.new(0.8, 0, 1, 0)
 titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 titleLabel.BackgroundTransparency = 1
 titleLabel.Font = Enum.Font.SourceSansBold
@@ -40,7 +40,8 @@ minimizeButton.Size = UDim2.new(0.1, 0, 0.5, 0)
 minimizeButton.Position = UDim2.new(0.9, -10, 0.25, 0)
 minimizeButton.Text = "_"
 minimizeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-minimizeButton.BackgroundTransparency = 1
+minimizeButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+minimizeButton.BorderSizePixel = 0
 minimizeButton.Font = Enum.Font.SourceSansBold
 minimizeButton.TextSize = 24
 
@@ -98,7 +99,7 @@ local function createSidebarButton(text, sectionName)
         if previousContent then
             previousContent:TweenPosition(UDim2.new(-1, 0, previousContent.Position.Y.Scale, 0), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.25, true, function()
                 previousContent.Visible = false
-                previousContent.Position = UDim2.new(0, 0, 0, 0) -- Сброс позиции
+                previousContent.Position = UDim2.new(1, 0, 0, 0) -- Сброс позиции
             end)
         end
         local targetContent = content:FindFirstChild(sectionName)
@@ -109,7 +110,9 @@ local function createSidebarButton(text, sectionName)
         end
         -- Обновляем цвет кнопок
         for _, btn in ipairs(sidebar:GetChildren()) do
-            btn.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+            if btn:IsA("TextButton") then
+                btn.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+            end
         end
         button.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
     end)
@@ -154,7 +157,8 @@ local function createSection(name)
         transparencySlider.Position = UDim2.new(0, 10, 0, 100)
         transparencySlider.Text = "20"
         transparencySlider.TextColor3 = Color3.fromRGB(255, 255, 255)
-        transparencySlider.BackgroundTransparency = 0
+        transparencySlider.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+        transparencySlider.BorderSizePixel = 0
         transparencySlider.Font = Enum.Font.SourceSans
         transparencySlider.TextSize = 18
         transparencySlider.TextStrokeTransparency = 0.8
