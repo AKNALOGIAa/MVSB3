@@ -1,6 +1,7 @@
 local player = game:GetService("Players").LocalPlayer
 local playerGui = player:FindFirstChildOfClass("PlayerGui")
 local tweenService = game:GetService("TweenService")
+local userInputService = game:GetService("UserInputService")
 
 -- Удаление старого GUI, если существует
 if playerGui:FindFirstChild("CustomUI") then
@@ -25,27 +26,30 @@ content.Size = UDim2.new(0.8, 0, 1, 0)
 content.Position = UDim2.new(0.2, 0, 0, 0)
 content.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
 
--- Сворачивание/разворачивание окна
-local isCollapsed = false
-local toggleButton = Instance.new("TextButton", sidebar)
-toggleButton.Text = ">"
-toggleButton.Size = UDim2.new(0, 30, 0, 30)
-toggleButton.Position = UDim2.new(1, -30, 0, 0)
-toggleButton.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-toggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+-- Кнопка сворачивания окна
+local collapseButton = Instance.new("TextButton", sidebar)
+collapseButton.Size = UDim2.new(0, 30, 0, 30)
+collapseButton.Position = UDim2.new(1, -30, 0, 0)
+collapseButton.Text = "⏷"
+collapseButton.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+collapseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+collapseButton.TextSize = 24
 
-toggleButton.MouseButton1Click:Connect(function()
+local isCollapsed = false
+
+collapseButton.MouseButton1Click:Connect(function()
     isCollapsed = not isCollapsed
     if isCollapsed then
-        toggleButton.Text = "<"
-        tweenService:Create(sidebar, TweenInfo.new(0.5), {Size = UDim2.new(0.05, 0, 1, 0)}):Play()
-        tweenService:Create(content, TweenInfo.new(0.5), {Position = UDim2.new(0.05, 0, 0, 0), Size = UDim2.new(0.95, 0, 1, 0)}):Play()
+        collapseButton.Text = "⏶"
+        tweenService:Create(screenGui, TweenInfo.new(0.5), {Size = UDim2.new(0.2, 0, 0.05, 0)}):Play()
     else
-        toggleButton.Text = ">"
-        tweenService:Create(sidebar, TweenInfo.new(0.5), {Size = UDim2.new(0.2, 0, 1, 0)}):Play()
-        tweenService:Create(content, TweenInfo.new(0.5), {Position = UDim2.new(0.2, 0, 0, 0), Size = UDim2.new(0.8, 0, 1, 0)}):Play()
+        collapseButton.Text = "⏷"
+        tweenService:Create(screenGui, TweenInfo.new(0.5), {Size = UDim2.new(1, 0, 1, 0)}):Play()
     end
 end)
+
+-- Текущая выбранная категория
+local currentCategory
 
 -- Создание функции для создания кнопок в боковом меню
 local function createSidebarButton(text, position, sectionName)
@@ -56,19 +60,39 @@ local function createSidebarButton(text, position, sectionName)
     button.Text = text
     button.TextColor3 = Color3.fromRGB(255, 255, 255)
     button.Name = sectionName
-    button.MouseButton1Click:Connect(function()
+
+    local function setCategory()
+        if currentCategory then
+            currentCategory.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+        end
+        currentCategory = button
+        button.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+
         -- Анимация перехода
         for _, child in ipairs(content:GetChildren()) do
             if child.Name == sectionName then
-                tweenService:Create(child, TweenInfo.new(0.5), {Position = UDim2.new(0, 0, 0, 0), Transparency = 0}):Play()
+                local startPos = child.Position
+                local endPos = UDim2.new(0, 0, 0, 0)
+                if child.Visible then
+                    endPos = startPos
+                elseif currentCategory.Position.Y.Scale > button.Position.Y.Scale then
+                    startPos = UDim2.new(0, 0, -1, 0)
+                else
+                    startPos = UDim2.new(0, 0, 1, 0)
+                end
+
+                child.Position = startPos
+                tweenService:Create(child, TweenInfo.new(0.5), {Position = endPos, Transparency = 0}):Play()
                 child.Visible = true
             else
-                tweenService:Create(child, TweenInfo.new(0.5), {Position = UDim2.new(1, 0, 0, 0), Transparency = 1}):Play()
-                wait(0.5) -- Дождаться завершения анимации
+                tweenService:Create(child, TweenInfo.new(0.5), {Transparency = 1}):Play()
                 child.Visible = false
             end
         end
-    end)
+    end
+
+    button.MouseButton1Click:Connect(setCategory)
+    if position == 0 then setCategory() end -- Выбрать первую категорию по умолчанию
 end
 
 -- Создание кнопок в боковом меню
@@ -118,19 +142,19 @@ local function createSection(name)
             local mouseMoveConnection
             local mouseUpConnection
 
-            mouseMoveConnection = game:GetService("UserInputService").InputChanged:Connect(function(input)
+            mouseMoveConnection = userInputService.InputChanged:Connect(function(input)
                 if input.UserInputType == Enum.UserInputType.MouseMovement then
                     local newPos = math.clamp(input.Position.X - transparencySlider.AbsolutePosition.X, 0, transparencySlider.AbsoluteSize.X)
-                    transparencySlider.Position = UDim2.new(0, newPos, 0, 120)
                     local transparency = newPos / transparencySlider.AbsoluteSize.X
                     frame.BackgroundTransparency = transparency
                     sidebar.BackgroundTransparency = transparency
-                    toggleButton.BackgroundTransparency = transparency
+                    collapseButton.BackgroundTransparency = transparency
                     transparencyLabel.BackgroundTransparency = transparency
+                    transparencySlider.Position = UDim2.new(0, newPos, 0, 120)
                 end
             end)
 
-            mouseUpConnection = game:GetService("UserInputService").InputEnded:Connect(function(input)
+            mouseUpConnection = userInputService.InputEnded:Connect(function(input)
                 if input.UserInputType == Enum.UserInputType.MouseButton1 then
                     mouseMoveConnection:Disconnect()
                     mouseUpConnection:Disconnect()
@@ -169,7 +193,3 @@ createSection("Main")
 createSection("PlayerProfile")
 createSection("Trades")
 createSection("Settings")
-
--- Отображение первого раздела по умолчанию
-content.Main.Visible = true
-tweenService:Create(content.Main, TweenInfo.new(0.5), {Position = UDim2.new(0, 0, 0, 0), Transparency = 0}):Play()
