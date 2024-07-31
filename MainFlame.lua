@@ -88,7 +88,7 @@ content.BorderSizePixel = 0
 local function createSidebarButton(text, sectionName, index)
     local button = Instance.new("TextButton", sidebar)
     button.Size = UDim2.new(1, 0, 0, 40)
-    button.Position = UDim2.new(0, 0, index * 0.05, 0)  -- Позиция кнопки в зависимости от индекса
+    button.Position = UDim2.new(0, 0, index * 0.1, 0)  -- Позиция кнопки в зависимости от индекса и отступа
     button.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
     button.Text = text
     button.TextColor3 = Color3.fromRGB(255, 255, 255)
