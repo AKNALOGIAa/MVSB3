@@ -1,7 +1,8 @@
+-- Убедитесь, что этот код запускается в Roblox Executor.
+
 local player = game:GetService("Players").LocalPlayer
 local playerGui = player:FindFirstChildOfClass("PlayerGui")
 local replicatedStorage = game:GetService("ReplicatedStorage")
-local userInputService = game:GetService("UserInputService")
 
 -- Удаление старого GUI, если существует
 if playerGui:FindFirstChild("CustomUI") then
@@ -116,7 +117,7 @@ mainFrame.InputChanged:Connect(function(input)
     end
 end)
 
-userInputService.InputChanged:Connect(function(input)
+game:GetService("UserInputService").InputChanged:Connect(function(input)
     if input == dragInput and dragging then
         update(input)
     end
@@ -208,7 +209,7 @@ local categories = {
     {name = "Основные", section = "Main"},
     {name = "Профиль Игроков", section = "PlayerProfile"},
     {name = "Трейды", section = "Trades"},
-       {name = "Настройки", section = "Settings"}
+    {name = "Настройки", section = "Settings"}
 }
 
 for index, category in ipairs(categories) do
@@ -226,7 +227,7 @@ profileList.ScrollBarThickness = 8
 profileList.BackgroundTransparency = 1
 profileList.Parent = content:FindFirstChild("PlayerProfile")
 
--- Функция для создания профиля игрока
+-- Шаблон для профилей игроков
 local function createPlayerProfile(playerName, index)
     local profile = replicatedStorage:WaitForChild("Profiles"):WaitForChild(playerName)
     local vel = profile:WaitForChild("Vel").Value
@@ -322,22 +323,6 @@ local function createPlayerProfile(playerName, index)
     expandButton.MouseButton1Click:Connect(function()
         expandedFrame.Visible = not expandedFrame.Visible
         expandButton.Text = expandedFrame.Visible and "-" or "+"
-        -- Сдвиг профилей вниз, если меню инвентаря раскрыто
-        if expandedFrame.Visible then
-            for _, frame in ipairs(profileList:GetChildren()) do
-                if frame:IsA("Frame") and frame ~= playerFrame then
-                    frame.Position = frame.Position + UDim2.new(0, 0, 0, 200)
-                end
-            end
-            profileList.CanvasSize = UDim2.new(0, 0, 0, profileList.CanvasSize.Y.Offset + 200)
-        else
-            for _, frame in ipairs(profileList:GetChildren()) do
-                if frame:IsA("Frame") and frame ~= playerFrame then
-                    frame.Position = frame.Position - UDim2.new(0, 0, 0, 200)
-                end
-            end
-            profileList.CanvasSize = UDim2.new(0, 0, 0, profileList.CanvasSize.Y.Offset - 200)
-        end
     end)
 
     -- Заполнение информации об инвентаре
@@ -368,100 +353,12 @@ local function updatePlayerProfiles()
     end
 end
 
--- Контейнер для списка трейдов
-local tradeList = Instance.new("ScrollingFrame")
-tradeList.Name = "TradeList"
-tradeList.Size = UDim2.new(1, 0, 1, -50)
-tradeList.Position = UDim2.new(0, 0, 0, 50)
-tradeList.CanvasSize = UDim2.new(0, 0, 0, 0)  -- CanvasSize обновляется динамически
-tradeList.ScrollBarThickness = 8
-tradeList.BackgroundTransparency = 1
-tradeList.Parent = content:FindFirstChild("Trades")
+updatePlayerProfiles()
 
--- Функция для создания трейда
-local function createTrade(tradeName, index)
-    local trade = replicatedStorage:WaitForChild("Trades"):WaitForChild(tradeName)
-    local otherPlayer = trade:WaitForChild("OtherPlayer").Value
-    local vel = trade:WaitForChild("Vel").Value
-
-    local tradeFrame = Instance.new("Frame")
-    tradeFrame.Name = tradeName
-    tradeFrame.Size = UDim2.new(1, 0, 0, 100)
-    tradeFrame.Position = UDim2.new(0, 0, 0, index * 105)
-    tradeFrame.BackgroundColor3 = Color3.fromRGB(55, 55, 55)
-    tradeFrame.BorderSizePixel = 0
-    tradeFrame.Parent = tradeList
-
-    local tradeNameLabel = Instance.new("TextLabel")
-    tradeNameLabel.Text = tradeName
-    tradeNameLabel.Size = UDim2.new(0.4, 0, 0, 50)
-    tradeNameLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-    tradeNameLabel.BackgroundTransparency = 1
-    tradeNameLabel.Font = Enum.Font.SourceSansBold
-    tradeNameLabel.TextSize = 18
-    tradeNameLabel.TextXAlignment = Enum.TextXAlignment.Left
-    tradeNameLabel.TextYAlignment = Enum.TextYAlignment.Center
-    tradeNameLabel.Parent = tradeFrame
-
-    local velLabel = Instance.new("TextLabel")
-    velLabel.Text = "Vel: " .. vel
-    velLabel.Size = UDim2.new(0.3, 0, 0, 50)
-    velLabel.Position = UDim2.new(0.4, 0, 0, 0)
-    velLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-    velLabel.BackgroundTransparency = 1
-    velLabel.Font = Enum.Font.SourceSans
-    velLabel.TextSize = 18
-    velLabel.TextXAlignment = Enum.TextXAlignment.Left
-    velLabel.TextYAlignment = Enum.TextYAlignment.Center
-    velLabel.Parent = tradeFrame
-
-    local itemsList = Instance.new("TextLabel")
-    itemsList.Text = "Items:\n"
-    itemsList.Size = UDim2.new(1, 0, 1, -50)
-    itemsList.Position = UDim2.new(0, 0, 0, 50)
-    itemsList.TextColor3 = Color3.fromRGB(255, 255, 255)
-    itemsList.BackgroundTransparency = 1
-    itemsList.Font = Enum.Font.SourceSans
-    itemsList.TextSize = 16
-    itemsList.TextXAlignment = Enum.TextXAlignment.Left
-    itemsList.TextYAlignment = Enum.TextYAlignment.Top
-    itemsList.TextWrapped = true
-    itemsList.Parent = tradeFrame
-
-    local tradeItems = {}
-    for i = 1, 10 do
-        local item = trade:FindFirstChild("Item" .. i)
-        if item then
-            local itemName = item.Value
-            local itemCount = item:FindFirstChild("Count") and item.Count.Value or 1
-            tradeItems[itemName] = itemCount
-        end
-    end
-
-    local itemsText = ""
-    for itemName, itemCount in pairs(tradeItems) do
-        itemsText = itemsText .. itemName .. ": " .. itemCount .. "\n"
-    end
-    itemsList.Text = itemsText
+-- Отображение первого раздела по умолчанию
+if content:FindFirstChild("Main") then
+    content.Main.Visible = true
 end
-
--- Обновление списка трейдов
-local function updateTrades()
-    tradeList:ClearAllChildren()
-    local trades = replicatedStorage:WaitForChild("Trades"):GetChildren()
-    tradeList.CanvasSize = UDim2.new(0, 0, 0, #trades * 105)  -- Обновляем CanvasSize для прокрутки
-    for i, trade in ipairs(trades) do
-        if trade:IsA("Folder") then
-            local tradeName = trade.Name
-            createTrade(tradeName, i - 1)
-        end
-    end
+if sidebar:FindFirstChild("Main") then
+    sidebar.Main.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
 end
-
--- Обновление данных каждую секунду
-while true do
-    updatePlayerProfiles()
-    updateTrades()
-    wait(15)
-end
-
