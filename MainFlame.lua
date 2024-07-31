@@ -434,13 +434,16 @@ for i = 1, 10 do
     if item then
         local itemName = item.Value  -- Получаем значение предмета
         local itemCount = item:FindFirstChild("Count") and item.Count.Value or 1
-        tradeItems["Item" .. i] = itemCount  -- Сохраняем количество предмета в таблицу
+        tradeItems[#tradeItems + 1] = {name = itemName, count = itemCount}  -- Сохраняем пары "имя-количество" в таблицу
     end
 end
 
+-- Функция для сортировки по имени предмета
+table.sort(tradeItems, function(a, b) return a.name < b.name end)
+
 local itemsText = ""
-for itemName, itemCount in pairs(tradeItems) do
-    itemsText = itemsText .. itemName .. ": " .. tostring(itemCount) .. "\n"
+for _, item in ipairs(tradeItems) do
+    itemsText = itemsText .. item.name .. ": " .. tostring(item.count) .. "\n"
 end
 itemsList.Text = itemsText
 end
