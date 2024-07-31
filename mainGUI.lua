@@ -1,7 +1,5 @@
 local player = game:GetService("Players").LocalPlayer
 local playerGui = player:FindFirstChildOfClass("PlayerGui")
-local tweenService = game:GetService("TweenService")
-local userInputService = game:GetService("UserInputService")
 
 -- Удаление старого GUI, если существует
 if playerGui:FindFirstChild("CustomUI") then
@@ -12,179 +10,125 @@ end
 local screenGui = Instance.new("ScreenGui", playerGui)
 screenGui.Name = "CustomUI"
 
+-- Окно GUI
+local mainFrame = Instance.new("Frame", screenGui)
+mainFrame.Name = "MainFrame"
+mainFrame.Size = UDim2.new(0.5, 0, 0.7, 0)
+mainFrame.Position = UDim2.new(0.25, 0, 0.15, 0)
+mainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+mainFrame.BackgroundTransparency = 0.1
+mainFrame.BorderSizePixel = 0
+
+-- Заголовок окна
+local header = Instance.new("Frame", mainFrame)
+header.Name = "Header"
+header.Size = UDim2.new(1, 0, 0.1, 0)
+header.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+header.BorderSizePixel = 0
+
+local titleLabel = Instance.new("TextLabel", header)
+titleLabel.Text = "Custom Script Hub"
+titleLabel.Size = UDim2.new(1, 0, 1, 0)
+titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+titleLabel.BackgroundTransparency = 1
+titleLabel.Font = Enum.Font.SourceSansBold
+titleLabel.TextSize = 24
+
+-- Кнопка сворачивания
+local minimizeButton = Instance.new("TextButton", header)
+minimizeButton.Text = "-"
+minimizeButton.Size = UDim2.new(0, 40, 0, 40)
+minimizeButton.Position = UDim2.new(1, -40, 0, 0)
+minimizeButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+minimizeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+minimizeButton.BorderSizePixel = 0
+minimizeButton.MouseButton1Click:Connect(function()
+    mainFrame.Visible = not mainFrame.Visible
+end)
+
 -- Боковое меню
-local sidebar = Instance.new("Frame", screenGui)
+local sidebar = Instance.new("Frame", mainFrame)
 sidebar.Name = "Sidebar"
 sidebar.Size = UDim2.new(0.2, 0, 1, 0)
 sidebar.Position = UDim2.new(0, 0, 0, 0)
-sidebar.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+sidebar.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+sidebar.BorderSizePixel = 0
 
 -- Основная область
-local content = Instance.new("Frame", screenGui)
+local content = Instance.new("Frame", mainFrame)
 content.Name = "Content"
-content.Size = UDim2.new(0.8, 0, 1, 0)
-content.Position = UDim2.new(0.2, 0, 0, 0)
-content.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-
--- Кнопка сворачивания окна
-local collapseButton = Instance.new("TextButton", sidebar)
-collapseButton.Size = UDim2.new(0, 30, 0, 30)
-collapseButton.Position = UDim2.new(1, -30, 0, 0)
-collapseButton.Text = "⏷"
-collapseButton.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-collapseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-collapseButton.TextSize = 24
-
-local isCollapsed = false
-
-collapseButton.MouseButton1Click:Connect(function()
-    isCollapsed = not isCollapsed
-    if isCollapsed then
-        collapseButton.Text = "⏶"
-        tweenService:Create(screenGui, TweenInfo.new(0.5), {Size = UDim2.new(0.2, 0, 0.05, 0)}):Play()
-    else
-        collapseButton.Text = "⏷"
-        tweenService:Create(screenGui, TweenInfo.new(0.5), {Size = UDim2.new(1, 0, 1, 0)}):Play()
-    end
-end)
-
--- Текущая выбранная категория
-local currentCategory
+content.Size = UDim2.new(0.8, 0, 0.9, 0)
+content.Position = UDim2.new(0.2, 0, 0.1, 0)
+content.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+content.BorderSizePixel = 0
 
 -- Создание функции для создания кнопок в боковом меню
-local function createSidebarButton(text, position, sectionName)
+local function createSidebarButton(text, sectionName)
     local button = Instance.new("TextButton", sidebar)
     button.Size = UDim2.new(1, 0, 0, 50)
-    button.Position = UDim2.new(0, 0, position, 0)
-    button.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    button.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
     button.Text = text
     button.TextColor3 = Color3.fromRGB(255, 255, 255)
+    button.Font = Enum.Font.SourceSansBold
+    button.TextSize = 18
     button.Name = sectionName
-
-    local function setCategory()
-        if currentCategory then
-            currentCategory.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-        end
-        currentCategory = button
-        button.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
-
-        -- Анимация перехода
+    button.MouseButton1Click:Connect(function()
+        -- Отображаем нужный раздел и скрываем остальные
         for _, child in ipairs(content:GetChildren()) do
-            if child.Name == sectionName then
-                local startPos = child.Position
-                local endPos = UDim2.new(0, 0, 0, 0)
-                if child.Visible then
-                    endPos = startPos
-                elseif currentCategory.Position.Y.Scale > button.Position.Y.Scale then
-                    startPos = UDim2.new(0, 0, -1, 0)
-                else
-                    startPos = UDim2.new(0, 0, 1, 0)
-                end
-
-                child.Position = startPos
-                tweenService:Create(child, TweenInfo.new(0.5), {Position = endPos, Transparency = 0}):Play()
-                child.Visible = true
-            else
-                tweenService:Create(child, TweenInfo.new(0.5), {Transparency = 1}):Play()
-                child.Visible = false
-            end
+            child.Visible = (child.Name == sectionName)
         end
-    end
-
-    button.MouseButton1Click:Connect(setCategory)
-    if position == 0 then setCategory() end -- Выбрать первую категорию по умолчанию
+        -- Обновляем цвет кнопок
+        for _, btn in ipairs(sidebar:GetChildren()) do
+            btn.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+        end
+        button.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+    end)
 end
 
 -- Создание кнопок в боковом меню
-createSidebarButton("Основные", 0, "Main")
-createSidebarButton("Профиль Игроков", 0.1, "PlayerProfile")
-createSidebarButton("Трейды", 0.2, "Trades")
-createSidebarButton("Настройки", 0.3, "Settings")
+createSidebarButton("Main", "Main")
+createSidebarButton("Player Profile", "PlayerProfile")
+createSidebarButton("Trades", "Trades")
+createSidebarButton("Settings", "Settings")
 
 -- Функция для создания раздела
 local function createSection(name)
     local frame = Instance.new("Frame", content)
     frame.Name = name
     frame.Size = UDim2.new(1, 0, 1, 0)
-    frame.Position = UDim2.new(1, 0, 0, 0) -- Начальное положение за экраном
-    frame.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+    frame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
     frame.Visible = false
+    frame.BorderSizePixel = 0
 
-    -- Добавляем заголовок в раздел
     local titleLabel = Instance.new("TextLabel", frame)
     titleLabel.Size = UDim2.new(1, 0, 0, 50)
-    titleLabel.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
     titleLabel.Text = name
     titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    titleLabel.BackgroundTransparency = 1
+    titleLabel.Font = Enum.Font.SourceSansBold
     titleLabel.TextSize = 24
-    titleLabel.TextStrokeTransparency = 0.8
-    titleLabel.TextWrapped = true
 
-    -- Пример функций для раздела
     if name == "Settings" then
-        -- Добавляем слайдер для изменения прозрачности
         local transparencyLabel = Instance.new("TextLabel", frame)
-        transparencyLabel.Size = UDim2.new(1, -20, 0, 50)
+        transparencyLabel.Text = "Transparency"
+        transparencyLabel.Size = UDim2.new(0.5, 0, 0, 30)
         transparencyLabel.Position = UDim2.new(0, 10, 0, 60)
-        transparencyLabel.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
-        transparencyLabel.Text = "Прозрачность:"
         transparencyLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+        transparencyLabel.BackgroundTransparency = 1
+        transparencyLabel.Font = Enum.Font.SourceSans
         transparencyLabel.TextSize = 18
 
-        local transparencySlider = Instance.new("TextButton", frame)
-        transparencySlider.Size = UDim2.new(1, -20, 0, 50)
-        transparencySlider.Position = UDim2.new(0, 10, 0, 120)
-        transparencySlider.BackgroundColor3 = Color3.fromRGB(150, 150, 150)
-        transparencySlider.Text = "Сдвиньте для изменения"
-        transparencySlider.TextColor3 = Color3.fromRGB(0, 0, 0)
-        transparencySlider.TextSize = 18
-        transparencySlider.MouseButton1Down:Connect(function()
-            local mouseMoveConnection
-            local mouseUpConnection
-
-            mouseMoveConnection = userInputService.InputChanged:Connect(function(input)
-                if input.UserInputType == Enum.UserInputType.MouseMovement then
-                    local newPos = math.clamp(input.Position.X - transparencySlider.AbsolutePosition.X, 0, transparencySlider.AbsoluteSize.X)
-                    local transparency = newPos / transparencySlider.AbsoluteSize.X
-                    frame.BackgroundTransparency = transparency
-                    sidebar.BackgroundTransparency = transparency
-                    collapseButton.BackgroundTransparency = transparency
-                    transparencyLabel.BackgroundTransparency = transparency
-                    transparencySlider.Position = UDim2.new(0, newPos, 0, 120)
-                end
-            end)
-
-            mouseUpConnection = userInputService.InputEnded:Connect(function(input)
-                if input.UserInputType == Enum.UserInputType.MouseButton1 then
-                    mouseMoveConnection:Disconnect()
-                    mouseUpConnection:Disconnect()
-                end
-            end)
+        local transparencySlider = Instance.new("Slider", frame)
+        transparencySlider.Size = UDim2.new(0.8, 0, 0, 30)
+        transparencySlider.Position = UDim2.new(0, 10, 0, 100)
+        transparencySlider.BackgroundTransparency = 1
+        transparencySlider.MaxValue = 100
+        transparencySlider.MinValue = 0
+        transparencySlider.Value = 0
+        transparencySlider.Step = 1
+        transparencySlider.ValueChanged:Connect(function(value)
+            mainFrame.BackgroundTransparency = value / 100
         end)
-    elseif name == "Main" then
-        local mainLabel = Instance.new("TextLabel", frame)
-        mainLabel.Size = UDim2.new(1, -20, 0, 50)
-        mainLabel.Position = UDim2.new(0, 10, 0, 60)
-        mainLabel.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
-        mainLabel.Text = "Main section content here"
-        mainLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-        mainLabel.TextSize = 18
-    elseif name == "PlayerProfile" then
-        local profileLabel = Instance.new("TextLabel", frame)
-        profileLabel.Size = UDim2.new(1, -20, 0, 50)
-        profileLabel.Position = UDim2.new(0, 10, 0, 60)
-        profileLabel.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
-        profileLabel.Text = "Player Profile content here"
-        profileLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-        profileLabel.TextSize = 18
-    elseif name == "Trades" then
-        local tradesLabel = Instance.new("TextLabel", frame)
-        tradesLabel.Size = UDim2.new(1, -20, 0, 50)
-        tradesLabel.Position = UDim2.new(0, 10, 0, 60)
-        tradesLabel.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
-        tradesLabel.Text = "Trades content here"
-        tradesLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-        tradesLabel.TextSize = 18
     end
 end
 
@@ -193,3 +137,7 @@ createSection("Main")
 createSection("PlayerProfile")
 createSection("Trades")
 createSection("Settings")
+
+-- Отображение первого раздела по умолчанию
+content.Main.Visible = true
+sidebar.Main.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
