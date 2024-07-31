@@ -367,7 +367,18 @@ local function updatePlayerProfiles()
         createPlayerProfile(player.Name, i - 1)
     end
 end
----Trade
+
+-- Контейнер для списка трейдов
+local tradeList = Instance.new("ScrollingFrame")
+tradeList.Name = "TradeList"
+tradeList.Size = UDim2.new(1, 0, 1, -50)
+tradeList.Position = UDim2.new(0, 0, 0, 50)
+tradeList.CanvasSize = UDim2.new(0, 0, 0, 0)  -- CanvasSize обновляется динамически
+tradeList.ScrollBarThickness = 8
+tradeList.BackgroundTransparency = 1
+tradeList.Parent = content:FindFirstChild("Trades")
+
+-- Функция для создания трейда
 local function createTrade(tradeName, index)
     local trade = replicatedStorage:WaitForChild("Trades"):WaitForChild(tradeName)
     local otherPlayer = trade:WaitForChild("OtherPlayer").Value
@@ -417,66 +428,22 @@ local function createTrade(tradeName, index)
     itemsList.TextWrapped = true
     itemsList.Parent = tradeFrame
 
-    -- Получение элементов и их количества
     local tradeItems = {}
     for i = 1, 10 do
-        local itemNameValue = trade:FindFirstChild("Item" .. i) and trade["Item" .. i].Value
-        if itemNameValue then
-            local item = trade:FindFirstChild(itemNameValue)
-            if item then
-                local itemCount = item:FindFirstChild("Count") and item.Count.Value or 1
-                tradeItems[itemNameValue] = itemCount
-            else
-                print("Item not found:", itemNameValue)
-            end
-        else
-            print("Item name value not found for Item", i)
+        local item = trade:FindFirstChild("Item" .. i)
+        if item then
+            local itemName = item.Name
+            local itemCount = item:FindFirstChild("Count") and item.Count.Value or 1
+            tradeItems[itemName] = itemCount
         end
     end
 
-    -- Создание текста с количеством элементов
-    local itemsText = "Items:\n"
-    for itemName, itemCount in pairs(tradeItems) do
-        itemsText = itemsText .. itemName .. ": " .. itemCount .. "\n"
-    end
-    itemsList.Text = itemsText
-end
-
--- Обновление списка трейдов
-local function updateTrades()
-    tradeList:ClearAllChildren()
-    local trades = replicatedStorage:WaitForChild("Trades"):GetChildren()
-    tradeList.CanvasSize = UDim2.new(0, 0, 0, #trades * 105)  -- Обновляем CanvasSize для прокрутки
-    for i, trade in ipairs(trades) do
-        if trade:IsA("Folder") then
-            local tradeName = trade.Name
-            createTrade(tradeName, i - 1)
-        end
-    end
-end
-
-
-    -- Создание текста с количеством элементов
     local itemsText = ""
     for itemName, itemCount in pairs(tradeItems) do
         itemsText = itemsText .. itemName .. ": " .. itemCount .. "\n"
     end
     itemsList.Text = itemsText
 end
-
--- Обновление списка трейдов
-local function updateTrades()
-    tradeList:ClearAllChildren()
-    local trades = replicatedStorage:WaitForChild("Trades"):GetChildren()
-    tradeList.CanvasSize = UDim2.new(0, 0, 0, #trades * 105)  -- Обновляем CanvasSize для прокрутки
-    for i, trade in ipairs(trades) do
-        if trade:IsA("Folder") then
-            local tradeName = trade.Name
-            createTrade(tradeName, i - 1)
-        end
-    end
-end
-
 
 -- Обновление списка трейдов
 local function updateTrades()
