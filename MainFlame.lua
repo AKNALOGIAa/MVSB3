@@ -32,7 +32,7 @@ header.BorderSizePixel = 0
 header.Parent = mainFrame
 
 local titleLabel = Instance.new("TextLabel")
-titleLabel.Text = "Script Hub v1.3FIx"
+titleLabel.Text = "Script Hub v1.2"
 titleLabel.Size = UDim2.new(0.8, 0, 1, 0)
 titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 titleLabel.BackgroundTransparency = 1
@@ -46,7 +46,7 @@ titleLabel.Parent = header
 local minimizeButton = Instance.new("TextButton")
 minimizeButton.Size = UDim2.new(0.1, 0, 0.5, 0)
 minimizeButton.Position = UDim2.new(0.9, -10, 0.25, 0)
-minimizeButton.Text = "-"
+minimizeButton.Text = "_"
 minimizeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 minimizeButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
 minimizeButton.BorderSizePixel = 0
@@ -236,7 +236,7 @@ tradeList.ScrollBarThickness = 8
 tradeList.BackgroundTransparency = 1
 tradeList.Parent = content:FindFirstChild("Trades")
 
--- Создание и отображение инвентаря игрока
+-- Функция для создания и отображения инвентаря игрока
 local function createInventory()
     local inventoryFrame = Instance.new("Frame")
     inventoryFrame.Name = "InventoryFrame"
@@ -381,7 +381,7 @@ local function updateTrades()
             if not processedTrades[otherPlayer] then
                 createTrade(trade.Name, index)
                 index = index + 1
-                processedTrades[trade.Name] = true
+                processedTrades[otherPlayer] = true
             end
         end
     end
