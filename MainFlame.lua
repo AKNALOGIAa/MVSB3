@@ -320,43 +320,49 @@ local function createPlayerProfile(playerName, index)
     itemsListFrame.Parent = inventoryScrollingFrame
 
     -- Заполняем информацию об инвентаре
-    local inventory = profile:WaitForChild("Inventory")
-    local items = {}
+  local inventory = profile:WaitForChild("Inventory")
+local items = {}
 
-        for _, item in pairs(inventory:GetChildren()) do
-            local itemName = item.Name
-                -- Проверяем, если предмет уже существует в таблице, увеличиваем его количество
-            if items[itemName] then
+for _, item in pairs(inventory:GetChildren()) do
+    local itemName = item.Name
+    -- Проверяем, если предмет уже существует в таблице, увеличиваем его количество
+    if items[itemName] then
         items[itemName] = items[itemName] + 1
-            else
-                -- Если предмета ещё нет в таблице, добавляем его с количеством 1
+    else
+        -- Если предмета ещё нет в таблице, добавляем его с количеством 1
         items[itemName] = 1
     end
 end
 
+-- Преобразуем таблицу items в массив для упрощения работы с элементами
+local itemList = {}
+for name, count in pairs(items) do
+    table.insert(itemList, {name = name, count = count})
+end
 
-    -- Сортируем предметы по имени для удобства
-    table.sort(items, function(a, b) return a.name < b.name end)
+-- Сортируем предметы по имени для удобства
+table.sort(itemList, function(a, b) return a.name < b.name end)
 
-    local yOffset = 0
-    for _, item in ipairs(items) do
-        local itemLabel = Instance.new("TextLabel")
-        itemLabel.Text = item.name .. ": " .. item.count
-        itemLabel.Size = UDim2.new(1, -10, 0, 30)
-        itemLabel.Position = UDim2.new(0, 5, 0, yOffset)
-        itemLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-        itemLabel.BackgroundTransparency = 1
-        itemLabel.Font = Enum.Font.SourceSans
-        itemLabel.TextSize = 16
-        itemLabel.TextXAlignment = Enum.TextXAlignment.Left
-        itemLabel.TextYAlignment = Enum.TextYAlignment.Top
-        itemLabel.Parent = itemsListFrame
-        yOffset = yOffset + 30
-    end
+-- Используем itemList для отображения предметов
+local yOffset = 0
+for _, item in ipairs(itemList) do
+    local itemLabel = Instance.new("TextLabel")
+    itemLabel.Text = item.name .. ": " .. item.count
+    itemLabel.Size = UDim2.new(1, -10, 0, 30)
+    itemLabel.Position = UDim2.new(0, 5, 0, yOffset)
+    itemLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    itemLabel.BackgroundTransparency = 1
+    itemLabel.Font = Enum.Font.SourceSans
+    itemLabel.TextSize = 16
+    itemLabel.TextXAlignment = Enum.TextXAlignment.Left
+    itemLabel.TextYAlignment = Enum.TextYAlignment.Top
+    itemLabel.Parent = itemsListFrame
+    yOffset = yOffset + 30
+end
 
-    -- Обновляем размеры ScrollingFrame
-    itemsListFrame.Size = UDim2.new(1, 0, 0, yOffset)
-    inventoryScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, yOffset)
+-- Обновляем размеры ScrollingFrame
+itemsListFrame.Size = UDim2.new(1, 0, 0, yOffset)
+inventoryScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, yOffset)
 
     expandButton.MouseButton1Click:Connect(function()
         expandedFrame.Visible = not expandedFrame.Visible
