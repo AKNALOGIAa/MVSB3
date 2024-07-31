@@ -28,13 +28,13 @@ content.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
 local function createSidebarButton(text, position, sectionName)
     local button = Instance.new("TextButton", sidebar)
     button.Size = UDim2.new(1, 0, 0, 50)
-    button.Position = UDim2.new(0, 0, position, 0)
+    button.Position = UDim2.new(0, 0, position * 0.1, 0)
     button.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
     button.Text = text
     button.TextColor3 = Color3.fromRGB(255, 255, 255)
     button.Name = sectionName
+    button.Visible = true  -- Убедитесь, что кнопка видима
     button.MouseButton1Click:Connect(function()
-        -- Отображаем нужный раздел и скрываем остальные
         for _, child in ipairs(content:GetChildren()) do
             child.Visible = (child.Name == sectionName)
         end
