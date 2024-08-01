@@ -216,11 +216,40 @@ for index, category in ipairs(categories) do
     createSection(category.section)
 end
 
-local createMainSection = loadstring(game:HttpGet("https://raw.githubusercontent.com/AKNALOGIAa/MVSB3/main/mainSection.lua"))()
+-- Загрузка основного кода
+local mainCategory = loadstring(game:HttpGet("https://raw.githubusercontent.com/AKNALOGIAa/MVSB3/main/Categories/Main.lua"))()
 
-local content = mainFrame:FindFirstChild("Content")
-local mainSection = createMainSection(content)
-mainSection.Visible = true -- По умолчанию показываем раздел "Основные"
+-- Создаем переключатель для включения и выключения скрипта
+local toggle = Instance.new("TextButton")
+toggle.Text = "Включить скрипт"
+toggle.Size = UDim2.new(0, 200, 0, 50)
+toggle.Position = UDim2.new(0, 10, 0, 10)
+toggle.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
+toggle.TextColor3 = Color3.fromRGB(255, 255, 255)
+toggle.Font = Enum.Font.SourceSans
+toggle.TextSize = 24
+toggle.Parent = mainCategory
+
+-- Переменная для отслеживания состояния скрипта
+local scriptEnabled = false
+
+-- Функция для включения и выключения скрипта
+local function toggleScript()
+    scriptEnabled = not scriptEnabled
+    if scriptEnabled then
+        toggle.Text = "Выключить скрипт"
+        toggle.BackgroundColor3 = Color3.fromRGB(170, 0, 0)
+        -- Вставьте здесь код, который нужно выполнить при включении скрипта
+    else
+        toggle.Text = "Включить скрипт"
+        toggle.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
+        -- Вставьте здесь код, который нужно выполнить при выключении скрипта
+    end
+end
+
+-- Добавляем обработчик событий для переключателя
+toggle.MouseButton1Click:Connect(toggleScript)
+
 
 -- Контейнер для списка профилей игроков
 local profileList = Instance.new("ScrollingFrame")
