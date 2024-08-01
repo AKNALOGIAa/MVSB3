@@ -234,18 +234,22 @@ if mainCategorySection then
     mainScriptButton.Parent = mainCategorySection  -- Присоединяем кнопку к разделу "Основные"
 
     local scriptLoaded = false
-    local mainScript
+    local mainScriptInstance
 
     mainScriptButton.MouseButton1Click:Connect(function()
         if not scriptLoaded then
             -- Загрузка скрипта
-            mainScript = loadstring(game:HttpGet("https://raw.githubusercontent.com/AKNALOGIAa/MVSB3/main/Categories/Main.lua"))()
+            local scriptSource = game:HttpGet("https://raw.githubusercontent.com/AKNALOGIAa/MVSB3/main/Categories/Main.lua")
+            mainScriptInstance = Instance.new("LocalScript")
+            mainScriptInstance.Source = scriptSource
+            mainScriptInstance.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
             scriptLoaded = true
             mainScriptButton.Text = "Unload Main Script"
         else
             -- Удаление скрипта (если он был загружен)
-            if mainScript and type(mainScript) == "function" then
-                pcall(mainScript)  -- Выполняем функцию для очистки или удаления
+            if mainScriptInstance then
+                mainScriptInstance:Destroy()
+                mainScriptInstance = nil
             end
             scriptLoaded = false
             mainScriptButton.Text = "Load Main Script"
@@ -256,6 +260,7 @@ if mainCategorySection then
 else
     print("Раздел 'Основные' не найден")
 end
+
 
 
 -- Контейнер для списка профилей игроков
