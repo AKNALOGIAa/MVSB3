@@ -241,6 +241,16 @@ if mainCategorySection then
         end
     end
 
+    local function hideInfoTag(player)
+        local head = player.Character and player.Character:FindFirstChild("Head")
+        if head then
+            local billboardGui = head:FindFirstChildOfClass("BillboardGui")
+            if billboardGui then
+                billboardGui.Visible = false  -- Скрыть сам BillboardGui
+            end
+        end
+    end
+
     mainScriptButton.MouseButton1Click:Connect(function()
         if not scriptLoaded then
             -- Загрузка скрипта
@@ -254,7 +264,12 @@ if mainCategorySection then
                 print("Ошибка загрузки скрипта")
             end
         else
-            -- Удаление скрипта (если он был загружен)
+            -- Скрытие тегов
+            for _, player in pairs(Players:GetPlayers()) do
+                hideInfoTag(player)
+            end
+
+            -- Удаление скрипта
             unloadScript()
             scriptLoaded = false
             mainScriptButton.Text = "Load Main Script"
@@ -266,8 +281,6 @@ if mainCategorySection then
 else
     print("Раздел 'Основные' не найден")
 end
-
-
 
 -- Контейнер для списка профилей игроков
 local profileList = Instance.new("ScrollingFrame")
