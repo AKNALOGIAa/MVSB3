@@ -216,7 +216,6 @@ for index, category in ipairs(categories) do
     createSection(category.section)
 end
 
--- Пытаемся найти раздел "Основные" (Main)
 local mainCategorySection = content:FindFirstChild("Main")
 
 if mainCategorySection then
@@ -226,7 +225,7 @@ if mainCategorySection then
     mainScriptButton.Size = UDim2.new(1, 0, 0, 50)  -- Увеличил высоту кнопки для лучшей видимости
     mainScriptButton.Position = UDim2.new(0, 0, 0, 0)  -- Позиция кнопки
     mainScriptButton.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
-    mainScriptButton.Text = "Toggle Main Script"
+    mainScriptButton.Text = "Load Main Script"
     mainScriptButton.TextColor3 = Color3.fromRGB(255, 255, 255)
     mainScriptButton.Font = Enum.Font.SourceSans
     mainScriptButton.TextSize = 18
@@ -236,19 +235,30 @@ if mainCategorySection then
     local scriptLoaded = false
     local mainScript
 
+    local function unloadScript()
+        if mainScript and type(mainScript) == "table" and mainScript.cleanup then
+            pcall(mainScript.cleanup)  -- Выполняем функцию очистки скрипта
+        end
+    end
+
     mainScriptButton.MouseButton1Click:Connect(function()
         if not scriptLoaded then
             -- Загрузка скрипта
-            mainScript = loadstring(game:HttpGet("https://raw.githubusercontent.com/AKNALOGIAa/MVSB3/main/Categories/Main.lua"))()
-            scriptLoaded = true
-            mainScriptButton.Text = "Unload Main Script"
+            local scriptCode = game:HttpGet("https://raw.githubusercontent.com/AKNALOGIAa/MVSB3/main/Categories/Main.lua")
+            local scriptFunc = loadstring(scriptCode)
+            if scriptFunc then
+                mainScript = scriptFunc()
+                scriptLoaded = true
+                mainScriptButton.Text = "Unload Main Script"
+            else
+                print("Ошибка загрузки скрипта")
+            end
         else
             -- Удаление скрипта (если он был загружен)
-            if mainScript and type(mainScript) == "function" then
-                pcall(mainScript)  -- Выполняем функцию для очистки или удаления
-            end
+            unloadScript()
             scriptLoaded = false
             mainScriptButton.Text = "Load Main Script"
+            mainScript = nil  -- Очистка ссылки на скрипт
         end
     end)
 
@@ -256,6 +266,7 @@ if mainCategorySection then
 else
     print("Раздел 'Основные' не найден")
 end
+
 
 
 -- Контейнер для списка профилей игроков
