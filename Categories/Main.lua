@@ -29,17 +29,19 @@ local function createInfoTag(player)
     velText.TextColor3 = Color3.new(1, 0.843, 0) -- Золотой цвет
     velText.BackgroundTransparency = 1
     velText.Font = Enum.Font.SourceSansBold
-    velText.TextScaled = true
+    velText.TextScaled = false
+    velText.TextSize = 14 -- Фиксированный размер текста
     velText.Parent = billboardGui
 
     -- Текстовое поле для Gems
     local gemsText = Instance.new("TextLabel")
     gemsText.Size = UDim2.new(1, 0, 0.5, 0)
     gemsText.Position = UDim2.new(0, 0, 0.5, 0)
-    gemsText.TextColor3 = Color3.new(1, 1, 1) -- Белый цвет
+    gemsText.TextColor3 = Color3.new(0, 0, 1) -- Синий цвет
     gemsText.BackgroundTransparency = 1
     gemsText.Font = Enum.Font.SourceSansBold
-    gemsText.TextScaled = true
+    gemsText.TextScaled = false
+    gemsText.TextSize = 14 -- Фиксированный размер текста
     gemsText.Parent = billboardGui
 
     -- Функция для обновления текста
@@ -50,7 +52,7 @@ local function createInfoTag(player)
             local gemsValue = profile:FindFirstChild("Gems")
 
             if velValue and gemsValue then
-                velText.Text = "Vel: " .. velValue.Value
+                velText.Text = "Vel: " .. formatNumber(velValue.Value)
                 gemsText.Text = "Gems: " .. formatNumber(gemsValue.Value)
             end
         end
