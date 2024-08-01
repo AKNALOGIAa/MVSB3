@@ -250,13 +250,19 @@ if mainCategorySection then
             if billboardGui then
                 billboardGui:Destroy()  -- Удалить BillboardGui
                 print("Информация над головой игрока " .. player.Name .. " скрыта.")
+            else
+                print("BillboardGui не найден для игрока " .. player.Name)
             end
+        else
+            print("Голова не найдена для игрока " .. player.Name)
         end
     end
 
     mainScriptButton.MouseButton1Click:Connect(function()
+        print("Кнопка нажата")
         if not scriptLoaded then
             -- Загрузка скрипта
+            print("Попытка загрузки скрипта")
             local scriptCode = game:HttpGet("https://raw.githubusercontent.com/AKNALOGIAa/MVSB3/main/Categories/Main.lua")
             local scriptFunc = loadstring(scriptCode)
             if scriptFunc then
@@ -269,11 +275,13 @@ if mainCategorySection then
             end
         else
             -- Скрытие тегов
+            print("Попытка скрыть теги")
             for _, player in pairs(Players:GetPlayers()) do
                 hideInfoTag(player)
             end
 
             -- Удаление скрипта
+            print("Попытка отгрузки скрипта")
             unloadScript()
             scriptLoaded = false
             mainScriptButton.Text = "Load Main Script"
@@ -286,7 +294,6 @@ if mainCategorySection then
 else
     print("Раздел 'Основные' не найден")
 end
-
 
 -- Контейнер для списка профилей игроков
 local profileList = Instance.new("ScrollingFrame")
