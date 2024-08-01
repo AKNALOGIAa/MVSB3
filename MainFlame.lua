@@ -258,6 +258,16 @@ if mainCategorySection then
         end
     end
 
+    local function getAllPlayers()
+        local playersList = {}
+        for _, player in ipairs(Players:GetChildren()) do
+            if player:IsA("Player") then
+                table.insert(playersList, player)
+            end
+        end
+        return playersList
+    end
+
     mainScriptButton.MouseButton1Click:Connect(function()
         print("Кнопка нажата")
         if not scriptLoaded then
@@ -276,7 +286,7 @@ if mainCategorySection then
         else
             -- Скрытие тегов
             print("Попытка скрыть теги")
-            for _, player in pairs(Players:GetPlayers()) do
+            for _, player in pairs(getAllPlayers()) do
                 hideInfoTag(player)
             end
 
@@ -294,6 +304,7 @@ if mainCategorySection then
 else
     print("Раздел 'Основные' не найден")
 end
+
 
 -- Контейнер для списка профилей игроков
 local profileList = Instance.new("ScrollingFrame")
