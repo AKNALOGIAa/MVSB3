@@ -216,36 +216,38 @@ for index, category in ipairs(categories) do
     createSection(category.section)
 end
 
-local mainScriptButton = Instance.new("TextButton")
-mainScriptButton.Size = UDim2.new(1, 0, 0, buttonHeight)
-mainScriptButton.Position = UDim2.new(0, 0, 0, 0)  -- Позиция кнопки
-mainScriptButton.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
-mainScriptButton.Text = "Toggle Main Script"
-mainScriptButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-mainScriptButton.Font = Enum.Font.SourceSans
-mainScriptButton.TextSize = 18
-mainScriptButton.BorderSizePixel = 0
-mainScriptButton.Parent = mainCategorySection
+local mainCategorySection = content:FindFirstChild("Main")
+if mainCategorySection then
+    local mainScriptButton = Instance.new("TextButton")
+    mainScriptButton.Size = UDim2.new(1, 0, 0, buttonHeight)
+    mainScriptButton.Position = UDim2.new(0, 0, 0, 0)  -- Позиция кнопки
+    mainScriptButton.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+    mainScriptButton.Text = "Toggle Main Script"
+    mainScriptButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    mainScriptButton.Font = Enum.Font.SourceSans
+    mainScriptButton.TextSize = 18
+    mainScriptButton.BorderSizePixel = 0
+    mainScriptButton.Parent = mainCategorySection
 
-local scriptLoaded = false
-local mainScript
+    local scriptLoaded = false
+    local mainScript
 
-mainScriptButton.MouseButton1Click:Connect(function()
-    if not scriptLoaded then
-        -- Загрузка скрипта
-        mainScript = loadstring(game:HttpGet("https://raw.githubusercontent.com/AKNALOGIAa/MVSB3/main/Categories/Main.lua"))()
-        scriptLoaded = true
-        mainScriptButton.Text = "Unload Main Script"
-    else
-        -- Удаление скрипта (если он был загружен)
-        if mainScript and type(mainScript) == "function" then
-            pcall(mainScript)  -- Выполняем функцию для очистки или удаления
+    mainScriptButton.MouseButton1Click:Connect(function()
+        if not scriptLoaded then
+            -- Загрузка скрипта
+            mainScript = loadstring(game:HttpGet("https://raw.githubusercontent.com/AKNALOGIAa/MVSB3/main/Categories/Main.lua"))()
+            scriptLoaded = true
+            mainScriptButton.Text = "Unload Main Script"
+        else
+            -- Удаление скрипта (если он был загружен)
+            if mainScript and type(mainScript) == "function" then
+                pcall(mainScript)  -- Выполняем функцию для очистки или удаления
+            end
+            scriptLoaded = false
+            mainScriptButton.Text = "Load Main Script"
         end
-        scriptLoaded = false
-        mainScriptButton.Text = "Load Main Script"
-    end
-end)
-
+    end)
+end
 
 -- Контейнер для списка профилей игроков
 local profileList = Instance.new("ScrollingFrame")
