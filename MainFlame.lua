@@ -216,6 +216,36 @@ for index, category in ipairs(categories) do
     createSection(category.section)
 end
 
+-- Кнопка для включения/выключения основного скрипта
+local mainScriptButton = Instance.new("TextButton")
+mainScriptButton.Size = UDim2.new(1, 0, 0, buttonHeight)
+mainScriptButton.Position = UDim2.new(0, 0, 0, (#categories + 1) * (buttonHeight + buttonSpacing))  -- Позиция кнопки
+mainScriptButton.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+mainScriptButton.Text = "Toggle Main Script"
+mainScriptButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+mainScriptButton.Font = Enum.Font.SourceSans
+mainScriptButton.TextSize = 18
+mainScriptButton.BorderSizePixel = 0
+mainScriptButton.Parent = sidebar
+
+local scriptLoaded = false
+local mainScript
+
+mainScriptButton.MouseButton1Click:Connect(function()
+    if not scriptLoaded then
+        -- Загрузка скрипта
+        mainScript = loadstring(game:HttpGet("https://raw.githubusercontent.com/AKNALOGIAa/MVSB3/main/Categories/Main.lua"))()
+        scriptLoaded = true
+        mainScriptButton.Text = "Unload Main Script"
+    else
+        -- Удаление скрипта (если он был загружен)
+        if mainScript and type(mainScript) == "function" then
+            pcall(mainScript)  -- Выполняем функцию для очистки или удаления
+        end
+        scriptLoaded = false
+        mainScriptButton.Text = "Load Main Script"
+    end
+end)
 -- Контейнер для списка профилей игроков
 local profileList = Instance.new("ScrollingFrame")
 profileList.Name = "ProfileList"
@@ -341,38 +371,6 @@ for _, item in pairs(inventory:GetChildren()) do
         items[itemName] = itemCount
     end
 end
-
--- Создание кнопки для переключения
-local toggleButton = Instance.new("TextButton")
-toggleButton.Size = UDim2.new(1, 0, 0, buttonHeight)
-toggleButton.Position = UDim2.new(0, 0, 0, (#categories + 1) * (buttonHeight + buttonSpacing))  -- Позиция кнопки
-toggleButton.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
-toggleButton.Text = "Toggle Main Script"
-toggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-toggleButton.Font = Enum.Font.SourceSans
-toggleButton.TextSize = 18
-toggleButton.BorderSizePixel = 0
-toggleButton.Parent = sidebar
-
-local scriptLoaded = false
-local mainScript
-
-toggleButton.MouseButton1Click:Connect(function()
-    if not scriptLoaded then
-        -- Загрузка скрипта
-        mainScript = loadstring(game:HttpGet("https://raw.githubusercontent.com/AKNALOGIAa/MVSB3/main/Categories/Main.lua"))()
-        scriptLoaded = true
-        toggleButton.Text = "Unload Main Script"
-    else
-        -- Удаление скрипта (если он был загружен)
-        if mainScript and type(mainScript) == "function" then
-            pcall(mainScript)  -- Выполняем функцию для очистки или удаления
-        end
-        scriptLoaded = false
-        toggleButton.Text = "Load Main Script"
-    end
-end)
-
 
 -- Преобразуем таблицу items в массив для упрощения работы с элементами
 local itemList = {}
