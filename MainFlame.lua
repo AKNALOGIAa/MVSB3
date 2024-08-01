@@ -230,6 +230,7 @@ if mainCategorySection then
     mainScriptButton.Font = Enum.Font.SourceSans
     mainScriptButton.TextSize = 18
     mainScriptButton.BorderSizePixel = 0
+    mainScriptButton.ZIndex = 2  -- Устанавливаем высокий ZIndex
     mainScriptButton.Parent = mainCategorySection  -- Присоединяем кнопку к разделу "Основные"
 
     local scriptLoaded = false
@@ -237,6 +238,7 @@ if mainCategorySection then
 
     local function unloadScript()
         if mainScript and type(mainScript) == "table" and mainScript.cleanup then
+            print("Выполняется очистка скрипта...")
             pcall(mainScript.cleanup)  -- Выполняем функцию очистки скрипта
         end
     end
@@ -246,7 +248,8 @@ if mainCategorySection then
         if head then
             local billboardGui = head:FindFirstChildOfClass("BillboardGui")
             if billboardGui then
-                billboardGui.Visible = false  -- Скрыть сам BillboardGui
+                billboardGui:Destroy()  -- Удалить BillboardGui
+                print("Информация над головой игрока " .. player.Name .. " скрыта.")
             end
         end
     end
@@ -260,6 +263,7 @@ if mainCategorySection then
                 mainScript = scriptFunc()
                 scriptLoaded = true
                 mainScriptButton.Text = "Unload Main Script"
+                print("Скрипт загружен успешно.")
             else
                 print("Ошибка загрузки скрипта")
             end
@@ -274,6 +278,7 @@ if mainCategorySection then
             scriptLoaded = false
             mainScriptButton.Text = "Load Main Script"
             mainScript = nil  -- Очистка ссылки на скрипт
+            print("Скрипт отгружен и очищен.")
         end
     end)
 
@@ -281,6 +286,7 @@ if mainCategorySection then
 else
     print("Раздел 'Основные' не найден")
 end
+
 
 -- Контейнер для списка профилей игроков
 local profileList = Instance.new("ScrollingFrame")
