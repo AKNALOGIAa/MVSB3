@@ -216,10 +216,14 @@ for index, category in ipairs(categories) do
     createSection(category.section)
 end
 
+-- Пытаемся найти раздел "Основные" (Main)
 local mainCategorySection = content:FindFirstChild("Main")
+
 if mainCategorySection then
+    print("Раздел 'Основные' найден")
+
     local mainScriptButton = Instance.new("TextButton")
-    mainScriptButton.Size = UDim2.new(1, 0, 0, buttonHeight)
+    mainScriptButton.Size = UDim2.new(1, 0, 0, 50)  -- Увеличил высоту кнопки для лучшей видимости
     mainScriptButton.Position = UDim2.new(0, 0, 0, 0)  -- Позиция кнопки
     mainScriptButton.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
     mainScriptButton.Text = "Toggle Main Script"
@@ -227,7 +231,7 @@ if mainCategorySection then
     mainScriptButton.Font = Enum.Font.SourceSans
     mainScriptButton.TextSize = 18
     mainScriptButton.BorderSizePixel = 0
-    mainScriptButton.Parent = mainCategorySection
+    mainScriptButton.Parent = mainCategorySection  -- Присоединяем кнопку к разделу "Основные"
 
     local scriptLoaded = false
     local mainScript
@@ -247,7 +251,12 @@ if mainCategorySection then
             mainScriptButton.Text = "Load Main Script"
         end
     end)
+
+    print("Кнопка успешно добавлена в раздел 'Основные'")
+else
+    print("Раздел 'Основные' не найден")
 end
+
 
 -- Контейнер для списка профилей игроков
 local profileList = Instance.new("ScrollingFrame")
