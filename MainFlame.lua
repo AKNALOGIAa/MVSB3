@@ -216,18 +216,9 @@ for index, category in ipairs(categories) do
     createSection(category.section)
 end
 
--- Создание кнопок для категории "Основные"
-local mainCategorySection = -- код для получения или создания раздела "Основные"
-
--- Существующие кнопки для категории "Основные"
--- Например:
--- local existingButton1 = createButton("Button 1", mainCategorySection)
--- local existingButton2 = createButton("Button 2", mainCategorySection)
-
--- Кнопка для включения/выключения основного скрипта
 local mainScriptButton = Instance.new("TextButton")
 mainScriptButton.Size = UDim2.new(1, 0, 0, buttonHeight)
-mainScriptButton.Position = UDim2.new(0, 0, 0, (buttonHeight + buttonSpacing) * #existingButtons)  -- Позиция кнопки
+mainScriptButton.Position = UDim2.new(0, 0, 0, 0)  -- Позиция кнопки
 mainScriptButton.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
 mainScriptButton.Text = "Toggle Main Script"
 mainScriptButton.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -254,6 +245,7 @@ mainScriptButton.MouseButton1Click:Connect(function()
         mainScriptButton.Text = "Load Main Script"
     end
 end)
+
 
 -- Контейнер для списка профилей игроков
 local profileList = Instance.new("ScrollingFrame")
