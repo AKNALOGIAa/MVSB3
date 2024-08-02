@@ -218,7 +218,7 @@ end
 
     -- Создаем кнопку для сбора наград в гильдии
 local guildRewardButton = Instance.new("TextButton")
-guildRewardButton.Size = UDim2.new(1, 0, 0, 50)  -- Размер кнопки
+guildRewardButton.Size = UDim2.new(1, 0, 0, buttonHeight)  -- Размер кнопки
 guildRewardButton.Position = UDim2.new(0, 0, 0, 50)  -- Позиция кнопки под основной
 guildRewardButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)  -- Красный цвет, когда не нажата
 guildRewardButton.Text = "Сбор наград в гильдии"
