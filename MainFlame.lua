@@ -211,35 +211,127 @@ local categories = {
     {name = "Настройки", section = "Settings"}
 }
 
-local mainScriptButton = Instance.new("TextButton")
-mainScriptButton.Size = UDim2.new(1, 0, 0, buttonHeight)
-mainScriptButton.Position = UDim2.new(0, 0, 0, 0)  -- Позиция кнопки
-mainScriptButton.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
-mainScriptButton.Text = "Toggle Main Script"
-mainScriptButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-mainScriptButton.Font = Enum.Font.SourceSans
-mainScriptButton.TextSize = 18
-mainScriptButton.BorderSizePixel = 0
-mainScriptButton.Parent = mainCategorySection
+for index, category in ipairs(categories) do
+    createSidebarButton(category.name, category.section, index)
+    createSection(category.section)
+end
 
-local scriptLoaded = false
-local mainScript
+local mainCategorySection = content:FindFirstChild("Main")
 
-mainScriptButton.MouseButton1Click:Connect(function()
-    if not scriptLoaded then
-        -- Загрузка скрипта
-        mainScript = loadstring(game:HttpGet("https://raw.githubusercontent.com/AKNALOGIAa/MVSB3/main/Categories/Main.lua"))()
-        scriptLoaded = true
-        mainScriptButton.Text = "Unload Main Script"
-    else
-        -- Удаление скрипта (если он был загружен)
-        if mainScript and type(mainScript) == "function" then
-            pcall(mainScript)  -- Выполняем функцию для очистки или удаления
-        end
-        scriptLoaded = false
-        mainScriptButton.Text = "Load Main Script"
+if mainCategorySection then
+    print("Раздел 'Основные' найден")
+
+-- Создаем кнопку для сбора наград в гильдии
+local guildRewardButton = Instance.new("TextButton")
+guildRewardButton.Size = UDim2.new(1, 0, 0, 50)  -- Размер кнопки
+guildRewardButton.Position = UDim2.new(0, 0, 0, 50)  -- Позиция кнопки под основной
+guildRewardButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)  -- Красный цвет, когда не нажата
+guildRewardButton.Text = "Сбор наград в гильдии"
+guildRewardButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+guildRewardButton.Font = Enum.Font.SourceSans
+guildRewardButton.TextSize = 18
+guildRewardButton.BorderSizePixel = 0
+guildRewardButton.ZIndex = 2
+guildRewardButton.Parent = mainCategorySection  -- Присоединяем кнопку к разделу "Основные"
+
+-- Флаг, чтобы отслеживать статус нажатия кнопки
+local isCollected = false
+
+-- Обработчик нажатия кнопки
+guildRewardButton.MouseButton1Click:Connect(function()
+    if not isCollected then
+        -- Загружаем и выполняем скрипт для сбора наград
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/AKNALOGIAa/MVSB3/main/Categories/GuildsRewards.lua"))()
+
+        -- Меняем цвет кнопки на зеленый
+        guildRewardButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+        isCollected = true
     end
 end)
+
+    local mainScriptButton = Instance.new("TextButton")
+    mainScriptButton.Size = UDim2.new(1, 0, 0, 50)  -- Увеличил высоту кнопки для лучшей видимости
+    mainScriptButton.Position = UDim2.new(0, 0, 0, 0)  -- Позиция кнопки
+    mainScriptButton.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+    mainScriptButton.Text = "Load Main Script"
+    mainScriptButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    mainScriptButton.Font = Enum.Font.SourceSans
+    mainScriptButton.TextSize = 18
+    mainScriptButton.BorderSizePixel = 0
+    mainScriptButton.ZIndex = 2  -- Устанавливаем высокий ZIndex
+    mainScriptButton.Parent = mainCategorySection  -- Присоединяем кнопку к разделу "Основные"
+
+    local scriptLoaded = false
+    local mainScript
+
+    local function unloadScript()
+        if mainScript and type(mainScript) == "table" and mainScript.cleanup then
+            print("Выполняется очистка скрипта...")
+            pcall(mainScript.cleanup)  -- Выполняем функцию очистки скрипта
+        end
+    end
+
+    local function hideInfoTag(player)
+        local head = player.Character and player.Character:FindFirstChild("Head")
+        if head then
+            local billboardGui = head:FindFirstChildOfClass("BillboardGui")
+            if billboardGui then
+                billboardGui:Destroy()  -- Удалить BillboardGui
+                print("Информация над головой игрока " .. player.Name .. " скрыта.")
+            else
+                print("BillboardGui не найден для игрока " .. player.Name)
+            end
+        else
+            print("Голова не найдена для игрока " .. player.Name)
+        end
+    end
+
+    local function getAllPlayers()
+        local playersList = {}
+        for _, player in ipairs(Players:GetChildren()) do
+            if player:IsA("Player") then
+                table.insert(playersList, player)
+            end
+        end
+        return playersList
+    end
+
+    mainScriptButton.MouseButton1Click:Connect(function()
+        print("Кнопка нажата")
+        if not scriptLoaded then
+            -- Загрузка скрипта
+            print("Попытка загрузки скрипта")
+            local scriptCode = game:HttpGet("https://raw.githubusercontent.com/AKNALOGIAa/MVSB3/main/Categories/Main.lua")
+            local scriptFunc = loadstring(scriptCode)
+            if scriptFunc then
+                mainScript = scriptFunc()
+                scriptLoaded = true
+                mainScriptButton.Text = "Unload Main Script"
+                print("Скрипт загружен успешно.")
+            else
+                print("Ошибка загрузки скрипта")
+            end
+        else
+            -- Скрытие тегов
+            print("Попытка скрыть теги")
+            for _, player in pairs(getAllPlayers()) do
+                hideInfoTag(player)
+            end
+
+            -- Удаление скрипта
+            print("Попытка отгрузки скрипта")
+            unloadScript()
+            scriptLoaded = false
+            mainScriptButton.Text = "Load Main Script"
+            mainScript = nil  -- Очистка ссылки на скрипт
+            print("Скрипт отгружен и очищен.")
+        end
+    end)
+
+    print("Кнопка успешно добавлена в раздел 'Основные'")
+else
+    print("Раздел 'Основные' не найден")
+end
 
 
 -- Контейнер для списка профилей игроков
