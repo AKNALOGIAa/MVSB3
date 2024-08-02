@@ -216,8 +216,6 @@ for index, category in ipairs(categories) do
     createSection(category.section)
 end
 
--- Убедимся, что mainCategorySection существует
-if mainCategorySection then
     -- Создаем кнопку для сбора наград в гильдии
     local guildRewardButton = Instance.new("TextButton")
     guildRewardButton.Size = UDim2.new(1, 0, 0, 50)  -- Размер кнопки
@@ -245,8 +243,6 @@ if mainCategorySection then
             isCollected = true
         end
     end)
-else
-    print("Ошибка: mainCategorySection не найден!")
 end
 
 
