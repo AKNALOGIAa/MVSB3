@@ -344,14 +344,14 @@ profileList.CanvasSize = UDim2.new(0, 0, 0, 0)  -- CanvasSize обновляет
 profileList.ScrollBarThickness = 8
 profileList.BackgroundTransparency = 1
 profileList.Parent = content:FindFirstChild("PlayerProfile")
-
+print("ok1")
 local PlayerProfileCategorySection = content:FindFirstChild("PlayerProfile")
-
+print("ok2")
 if PlayerProfileCategorySection then
     print("Раздел 'PlayerProfile' найден")
     loadstring(game:HttpGet("https://raw.githubusercontent.com/AKNALOGIAa/MVSB3/main/Categories/Profile.lua"))()
 end
-
+print("ok3")
 -- Контейнер для списка трейдов
 local tradeList = Instance.new("ScrollingFrame")
 tradeList.Name = "TradeList"
@@ -361,7 +361,7 @@ tradeList.CanvasSize = UDim2.new(0, 0, 0, 0)  -- CanvasSize обновляетс
 tradeList.ScrollBarThickness = 8
 tradeList.BackgroundTransparency = 1
 tradeList.Parent = content:FindFirstChild("Trades")
-
+print("ok4")
 -- Функция для создания трейда
 local function createTrade(tradeName, index)
     local trade = replicatedStorage:WaitForChild("Trades"):WaitForChild(tradeName)
