@@ -349,7 +349,7 @@ local PlayerProfileCategorySection = content:FindFirstChild("PlayerProfile")
 
 if PlayerProfileCategorySection then
     print("Раздел 'PlayerProfile' найден")
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AKNALOGIAa/MVSB3/main/Categories/GuildsRewards.lua"))()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/AKNALOGIAa/MVSB3/main/Categories/Profile.lua"))()
 end
 
 -- Контейнер для списка трейдов
