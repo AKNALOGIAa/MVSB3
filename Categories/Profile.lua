@@ -1,3 +1,4 @@
+print("okpb")
 -- Функция для создания профиля игрока
 local function createPlayerProfile(playerName, index)
     local profile = replicatedStorage:WaitForChild("Profiles"):WaitForChild(playerName)
@@ -176,3 +177,4 @@ local function updatePlayerProfiles()
         createPlayerProfile(player.Name, i - 1)
     end
 end
+print("okPe")
