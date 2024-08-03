@@ -1,4 +1,7 @@
 print("okpb")
+local replicatedStorage = game:GetService("ReplicatedStorage")
+local profileList = script.Parent:WaitForChild("ProfileList")
+
 -- Функция для создания профиля игрока
 local function createPlayerProfile(playerName, index)
     local profile = replicatedStorage:WaitForChild("Profiles"):WaitForChild(playerName)
