@@ -144,6 +144,8 @@ content.Parent = mainFrame
 local buttonHeight = 40
 local buttonSpacing = 10
 
+loadstring(game:HttpGet("https://raw.githubusercontent.com/AKNALOGIAa/MVSB3/main/GuiLogical/SidebarButton.lua"))()
+
 -- Загружать файл через URL
 local success, result = pcall(function()
     return loadstring(game:HttpGet("https://raw.githubusercontent.com/AKNALOGIAa/MVSB3/main/GuiLogical/SidebarButton.lua"))()
