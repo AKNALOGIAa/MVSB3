@@ -144,6 +144,8 @@ content.Parent = mainFrame
 local buttonHeight = 40
 local buttonSpacing = 10
 
+loadstring(game:HttpGet("https://raw.githubusercontent.com/AKNALOGIAa/MVSB3/main/GuiLogical/SidebarButton.lua"))()
+
 -- Функция для создания раздела
 local function createSection(name)
     local frame = Instance.new("Frame")
