@@ -144,6 +144,16 @@ content.Parent = mainFrame
 local buttonHeight = 40
 local buttonSpacing = 10
 
+-- Загружать файл через URL
+local success, result = pcall(function()
+    return loadstring(game:HttpGet("https://raw.githubusercontent.com/AKNALOGIAa/MVSB3/main/GuiLogical/SidebarButton.lua"))()
+end)
+
+if success then
+    result()
+else
+    warn("Failed to load SidebarButton.lua: " .. result)
+end
 -- Функция для создания раздела
 local function createSection(name)
     local frame = Instance.new("Frame")
