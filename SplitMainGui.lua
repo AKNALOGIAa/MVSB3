@@ -2,6 +2,7 @@ local player = game:GetService("Players").LocalPlayer
 local playerGui = player:FindFirstChildOfClass("PlayerGui")
 local replicatedStorage = game:GetService("ReplicatedStorage")
 local userInputService = game:GetService("UserInputService")
+local players = game:GetService("Players")
 
 -- Удаление старого GUI, если существует
 if playerGui:FindFirstChild("CustomUI") then
@@ -221,34 +222,35 @@ local mainCategorySection = content:FindFirstChild("Main")
 if mainCategorySection then
     print("Раздел 'Основные' найден")
 
--- Создаем кнопку для сбора наград в гильдии
-local guildRewardButton = Instance.new("TextButton")
-guildRewardButton.Size = UDim2.new(1, 0, 0, 50)  -- Размер кнопки
-guildRewardButton.Position = UDim2.new(0, 0, 0, 50)  -- Позиция кнопки под основной
-guildRewardButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)  -- Красный цвет, когда не нажата
-guildRewardButton.Text = "Сбор наград в гильдии"
-guildRewardButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-guildRewardButton.Font = Enum.Font.SourceSans
-guildRewardButton.TextSize = 18
-guildRewardButton.BorderSizePixel = 0
-guildRewardButton.ZIndex = 2
-guildRewardButton.Parent = mainCategorySection  -- Присоединяем кнопку к разделу "Основные"
+    -- Создаем кнопку для сбора наград в гильдии
+    local guildRewardButton = Instance.new("TextButton")
+    guildRewardButton.Size = UDim2.new(1, 0, 0, 50)  -- Размер кнопки
+    guildRewardButton.Position = UDim2.new(0, 0, 0, 50)  -- Позиция кнопки под основной
+    guildRewardButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)  -- Красный цвет, когда не нажата
+    guildRewardButton.Text = "Сбор наград в гильдии"
+    guildRewardButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    guildRewardButton.Font = Enum.Font.SourceSans
+    guildRewardButton.TextSize = 18
+    guildRewardButton.BorderSizePixel = 0
+    guildRewardButton.ZIndex = 2
+    guildRewardButton.Parent = mainCategorySection  -- Присоединяем кнопку к разделу "Основные"
 
--- Флаг, чтобы отслеживать статус нажатия кнопки
-local isCollected = false
+    -- Флаг, чтобы отслеживать статус нажатия кнопки
+    local isCollected = false
 
--- Обработчик нажатия кнопки
-guildRewardButton.MouseButton1Click:Connect(function()
-    if not isCollected then
-        -- Загружаем и выполняем скрипт для сбора наград
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/AKNALOGIAa/MVSB3/main/Categories/GuildsRewards.lua"))()
+    -- Обработчик нажатия кнопки
+    guildRewardButton.MouseButton1Click:Connect(function()
+        if not isCollected then
+            -- Загружаем и выполняем скрипт для сбора наград
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/AKNALOGIAa/MVSB3/main/Categories/GuildsRewards.lua"))()
 
-        -- Меняем цвет кнопки на зеленый
-        guildRewardButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
-        isCollected = true
-    end
-end)
+            -- Меняем цвет кнопки на зеленый
+            guildRewardButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+            isCollected = true
+        end
+    end)
 
+    -- Создание основной кнопки скрипта
     local mainScriptButton = Instance.new("TextButton")
     mainScriptButton.Size = UDim2.new(1, 0, 0, 50)  -- Увеличил высоту кнопки для лучшей видимости
     mainScriptButton.Position = UDim2.new(0, 0, 0, 0)  -- Позиция кнопки
@@ -271,6 +273,7 @@ end)
         end
     end
 end
+
 ---------------ДЕНЬГИ НАД ГОЛОВОЙ----------------
   -- Функция для форматирования числа с разделителями для тысяч
 local function formatNumber(number)
@@ -363,6 +366,8 @@ for _, player in pairs(Players:GetPlayers()) do
         createInfoTag(player)
     end
 end
+------------------------------------------
+
 
 
 -- Контейнер для списка профилей игроков
