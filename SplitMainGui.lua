@@ -144,18 +144,42 @@ content.Parent = mainFrame
 local buttonHeight = 40
 local buttonSpacing = 10
 
-loadstring(game:HttpGet("https://raw.githubusercontent.com/AKNALOGIAa/MVSB3/main/GuiLogical/SidebarButton.lua"))()
-
--- Загружать файл через URL
-local success, result = pcall(function()
-    return loadstring(game:HttpGet("https://raw.githubusercontent.com/AKNALOGIAa/MVSB3/main/GuiLogical/SidebarButton.lua"))()
-end)
-
-if success then
-    result()
-else
-    warn("Failed to load SidebarButton.lua: " .. result)
+-- Функция для создания кнопок в боковом меню
+local function createSidebarButton(text, sectionName, index)
+    local button = Instance.new("TextButton")
+    button.Size = UDim2.new(1, 0, 0, buttonHeight)
+    button.Position = UDim2.new(0, 0, 0, index * (buttonHeight + buttonSpacing))
+    button.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+    button.Text = text
+    button.TextColor3 = Color3.fromRGB(255, 255, 255)
+    button.Font = Enum.Font.SourceSans
+    button.TextSize = 18
+    button.BorderSizePixel = 0
+    button.Name = sectionName
+    button.Parent = sidebar
+    
+    button.MouseButton1Click:Connect(function()
+        -- Скрытие всех разделов
+        for _, child in ipairs(content:GetChildren()) do
+            if child:IsA("Frame") then
+                child.Visible = false
+            end
+        end
+        -- Отображение выбранного раздела
+        local targetContent = content:FindFirstChild(sectionName)
+        if targetContent then
+            targetContent.Visible = true
+        end
+        -- Обновляем цвет кнопок
+        for _, btn in ipairs(sidebar:GetChildren()) do
+            if btn:IsA("TextButton") then
+                btn.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+            end
+        end
+        button.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+    end)
 end
+
 -- Функция для создания раздела
 local function createSection(name)
     local frame = Instance.new("Frame")
@@ -246,67 +270,98 @@ end)
             pcall(mainScript.cleanup)  -- Выполняем функцию очистки скрипта
         end
     end
+end
+---------------ДЕНЬГИ НАД ГОЛОВОЙ----------------
+  -- Функция для форматирования числа с разделителями для тысяч
+local function formatNumber(number)
+    local formatted = tostring(number)
+    while true do  
+        formatted, k = string.gsub(formatted, "^(-?%d+)(%d%d%d)", '%1,%2')
+        if k == 0 then
+            break
+        end
+    end
+    return formatted
+end
 
-    local function hideInfoTag(player)
-        local head = player.Character and player.Character:FindFirstChild("Head")
-        if head then
-            local billboardGui = head:FindFirstChildOfClass("BillboardGui")
-            if billboardGui then
-                billboardGui:Destroy()  -- Удалить BillboardGui
-                print("Информация над головой игрока " .. player.Name .. " скрыта.")
-            else
-                print("BillboardGui не найден для игрока " .. player.Name)
+-- Функция для создания и обновления информации над головой игрока
+local function createInfoTag(player)
+    -- Создание BillboardGui
+    local billboardGui = Instance.new("BillboardGui")
+    billboardGui.Size = UDim2.new(0, 200, 0, 50)
+    billboardGui.StudsOffset = Vector3.new(0, 2, 0)
+    billboardGui.Adornee = player.Character:WaitForChild("Head")
+    billboardGui.AlwaysOnTop = true
+    billboardGui.Parent = player.Character:WaitForChild("Head")
+
+    -- Текстовое поле для Vel
+    local velText = Instance.new("TextLabel")
+    velText.Size = UDim2.new(1, 0, 0.5, 0)
+    velText.TextColor3 = Color3.new(1, 0.843, 0) -- Золотой цвет
+    velText.BackgroundTransparency = 1
+    velText.Font = Enum.Font.SourceSansBold
+    velText.TextScaled = false
+    velText.TextSize = 14 -- Фиксированный размер текста
+    velText.Parent = billboardGui
+
+    -- Текстовое поле для Gems
+    local gemsText = Instance.new("TextLabel")
+    gemsText.Size = UDim2.new(1, 0, 0.5, 0)
+    gemsText.Position = UDim2.new(0, 0, 0.5, 0)
+    gemsText.TextColor3 = Color3.new(0, 0, 1) -- Синий цвет
+    gemsText.BackgroundTransparency = 1
+    gemsText.Font = Enum.Font.SourceSansBold
+    gemsText.TextScaled = false
+    gemsText.TextSize = 14 -- Фиксированный размер текста
+    gemsText.Parent = billboardGui
+
+    -- Функция для обновления текста
+    local function updateText()
+        local profile = ReplicatedStorage.Profiles:FindFirstChild(player.Name)
+        if profile then
+            local velValue = profile:FindFirstChild("Vel")
+            local gemsValue = profile:FindFirstChild("Gems")
+
+            if velValue and gemsValue then
+                velText.Text = "Vel: " .. formatNumber(velValue.Value)
+                gemsText.Text = "Gems: " .. formatNumber(gemsValue.Value)
             end
-        else
-            print("Голова не найдена для игрока " .. player.Name)
         end
     end
 
-    local function getAllPlayers()
-        local playersList = {}
-        for _, player in ipairs(Players:GetChildren()) do
-            if player:IsA("Player") then
-                table.insert(playersList, player)
-            end
+    -- Подписка на изменения значений
+    local profile = ReplicatedStorage.Profiles:FindFirstChild(player.Name)
+    if profile then
+        local velValue = profile:FindFirstChild("Vel")
+        local gemsValue = profile:FindFirstChild("Gems")
+
+        if velValue then
+            velValue:GetPropertyChangedSignal("Value"):Connect(updateText)
         end
-        return playersList
+
+        if gemsValue then
+            gemsValue:GetPropertyChangedSignal("Value"):Connect(updateText)
+        end
     end
 
-    mainScriptButton.MouseButton1Click:Connect(function()
-        print("Кнопка нажата")
-        if not scriptLoaded then
-            -- Загрузка скрипта
-            print("Попытка загрузки скрипта")
-            local scriptCode = game:HttpGet("https://raw.githubusercontent.com/AKNALOGIAa/MVSB3/main/Categories/Main.lua")
-            local scriptFunc = loadstring(scriptCode)
-            if scriptFunc then
-                mainScript = scriptFunc()
-                scriptLoaded = true
-                mainScriptButton.Text = "Unload Main Script"
-                print("Скрипт загружен успешно.")
-            else
-                print("Ошибка загрузки скрипта")
-            end
-        else
-            -- Скрытие тегов
-            print("Попытка скрыть теги")
-            for _, player in pairs(getAllPlayers()) do
-                hideInfoTag(player)
-            end
+    -- Первоначальное обновление текста
+    updateText()
+end
 
-            -- Удаление скрипта
-            print("Попытка отгрузки скрипта")
-            unloadScript()
-            scriptLoaded = false
-            mainScriptButton.Text = "Load Main Script"
-            mainScript = nil  -- Очистка ссылки на скрипт
-            print("Скрипт отгружен и очищен.")
-        end
+-- Подписка на событие появления игрока
+Players.PlayerAdded:Connect(function(player)
+    player.CharacterAdded:Connect(function(character)
+        -- Ожидание загрузки головы игрока
+        character:WaitForChild("Head")
+        createInfoTag(player)
     end)
+end)
 
-    print("Кнопка успешно добавлена в раздел 'Основные'")
-else
-    print("Раздел 'Основные' не найден")
+-- Добавление тегов для уже присутствующих игроков
+for _, player in pairs(Players:GetPlayers()) do
+    if player.Character and player.Character:FindFirstChild("Head") then
+        createInfoTag(player)
+    end
 end
 
 
