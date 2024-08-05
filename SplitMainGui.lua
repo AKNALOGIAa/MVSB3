@@ -2,7 +2,6 @@ local player = game:GetService("Players").LocalPlayer
 local playerGui = player:FindFirstChildOfClass("PlayerGui")
 local replicatedStorage = game:GetService("ReplicatedStorage")
 local userInputService = game:GetService("UserInputService")
-local players = game:GetService("Players")
 
 -- Удаление старого GUI, если существует
 if playerGui:FindFirstChild("CustomUI") then
@@ -43,7 +42,7 @@ titleLabel.TextXAlignment = Enum.TextXAlignment.Left
 titleLabel.TextYAlignment = Enum.TextYAlignment.Center
 titleLabel.Parent = header
 
--- Кнопка свернуть/развернуть
+------------- Кнопка свернуть/развернуть--------------
 local minimizeButton = Instance.new("TextButton")
 minimizeButton.Size = UDim2.new(0.1, 0, 0.5, 0)
 minimizeButton.Position = UDim2.new(0.9, -10, 0.25, 0)
@@ -85,8 +84,9 @@ restoreButton.MouseButton1Click:Connect(function()
     mainFrame.Visible = true
     restoreButton.Visible = false
 end)
+----------------------------------------------------------
 
--- Перетаскивание окна
+------------------- Перетаскивание окна-------------------
 local dragging
 local dragInput
 local dragStart
@@ -122,8 +122,9 @@ userInputService.InputChanged:Connect(function(input)
         update(input)
     end
 end)
+----------------------------------------------------------
 
--- Боковое меню
+---------------------- Боковое меню-----------------------
 local sidebar = Instance.new("Frame")
 sidebar.Name = "Sidebar"
 sidebar.Size = UDim2.new(0.2, 0, 0.9, 0)
@@ -180,8 +181,9 @@ local function createSidebarButton(text, sectionName, index)
         button.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
     end)
 end
+----------------------------------------------------------
 
--- Функция для создания раздела
+--------------- Функция для создания раздела--------------
 local function createSection(name)
     local frame = Instance.new("Frame")
     frame.Name = name
@@ -203,8 +205,9 @@ local function createSection(name)
     titleLabel.TextYAlignment = Enum.TextYAlignment.Center
     titleLabel.Parent = frame
 end
+----------------------------------------------------------
 
--- Создание кнопок и разделов
+--------------- Создание кнопок и разделов----------------
 local categories = {
     {name = "Основные", section = "Main"},
     {name = "Профиль Игроков", section = "PlayerProfile"},
@@ -216,6 +219,7 @@ for index, category in ipairs(categories) do
     createSidebarButton(category.name, category.section, index)
     createSection(category.section)
 end
+----------------------------------------------------------
 
 local mainCategorySection = content:FindFirstChild("Main")
 
@@ -242,40 +246,48 @@ if mainCategorySection then
     guildRewardButton.MouseButton1Click:Connect(function()
         if not isCollected then
             -- Загружаем и выполняем скрипт для сбора наград
-            loadstring(game:HttpGet("https://raw.githubusercontent.com/AKNALOGIAa/MVSB3/main/Categories/GuildsRewards.lua"))()
-
+            game:GetService("ReplicatedStorage").Systems.Guilds.GetRewards:InvokeServer()
+            for i = 1, 9 do
+                local args = {
+                    [1] = i
+                }
+                game:GetService("ReplicatedStorage").Systems.Guilds.ClaimGuildReward:FireServer(unpack(args))
+            end
+            local auraPackArgs = {
+                [1] = "Floor6AuraPack",
+                [2] = 3,
+                [3] = true
+            }
+            game:GetService("ReplicatedStorage").Systems.PremiumShop.PurchaseAuraPack:FireServer(unpack(auraPackArgs))
             -- Меняем цвет кнопки на зеленый
             guildRewardButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
             isCollected = true
         end
     end)
-
-    -- Создание основной кнопки скрипта
-    local mainScriptButton = Instance.new("TextButton")
-    mainScriptButton.Size = UDim2.new(1, 0, 0, 50)  -- Увеличил высоту кнопки для лучшей видимости
-    mainScriptButton.Position = UDim2.new(0, 0, 0, 0)  -- Позиция кнопки
-    mainScriptButton.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
-    mainScriptButton.Text = "Load Main Script"
-    mainScriptButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-    mainScriptButton.Font = Enum.Font.SourceSans
-    mainScriptButton.TextSize = 18
-    mainScriptButton.BorderSizePixel = 0
-    mainScriptButton.ZIndex = 2  -- Устанавливаем высокий ZIndex
-    mainScriptButton.Parent = mainCategorySection  -- Присоединяем кнопку к разделу "Основные"
-
-    local scriptLoaded = false
-    local mainScript
-
-    local function unloadScript()
-        if mainScript and type(mainScript) == "table" and mainScript.cleanup then
-            print("Выполняется очистка скрипта...")
-            pcall(mainScript.cleanup)  -- Выполняем функцию очистки скрипта
-        end
-    end
 end
+----------------------------------------------------------
 
----------------ДЕНЬГИ НАД ГОЛОВОЙ----------------
-  -- Функция для форматирования числа с разделителями для тысяч
+---------------------Деньги над головой-------------------
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+-- Создаем кнопку для основного скрипта
+local mainScriptButton = Instance.new("TextButton")
+mainScriptButton.Size = UDim2.new(1, 0, 0, 50)
+mainScriptButton.Position = UDim2.new(0, 0, 0, 0)
+mainScriptButton.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+mainScriptButton.Text = "Load Main Script"
+mainScriptButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+mainScriptButton.Font = Enum.Font.SourceSans
+mainScriptButton.TextSize = 18
+mainScriptButton.BorderSizePixel = 0
+mainScriptButton.ZIndex = 2
+mainScriptButton.Parent = mainCategorySection
+
+-- Переменная для отслеживания состояния скрипта
+local scriptEnabled = false
+
+-- Функция для форматирования числа с разделителями для тысяч
 local function formatNumber(number)
     local formatted = tostring(number)
     while true do  
@@ -351,26 +363,55 @@ local function createInfoTag(player)
     updateText()
 end
 
--- Подписка на событие появления игрока
-Players.PlayerAdded:Connect(function(player)
-    player.CharacterAdded:Connect(function(character)
-        -- Ожидание загрузки головы игрока
-        character:WaitForChild("Head")
-        createInfoTag(player)
+-- Функция для включения скрипта
+local function enableScript()
+    -- Подписка на событие появления игрока
+    Players.PlayerAdded:Connect(function(player)
+        player.CharacterAdded:Connect(function(character)
+            -- Ожидание загрузки головы игрока
+            character:WaitForChild("Head")
+            createInfoTag(player)
+        end)
     end)
-end)
 
--- Добавление тегов для уже присутствующих игроков
-for _, player in pairs(Players:GetPlayers()) do
-    if player.Character and player.Character:FindFirstChild("Head") then
-        createInfoTag(player)
+    -- Добавление тегов для уже присутствующих игроков
+    for _, player in pairs(Players:GetPlayers()) do
+        if player.Character and player.Character:FindFirstChild("Head") then
+            createInfoTag(player)
+        end
     end
 end
-------------------------------------------
 
+-- Функция для отключения скрипта
+local function disableScript()
+    -- Отключение всех созданных BillboardGui
+    for _, player in pairs(Players:GetPlayers()) do
+        if player.Character and player.Character:FindFirstChild("Head") then
+            local head = player.Character.Head
+            for _, child in pairs(head:GetChildren()) do
+                if child:IsA("BillboardGui") then
+                    child:Destroy()
+                end
+            end
+        end
+    end
+end
 
+-- Обработчик нажатия на кнопку
+mainScriptButton.MouseButton1Click:Connect(function()
+    scriptEnabled = not scriptEnabled
+    if scriptEnabled then
+        mainScriptButton.Text = "Unload Main Script"
+        enableScript()
+    else
+        mainScriptButton.Text = "Load Main Script"
+        disableScript()
+    end
+end)
 
--- Контейнер для списка профилей игроков
+---------------------------------------------------------
+
+--------- Контейнер для списка профилей игроков----------
 local profileList = Instance.new("ScrollingFrame")
 profileList.Name = "ProfileList"
 profileList.Size = UDim2.new(1, 0, 1, -50)
@@ -558,8 +599,10 @@ local function updatePlayerProfiles()
         createPlayerProfile(player.Name, i - 1)
     end
 end
+---------------------------------------------------------
 
--- Контейнер для списка трейдов
+
+--------------- Контейнер для списка трейдов-------------
 local tradeList = Instance.new("ScrollingFrame")
 tradeList.Name = "TradeList"
 tradeList.Size = UDim2.new(1, 0, 1, -50)
