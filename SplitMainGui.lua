@@ -330,7 +330,7 @@ if itemsSection then
                     -- Создаем текстовое представление для каждого предмета
                     local itemDisplay = Instance.new("TextLabel")
                     itemDisplay.Size = UDim2.new(0, itemWidth, 0, itemHeight)
-                    itemDisplay.Position = UDim2.new(0, col * (itemWidth + spacing), 0, row * (itemHeight + spacing))
+                    itemDisplay.Position = UDim2.new(0, col * (itemWidth + spacing), 0, row * (itemHeight * 2 + spacing))
                     itemDisplay.Text = item.Name
                     itemDisplay.TextColor3 = Color3.new(1, 1, 1)
                     itemDisplay.BackgroundTransparency = 1
@@ -339,7 +339,7 @@ if itemsSection then
                     -- Создаем кнопку "Купить" для каждого предмета
                     local buyButton = Instance.new("TextButton")
                     buyButton.Size = UDim2.new(0, itemWidth, 0, itemHeight)
-                    buyButton.Position = UDim2.new(0, col * (itemWidth + spacing), 0, (row + 1) * (itemHeight + spacing))
+                    buyButton.Position = UDim2.new(0, col * (itemWidth + spacing), 0, row * (itemHeight * 2 + spacing) + itemHeight + spacing)
                     buyButton.Text = "Купить"
                     buyButton.TextColor3 = Color3.new(1, 1, 1)
                     buyButton.BackgroundColor3 = Color3.new(0, 0.5, 0)
@@ -353,12 +353,12 @@ if itemsSection then
                     col = col + 1
                     if col >= columns then
                         col = 0
-                        row = row + 2 -- Увеличиваем на 2, чтобы учесть кнопку "Купить"
+                        row = row + 1
                     end
                 end
 
                 -- Обновляем размер CanvasSize для ScrollingFrame
-                itemCategorySection.CanvasSize = UDim2.new(0, 0, 0, (row + 1) * (itemHeight + spacing))
+                itemCategorySection.CanvasSize = UDim2.new(0, 0, 0, (row + 1) * (itemHeight * 2 + spacing))
             else
                 -- Если предметов нет, отображаем сообщение
                 local message = Instance.new("TextLabel")
