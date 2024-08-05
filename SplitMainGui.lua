@@ -275,21 +275,6 @@ local itemsSection = content:FindFirstChild("Items")
 -- Проверяем, существует ли категория PlayerProfile
 if itemsSection then
 
-    -- Создаем элементы GUI для отображения профиля игрока
-    local anameLabel = Instance.new("TextLabel")
-    anameLabel.Size = UDim2.new(0, 200, 0, 50)
-    anameLabel.Position = UDim2.new(0, 10, 0, 10)
-    anameLabel.TextColor3 = Color3.new(1, 1, 1)
-    anameLabel.BackgroundTransparency = 1
-    anameLabel.Parent = itemsSection
-
-    local avelLabel = Instance.new("TextLabel")
-    avelLabel.Size = UDim2.new(0, 200, 0, 50)
-    avelLabel.Position = UDim2.new(0, 10, 0, 70)
-    avelLabel.TextColor3 = Color3.new(1, 1, 1)
-    avelLabel.BackgroundTransparency = 1
-    avelLabel.Parent = itemsSection
-
     -- Создаем ScrollingFrame для возможности прокрутки
     local scrollingFrame = Instance.new("ScrollingFrame")
     scrollingFrame.Size = UDim2.new(1, 0, 1, -130)
