@@ -212,6 +212,7 @@ local categories = {
     {name = "Основные", section = "Main"},
     {name = "Профиль Игроков", section = "PlayerProfile"},
     {name = "Трейды", section = "Trades"},
+    {name = "Вещи", section = "Items"},
     {name = "Настройки", section = "Settings"}
 }
 
@@ -264,6 +265,52 @@ if mainCategorySection then
             isCollected = true
         end
     end)
+end
+----------------------------------------------------------
+
+----------- Функция для создания кнопки покупки----------
+local itemCategorySection = content:FindFirstChild("Items")
+
+local function createBuyButton(parent, item, value)
+    local button = Instance.new("TextButton")
+    button.Size = UDim2.new(1, 0, 0, 50)  -- Размер кнопки
+    button.Position = UDim2.new(0, 0, 0, value * 60)  -- Позиция кнопки
+    button.BackgroundColor3 = Color3.fromRGB(0, 255, 0)  -- Зеленый цвет, когда не нажата
+    button.Text = "Купить " .. item.Name .. " (" .. value .. ")"
+    button.TextColor3 = Color3.fromRGB(255, 255, 255)
+    button.Font = Enum.Font.SourceSans
+    button.TextSize = 18
+    button.BorderSizePixel = 0
+    button.ZIndex = 2
+    button.Parent = itemCategorySection-- Присоединяем кнопку к родительскому элементу
+
+    button.MouseButton1Click:Connect(function()
+        local args = {
+            [1] = game:GetService("ReplicatedStorage").Drops[item.Name]
+        }
+
+        game:GetService("ReplicatedStorage").Systems.Shops.Buy:FireServer(unpack(args))
+    end)
+end
+
+-- Создаем секцию для предметов
+local itemsCategorySection = content:FindFirstChild("Items")
+
+if itemsCategorySection then
+    print("Раздел 'Items' найден")
+
+    -- Пример предметов для отображения
+    local items = {
+        {Name = "FaeBlade", Value = 123},
+        {Name = "StarlightReaper", Value = 456}
+    }
+
+    -- Создаем кнопки для каждого предмета
+    for i, item in ipairs(items) do
+        createBuyButton(itemsCategorySection, item, item.Value)
+    end
+else
+    print("Раздел 'Items' не найден")
 end
 ----------------------------------------------------------
 
