@@ -270,9 +270,7 @@ end
 
 ----------- Функция для создания кнопки покупки----------
 -- Получаем основную категорию для профиля игрока
--- Получаем основную категорию для профиля игрока
 local itemsSection = content:FindFirstChild("Items")
-local player = game.Players.LocalPlayer
 
 if itemsSection then
     -- Создаем ScrollingFrame для возможности прокрутки
@@ -302,62 +300,32 @@ if itemsSection then
                 local columns = 3
                 local spacing = 10
                 local itemWidth = (itemCategorySection.AbsoluteSize.X - spacing * (columns - 1)) / columns
-                local itemHeight = 70
+                local itemHeight = 50
                 local row = 0
                 local col = 0
 
                 for i, item in ipairs(items) do
-                    local owner = item:FindFirstChild("Owner")
-                    local vel = item:FindFirstChild("Vel")
-
-                    -- Создаем текстовое представление для каждого предмета
                     local itemDisplay = Instance.new("TextLabel")
                     itemDisplay.Size = UDim2.new(0, itemWidth, 0, itemHeight)
-                    itemDisplay.Position = UDim2.new(0, col * (itemWidth + spacing), 0, row * (itemHeight + spacing))
+                    itemDisplay.Position = UDim2.new(0, col * (itemWidth + spacing), 0, row * (itemHeight * 2 + spacing))
                     itemDisplay.Text = item.Name
                     itemDisplay.TextColor3 = Color3.new(1, 1, 1)
                     itemDisplay.BackgroundTransparency = 1
                     itemDisplay.Parent = itemCategorySection
 
-                    -- Отображаем значение Vel:
-                    if vel then
-                        local velLabel = Instance.new("TextLabel")
-                        velLabel.Size = UDim2.new(0, itemWidth, 0, itemHeight / 2)
-                        velLabel.Position = UDim2.new(0, col * (itemWidth + spacing), 0, row * (itemHeight + spacing) + itemHeight / 2)
-                        velLabel.Text = "Vel: " .. tostring(vel.Value)
-                        velLabel.TextColor3 = Color3.new(1, 1, 0)
-                        velLabel.BackgroundTransparency = 1
-                        velLabel.Parent = itemCategorySection
-                    end
-
-                    -- Создаем кнопку для каждого предмета
                     local buyButton = Instance.new("TextButton")
-                    buyButton.Size = UDim2.new(0, itemWidth, 0, itemHeight / 2)
-                    buyButton.Position = UDim2.new(0, col * (itemWidth + spacing), 0, row * (itemHeight + spacing) + itemHeight / 2)
-                    
-                    if owner and owner.Value == player.Name then
-                        buyButton.Text = "Взять"
-                        buyButton.BackgroundColor3 = Color3.new(1, 1, 0)
-                    else
-                        buyButton.Text = "Купить"
-                        buyButton.BackgroundColor3 = Color3.new(0, 0.5, 0)
-                    end
-                    
+                    buyButton.Size = UDim2.new(0, itemWidth, 0, itemHeight)
+                    buyButton.Position = UDim2.new(0, col * (itemWidth + spacing), 0, row * (itemHeight * 2 + spacing) + itemHeight + spacing)
+                    buyButton.Text = "Купить"
                     buyButton.TextColor3 = Color3.new(1, 1, 1)
+                    buyButton.BackgroundColor3 = Color3.new(0, 0.5, 0)
                     buyButton.Parent = itemCategorySection
 
-                    -- Привязываем функцию к кнопке
                     buyButton.MouseButton1Click:Connect(function()
-                        if owner and owner.Value == player.Name then
-                            -- Логика для "Взять"
-                            print("Кнопка 'Взять' нажата для " .. item.Name)
-                        else
-                            -- Логика для "Купить"
-                            local args = {
-                                [1] = game:GetService("ReplicatedStorage").Drops[item.Name]
-                            }
-                            game:GetService("ReplicatedStorage").Systems.Shops.Buy:FireServer(unpack(args))
-                        end
+                        local args = {
+                            [1] = game:GetService("ReplicatedStorage").Drops[item.Name]
+                        }
+                        game:GetService("ReplicatedStorage").Systems.Shops.Buy:FireServer(unpack(args))
                     end)
 
                     col = col + 1
@@ -367,7 +335,7 @@ if itemsSection then
                     end
                 end
 
-                itemCategorySection.CanvasSize = UDim2.new(0, 0, 0, (row + 1) * (itemHeight + spacing))
+                itemCategorySection.CanvasSize = UDim2.new(0, 0, 0, (row + 1) * (itemHeight * 2 + spacing))
             else
                 local message = Instance.new("TextLabel")
                 message.Size = UDim2.new(1, 0, 1, 0)
@@ -393,7 +361,6 @@ if itemsSection then
 else
     warn("itemsSection категория не найдена в content")
 end
-
 
 
 ----------------------------------------------------------
