@@ -269,48 +269,49 @@ end
 ----------------------------------------------------------
 
 ----------- Функция для создания кнопки покупки----------
+-- Получаем категорию Items
 local itemCategorySection = content:FindFirstChild("Items")
--- Функция для создания кнопки покупки
-local function createBuyButton(parent, item, value)
-    local button = Instance.new("TextButton")
-    button.Size = UDim2.new(1, 0, 0, 50)  -- Размер кнопки
-    button.Position = UDim2.new(0, 0, 0, value * 60)  -- Позиция кнопки
-    button.BackgroundColor3 = Color3.fromRGB(0, 255, 0)  -- Зеленый цвет, когда не нажата
-    button.Text = "Купить " .. item.Name .. " (" .. value .. ")"
-    button.TextColor3 = Color3.fromRGB(255, 255, 255)
-    button.Font = Enum.Font.SourceSans
-    button.TextSize = 18
-    button.BorderSizePixel = 0
-    button.ZIndex = 2
-    button.Parent = parent  -- Присоединяем кнопку к родительскому элементу
 
-    button.MouseButton1Click:Connect(function()
-        local args = {
-            [1] = game:GetService("ReplicatedStorage").Drops[item.Name]
-        }
-
-        game:GetService("ReplicatedStorage").Systems.Shops.Buy:FireServer(unpack(args))
-    end)
-end
-
--- Создаем секцию для предметов
-local itemsCategorySection = content:FindFirstChild("Items")
-
-if itemsCategorySection then
-    print("Раздел 'Items' найден")
-
-    -- Пример предметов для отображения
-    local items = {
-        {Name = "FaeBlade", Value = 123},
-        {Name = "StarlightReaper", Value = 456}
-    }
-
-    -- Создаем кнопки для каждого предмета
-    for i, item in ipairs(items) do
-        createBuyButton(itemsCategorySection, item, item.Value)
+-- Проверяем, существует ли категория Items
+if itemCategorySection then
+    -- Получаем Drops из ReplicatedStorage
+    local drops = replicatedStorage:FindFirstChild("Drops")
+    
+    -- Проверяем, существуют ли Drops
+    if drops then
+        local items = drops:GetChildren()
+        
+        if #items > 0 then
+            -- Перебираем все объекты в Drops и добавляем их в категорию Items
+            for _, item in pairs(items) do
+                -- Если объект не является моделью, создаём его представление
+                if not item:IsA("Model") then
+                    local itemDisplay = Instance.new("TextLabel")
+                    itemDisplay.Size = UDim2.new(0, 100, 0, 50) -- Задайте размер по вашему усмотрению
+                    itemDisplay.Text = item.Name
+                    itemDisplay.Parent = itemCategorySection
+                else
+                    -- Если объект является моделью, отобразите его как-то иначе
+                    -- Здесь предполагается, что вы работаете с UI, и модели нельзя напрямую отображать
+                end
+            end
+        else
+            -- Если предметов нет, отображаем сообщение
+            local message = Instance.new("TextLabel")
+            message.Size = UDim2.new(1, 0, 1, 0)
+            message.Position = UDim2.new(0.5, 0, 0.5, 0)
+            message.AnchorPoint = Vector2.new(0.5, 0.5)
+            message.Text = "Предметов нет"
+            message.TextColor3 = Color3.new(1, 0, 0)
+            message.TextScaled = true
+            message.BackgroundTransparency = 1
+            message.Parent = itemCategorySection
+        end
+    else
+        warn("Drops не найдены в ReplicatedStorage")
     end
 else
-    print("Раздел 'Items' не найден")
+    warn("Items категория не найдена в content")
 end
 
 ----------------------------------------------------------
