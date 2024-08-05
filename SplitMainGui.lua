@@ -271,30 +271,30 @@ end
 ----------- Функция для создания кнопки покупки----------
 
 -- Получаем основную категорию для профиля игрока
-local playerProfileSection = content:FindFirstChild("PlayerProfile")
+local itemsSection = content:FindFirstChild("Items")
 
 -- Проверяем, существует ли категория PlayerProfile
-if playerProfileSection then
+if itemsSection then
     -- Получаем данные игрока (например, из Player или другого источника)
     local playerName = "XAGAN007"  -- Пример имени игрока
     local playerVel = 3001840  -- Пример количества валюты
 
     -- Создаем элементы GUI для отображения профиля игрока
-    local nameLabel = Instance.new("TextLabel")
-    nameLabel.Size = UDim2.new(0, 200, 0, 50)
-    nameLabel.Position = UDim2.new(0, 10, 0, 10)
-    nameLabel.Text = "Name: " .. playerName
-    nameLabel.TextColor3 = Color3.new(1, 1, 1)
-    nameLabel.BackgroundTransparency = 1
-    nameLabel.Parent = playerProfileSection
+    local anameLabel = Instance.new("TextLabel")
+    anameLabel.Size = UDim2.new(0, 200, 0, 50)
+    anameLabel.Position = UDim2.new(0, 10, 0, 10)
+    anameLabel.Text = "Name: " .. playerName
+    anameLabel.TextColor3 = Color3.new(1, 1, 1)
+    anameLabel.BackgroundTransparency = 1
+    anameLabel.Parent = itemsSection
 
-    local velLabel = Instance.new("TextLabel")
-    velLabel.Size = UDim2.new(0, 200, 0, 50)
-    velLabel.Position = UDim2.new(0, 10, 0, 70)
-    velLabel.Text = "Vel: " .. playerVel
-    velLabel.TextColor3 = Color3.new(1, 1, 1)
-    velLabel.BackgroundTransparency = 1
-    velLabel.Parent = playerProfileSection
+    local avelLabel = Instance.new("TextLabel")
+    avelLabel.Size = UDim2.new(0, 200, 0, 50)
+    avelLabel.Position = UDim2.new(0, 10, 0, 70)
+    avelLabel.Text = "Vel: " .. playerVel
+    avelLabel.TextColor3 = Color3.new(1, 1, 1)
+    avelLabel.BackgroundTransparency = 1
+    avelLabel.Parent = itemsSection
 
     -- Создаем кнопку "Купить"
     local buyButton = Instance.new("TextButton")
@@ -303,7 +303,7 @@ if playerProfileSection then
     buyButton.Text = "Купить"
     buyButton.TextColor3 = Color3.new(1, 1, 1)
     buyButton.BackgroundColor3 = Color3.new(0, 0.5, 0)
-    buyButton.Parent = playerProfileSection
+    buyButton.Parent = itemsSection
 
     -- Добавляем функционал для кнопки "Купить"
     buyButton.MouseButton1Click:Connect(function()
