@@ -269,7 +269,51 @@ end
 ----------------------------------------------------------
 
 ----------- Функция для создания кнопки покупки----------
--- Получаем категорию Items
+
+-- Получаем основную категорию для профиля игрока
+local playerProfileSection = content:FindFirstChild("PlayerProfile")
+
+-- Проверяем, существует ли категория PlayerProfile
+if playerProfileSection then
+    -- Получаем данные игрока (например, из Player или другого источника)
+    local playerName = "XAGAN007"  -- Пример имени игрока
+    local playerVel = 3001840  -- Пример количества валюты
+
+    -- Создаем элементы GUI для отображения профиля игрока
+    local nameLabel = Instance.new("TextLabel")
+    nameLabel.Size = UDim2.new(0, 200, 0, 50)
+    nameLabel.Position = UDim2.new(0, 10, 0, 10)
+    nameLabel.Text = "Name: " .. playerName
+    nameLabel.TextColor3 = Color3.new(1, 1, 1)
+    nameLabel.BackgroundTransparency = 1
+    nameLabel.Parent = playerProfileSection
+
+    local velLabel = Instance.new("TextLabel")
+    velLabel.Size = UDim2.new(0, 200, 0, 50)
+    velLabel.Position = UDim2.new(0, 10, 0, 70)
+    velLabel.Text = "Vel: " .. playerVel
+    velLabel.TextColor3 = Color3.new(1, 1, 1)
+    velLabel.BackgroundTransparency = 1
+    velLabel.Parent = playerProfileSection
+
+    -- Создаем кнопку "Купить"
+    local buyButton = Instance.new("TextButton")
+    buyButton.Size = UDim2.new(0, 100, 0, 50)
+    buyButton.Position = UDim2.new(1, -110, 0, 70)
+    buyButton.Text = "Купить"
+    buyButton.TextColor3 = Color3.new(1, 1, 1)
+    buyButton.BackgroundColor3 = Color3.new(0, 0.5, 0)
+    buyButton.Parent = playerProfileSection
+
+    -- Добавляем функционал для кнопки "Купить"
+    buyButton.MouseButton1Click:Connect(function()
+        print("Кнопка 'Купить' нажата")
+        -- Добавьте здесь логику для покупки
+    end)
+else
+    warn("PlayerProfile категория не найдена в content")
+end
+
 -- Получаем категорию Items
 local itemCategorySection = content:FindFirstChild("Items")
 
@@ -291,13 +335,29 @@ if itemCategorySection then
         end
         
         if #items > 0 then
+            local columns = 3
+            local spacing = 10
+            local itemWidth = (itemCategorySection.AbsoluteSize.X - spacing * (columns - 1)) / columns
+            local itemHeight = 50
+            local row = 0
+            local col = 0
+
             -- Перебираем все объекты в Drops и добавляем их в категорию Items
-            for _, item in pairs(items) do
+            for i, item in ipairs(items) do
                 -- Создаем текстовое представление для каждого предмета
                 local itemDisplay = Instance.new("TextLabel")
-                itemDisplay.Size = UDim2.new(0, 100, 0, 50) -- Задайте размер по вашему усмотрению
+                itemDisplay.Size = UDim2.new(0, itemWidth, 0, itemHeight)
+                itemDisplay.Position = UDim2.new(0, col * (itemWidth + spacing), 0, row * (itemHeight + spacing))
                 itemDisplay.Text = item.Name
+                itemDisplay.TextColor3 = Color3.new(1, 1, 1)
+                itemDisplay.BackgroundTransparency = 1
                 itemDisplay.Parent = itemCategorySection
+                
+                col = col + 1
+                if col >= columns then
+                    col = 0
+                    row = row + 1
+                end
             end
         else
             -- Если предметов нет, отображаем сообщение
