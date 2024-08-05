@@ -270,7 +270,7 @@ end
 
 ----------- Функция для создания кнопки покупки----------
 local itemCategorySection = content:FindFirstChild("Items")
-
+-- Функция для создания кнопки покупки
 local function createBuyButton(parent, item, value)
     local button = Instance.new("TextButton")
     button.Size = UDim2.new(1, 0, 0, 50)  -- Размер кнопки
@@ -282,7 +282,7 @@ local function createBuyButton(parent, item, value)
     button.TextSize = 18
     button.BorderSizePixel = 0
     button.ZIndex = 2
-    button.Parent = itemCategorySection-- Присоединяем кнопку к родительскому элементу
+    button.Parent = parent  -- Присоединяем кнопку к родительскому элементу
 
     button.MouseButton1Click:Connect(function()
         local args = {
@@ -312,6 +312,7 @@ if itemsCategorySection then
 else
     print("Раздел 'Items' не найден")
 end
+
 ----------------------------------------------------------
 
 ---------------------Деньги над головой-------------------
