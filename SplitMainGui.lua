@@ -276,7 +276,7 @@ local itemsSection = content:FindFirstChild("Items")
 -- Проверяем, существует ли категория PlayerProfile
 if itemsSection then
     -- Получаем данные игрока (например, из Player или другого источника)
-    local playerName = "XAGAN007"  -- Пример имени игрока
+    local playerName = "XAGAN64007"  -- Пример имени игрока
     local playerVel = 3001840  -- Пример количества валюты
 
     -- Создаем элементы GUI для отображения профиля игрока
@@ -311,7 +311,7 @@ if itemsSection then
         -- Добавьте здесь логику для покупки
     end)
 else
-    warn("PlayerProfile категория не найдена в content")
+    warn("itemsSection категория не найдена в content")
 end
 
 -- Получаем категорию Items
@@ -320,7 +320,6 @@ local itemCategorySection = content:FindFirstChild("Items")
 -- Проверяем, существует ли категория Items
 if itemCategorySection then
     -- Получаем Drops из ReplicatedStorage
-    local replicatedStorage = game:GetService("ReplicatedStorage")
     local drops = replicatedStorage:FindFirstChild("Drops")
     
     -- Проверяем, существуют ли Drops
