@@ -272,30 +272,24 @@ end
 -- Получаем основную категорию для профиля игрока
 local itemsSection = content:FindFirstChild("Items")
 
--- Проверяем, существует ли категория PlayerProfile
 if itemsSection then
-
     -- Создаем ScrollingFrame для возможности прокрутки
     local scrollingFrame = Instance.new("ScrollingFrame")
     scrollingFrame.Size = UDim2.new(1, 0, 1, 0)
-    scrollingFrame.Position = UDim2.new(0, 0, 0, 10)
-    scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, 0) -- Будет обновляться позже
+    scrollingFrame.Position = UDim2.new(0, 0, 0, 0)
+    scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
     scrollingFrame.ScrollBarThickness = 12
     scrollingFrame.Parent = itemsSection
 
     -- Получаем категорию Items
     local itemCategorySection = scrollingFrame
 
-    -- Проверяем, существует ли категория Items
-    if itemCategorySection then
-        -- Получаем Drops из ReplicatedStorage
+    local function updateItems()
         local drops = replicatedStorage:FindFirstChild("Drops")
         
-        -- Проверяем, существуют ли Drops
         if drops then
             local items = drops:GetChildren()
             
-            -- Очистите категорию перед добавлением новых предметов
             for _, child in pairs(itemCategorySection:GetChildren()) do
                 if child:IsA("TextLabel") or child:IsA("TextButton") then
                     child:Destroy()
@@ -310,9 +304,7 @@ if itemsSection then
                 local row = 0
                 local col = 0
 
-                -- Перебираем все объекты в Drops и добавляем их в категорию Items
                 for i, item in ipairs(items) do
-                    -- Создаем текстовое представление для каждого предмета
                     local itemDisplay = Instance.new("TextLabel")
                     itemDisplay.Size = UDim2.new(0, itemWidth, 0, itemHeight)
                     itemDisplay.Position = UDim2.new(0, col * (itemWidth + spacing), 0, row * (itemHeight * 2 + spacing))
@@ -321,7 +313,6 @@ if itemsSection then
                     itemDisplay.BackgroundTransparency = 1
                     itemDisplay.Parent = itemCategorySection
 
-                    -- Создаем кнопку "Купить" для каждого предмета
                     local buyButton = Instance.new("TextButton")
                     buyButton.Size = UDim2.new(0, itemWidth, 0, itemHeight)
                     buyButton.Position = UDim2.new(0, col * (itemWidth + spacing), 0, row * (itemHeight * 2 + spacing) + itemHeight + spacing)
@@ -330,7 +321,6 @@ if itemsSection then
                     buyButton.BackgroundColor3 = Color3.new(0, 0.5, 0)
                     buyButton.Parent = itemCategorySection
 
-                    -- Привязываем функцию к кнопке
                     buyButton.MouseButton1Click:Connect(function()
                         local args = {
                             [1] = game:GetService("ReplicatedStorage").Drops[item.Name]
@@ -345,10 +335,8 @@ if itemsSection then
                     end
                 end
 
-                -- Обновляем размер CanvasSize для ScrollingFrame
                 itemCategorySection.CanvasSize = UDim2.new(0, 0, 0, (row + 1) * (itemHeight * 2 + spacing))
             else
-                -- Если предметов нет, отображаем сообщение
                 local message = Instance.new("TextLabel")
                 message.Size = UDim2.new(1, 0, 1, 0)
                 message.Position = UDim2.new(0.5, 0, 0.5, 0)
@@ -362,12 +350,18 @@ if itemsSection then
         else
             warn("Drops не найдены в ReplicatedStorage")
         end
-    else
-        warn("Items категория не найдена в content")
     end
+
+    updateItems()
+
+    -- Подписываемся на изменения в Drops
+    replicatedStorage.Drops.ChildAdded:Connect(updateItems)
+    replicatedStorage.Drops.ChildRemoved:Connect(updateItems)
+    replicatedStorage.Drops.ChildChanged:Connect(updateItems)
 else
     warn("itemsSection категория не найдена в content")
 end
+
 
 ----------------------------------------------------------
 
