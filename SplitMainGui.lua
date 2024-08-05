@@ -270,30 +270,34 @@ end
 
 ----------- Функция для создания кнопки покупки----------
 -- Получаем категорию Items
+-- Получаем категорию Items
 local itemCategorySection = content:FindFirstChild("Items")
 
 -- Проверяем, существует ли категория Items
 if itemCategorySection then
     -- Получаем Drops из ReplicatedStorage
+    local replicatedStorage = game:GetService("ReplicatedStorage")
     local drops = replicatedStorage:FindFirstChild("Drops")
     
     -- Проверяем, существуют ли Drops
     if drops then
         local items = drops:GetChildren()
         
+        -- Очистите категорию перед добавлением новых предметов
+        for _, child in pairs(itemCategorySection:GetChildren()) do
+            if child:IsA("TextLabel") then
+                child:Destroy()
+            end
+        end
+        
         if #items > 0 then
             -- Перебираем все объекты в Drops и добавляем их в категорию Items
             for _, item in pairs(items) do
-                -- Если объект не является моделью, создаём его представление
-                if not item:IsA("Model") then
-                    local itemDisplay = Instance.new("TextLabel")
-                    itemDisplay.Size = UDim2.new(0, 100, 0, 50) -- Задайте размер по вашему усмотрению
-                    itemDisplay.Text = item.Name
-                    itemDisplay.Parent = itemCategorySection
-                else
-                    -- Если объект является моделью, отобразите его как-то иначе
-                    -- Здесь предполагается, что вы работаете с UI, и модели нельзя напрямую отображать
-                end
+                -- Создаем текстовое представление для каждого предмета
+                local itemDisplay = Instance.new("TextLabel")
+                itemDisplay.Size = UDim2.new(0, 100, 0, 50) -- Задайте размер по вашему усмотрению
+                itemDisplay.Text = item.Name
+                itemDisplay.Parent = itemCategorySection
             end
         else
             -- Если предметов нет, отображаем сообщение
@@ -313,6 +317,7 @@ if itemCategorySection then
 else
     warn("Items категория не найдена в content")
 end
+
 
 ----------------------------------------------------------
 
