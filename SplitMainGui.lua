@@ -277,7 +277,7 @@ if itemsSection then
 
     -- Создаем ScrollingFrame для возможности прокрутки
     local scrollingFrame = Instance.new("ScrollingFrame")
-    scrollingFrame.Size = UDim2.new(1, 0, 1, -130)
+    scrollingFrame.Size = UDim2.new(1, 0, 1, 0)
     scrollingFrame.Position = UDim2.new(0, 0, 0, 10)
     scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, 0) -- Будет обновляться позже
     scrollingFrame.ScrollBarThickness = 12
