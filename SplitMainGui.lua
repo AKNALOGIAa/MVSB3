@@ -269,21 +269,16 @@ end
 ----------------------------------------------------------
 
 ----------- Функция для создания кнопки покупки----------
-
 -- Получаем основную категорию для профиля игрока
 local itemsSection = content:FindFirstChild("Items")
 
 -- Проверяем, существует ли категория PlayerProfile
 if itemsSection then
-    -- Получаем данные игрока (например, из Player или другого источника)
-    local playerName = "XAGAN64007"  -- Пример имени игрока
-    local playerVel = 3001840  -- Пример количества валюты
 
     -- Создаем элементы GUI для отображения профиля игрока
     local anameLabel = Instance.new("TextLabel")
     anameLabel.Size = UDim2.new(0, 200, 0, 50)
     anameLabel.Position = UDim2.new(0, 10, 0, 10)
-    anameLabel.Text = "Name: " .. playerName
     anameLabel.TextColor3 = Color3.new(1, 1, 1)
     anameLabel.BackgroundTransparency = 1
     anameLabel.Parent = itemsSection
@@ -291,92 +286,100 @@ if itemsSection then
     local avelLabel = Instance.new("TextLabel")
     avelLabel.Size = UDim2.new(0, 200, 0, 50)
     avelLabel.Position = UDim2.new(0, 10, 0, 70)
-    avelLabel.Text = "Vel: " .. playerVel
     avelLabel.TextColor3 = Color3.new(1, 1, 1)
     avelLabel.BackgroundTransparency = 1
     avelLabel.Parent = itemsSection
 
-    -- Создаем кнопку "Купить"
-    local buyButton = Instance.new("TextButton")
-    buyButton.Size = UDim2.new(0, 100, 0, 50)
-    buyButton.Position = UDim2.new(1, -110, 0, 70)
-    buyButton.Text = "Купить"
-    buyButton.TextColor3 = Color3.new(1, 1, 1)
-    buyButton.BackgroundColor3 = Color3.new(0, 0.5, 0)
-    buyButton.Parent = itemsSection
+    -- Создаем ScrollingFrame для возможности прокрутки
+    local scrollingFrame = Instance.new("ScrollingFrame")
+    scrollingFrame.Size = UDim2.new(1, 0, 1, -130)
+    scrollingFrame.Position = UDim2.new(0, 0, 0, 130)
+    scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, 0) -- Будет обновляться позже
+    scrollingFrame.ScrollBarThickness = 12
+    scrollingFrame.Parent = itemsSection
 
-    -- Добавляем функционал для кнопки "Купить"
-    buyButton.MouseButton1Click:Connect(function()
-        print("Кнопка 'Купить' нажата")
-        -- Добавьте здесь логику для покупки
-    end)
+    -- Получаем категорию Items
+    local itemCategorySection = scrollingFrame
+
+    -- Проверяем, существует ли категория Items
+    if itemCategorySection then
+        -- Получаем Drops из ReplicatedStorage
+        local drops = replicatedStorage:FindFirstChild("Drops")
+        
+        -- Проверяем, существуют ли Drops
+        if drops then
+            local items = drops:GetChildren()
+            
+            -- Очистите категорию перед добавлением новых предметов
+            for _, child in pairs(itemCategorySection:GetChildren()) do
+                if child:IsA("TextLabel") or child:IsA("TextButton") then
+                    child:Destroy()
+                end
+            end
+            
+            if #items > 0 then
+                local columns = 3
+                local spacing = 10
+                local itemWidth = (itemCategorySection.AbsoluteSize.X - spacing * (columns - 1)) / columns
+                local itemHeight = 50
+                local row = 0
+                local col = 0
+
+                -- Перебираем все объекты в Drops и добавляем их в категорию Items
+                for i, item in ipairs(items) do
+                    -- Создаем текстовое представление для каждого предмета
+                    local itemDisplay = Instance.new("TextLabel")
+                    itemDisplay.Size = UDim2.new(0, itemWidth, 0, itemHeight)
+                    itemDisplay.Position = UDim2.new(0, col * (itemWidth + spacing), 0, row * (itemHeight + spacing))
+                    itemDisplay.Text = item.Name
+                    itemDisplay.TextColor3 = Color3.new(1, 1, 1)
+                    itemDisplay.BackgroundTransparency = 1
+                    itemDisplay.Parent = itemCategorySection
+
+                    -- Создаем кнопку "Купить" для каждого предмета
+                    local buyButton = Instance.new("TextButton")
+                    buyButton.Size = UDim2.new(0, itemWidth, 0, itemHeight)
+                    buyButton.Position = UDim2.new(0, col * (itemWidth + spacing), 0, (row + 1) * (itemHeight + spacing))
+                    buyButton.Text = "Купить"
+                    buyButton.TextColor3 = Color3.new(1, 1, 1)
+                    buyButton.BackgroundColor3 = Color3.new(0, 0.5, 0)
+                    buyButton.Parent = itemCategorySection
+
+                    buyButton.MouseButton1Click:Connect(function()
+                        print("Кнопка 'Купить' нажата для " .. item.Name)
+                        -- Добавьте здесь логику для покупки
+                    end)
+
+                    col = col + 1
+                    if col >= columns then
+                        col = 0
+                        row = row + 2 -- Увеличиваем на 2, чтобы учесть кнопку "Купить"
+                    end
+                end
+
+                -- Обновляем размер CanvasSize для ScrollingFrame
+                itemCategorySection.CanvasSize = UDim2.new(0, 0, 0, (row + 1) * (itemHeight + spacing))
+            else
+                -- Если предметов нет, отображаем сообщение
+                local message = Instance.new("TextLabel")
+                message.Size = UDim2.new(1, 0, 1, 0)
+                message.Position = UDim2.new(0.5, 0, 0.5, 0)
+                message.AnchorPoint = Vector2.new(0.5, 0.5)
+                message.Text = "Предметов нет"
+                message.TextColor3 = Color3.new(1, 0, 0)
+                message.TextScaled = true
+                message.BackgroundTransparency = 1
+                message.Parent = itemCategorySection
+            end
+        else
+            warn("Drops не найдены в ReplicatedStorage")
+        end
+    else
+        warn("Items категория не найдена в content")
+    end
 else
     warn("itemsSection категория не найдена в content")
 end
-
--- Получаем категорию Items
-local itemCategorySection = content:FindFirstChild("Items")
-
--- Проверяем, существует ли категория Items
-if itemCategorySection then
-    -- Получаем Drops из ReplicatedStorage
-    local drops = replicatedStorage:FindFirstChild("Drops")
-    
-    -- Проверяем, существуют ли Drops
-    if drops then
-        local items = drops:GetChildren()
-        
-        -- Очистите категорию перед добавлением новых предметов
-        for _, child in pairs(itemCategorySection:GetChildren()) do
-            if child:IsA("TextLabel") then
-                child:Destroy()
-            end
-        end
-        
-        if #items > 0 then
-            local columns = 3
-            local spacing = 10
-            local itemWidth = (itemCategorySection.AbsoluteSize.X - spacing * (columns - 1)) / columns
-            local itemHeight = 50
-            local row = 0
-            local col = 0
-
-            -- Перебираем все объекты в Drops и добавляем их в категорию Items
-            for i, item in ipairs(items) do
-                -- Создаем текстовое представление для каждого предмета
-                local itemDisplay = Instance.new("TextLabel")
-                itemDisplay.Size = UDim2.new(0, itemWidth, 0, itemHeight)
-                itemDisplay.Position = UDim2.new(0, col * (itemWidth + spacing), 0, row * (itemHeight + spacing))
-                itemDisplay.Text = item.Name
-                itemDisplay.TextColor3 = Color3.new(1, 1, 1)
-                itemDisplay.BackgroundTransparency = 1
-                itemDisplay.Parent = itemCategorySection
-                
-                col = col + 1
-                if col >= columns then
-                    col = 0
-                    row = row + 1
-                end
-            end
-        else
-            -- Если предметов нет, отображаем сообщение
-            local message = Instance.new("TextLabel")
-            message.Size = UDim2.new(1, 0, 1, 0)
-            message.Position = UDim2.new(0.5, 0, 0.5, 0)
-            message.AnchorPoint = Vector2.new(0.5, 0.5)
-            message.Text = "Предметов нет"
-            message.TextColor3 = Color3.new(1, 0, 0)
-            message.TextScaled = true
-            message.BackgroundTransparency = 1
-            message.Parent = itemCategorySection
-        end
-    else
-        warn("Drops не найдены в ReplicatedStorage")
-    end
-else
-    warn("Items категория не найдена в content")
-end
-
 
 ----------------------------------------------------------
 
