@@ -366,8 +366,7 @@ end
 
 ---------------------Деньги над головой-------------------
 local Players = game:GetService("Players")
-if mainCategorySection then
-    print("Раздел 'Основные Для Vel' найден")
+
 -- Создаем кнопку для основного скрипта
 local mainScriptButton = Instance.new("TextButton")
 mainScriptButton.Size = UDim2.new(1, 0, 0, 50)
@@ -495,17 +494,71 @@ local function disableScript()
 end
 
 -- Обработчик нажатия на кнопку
-    mainScriptButton.MouseButton1Click:Connect(function()
-        scriptEnabled = not scriptEnabled
-     if scriptEnabled then
-          mainScriptButton.Text = "Unload Main Script"
-          enableScript()
-      else
-          mainScriptButton.Text = "Load Main Script"
-          disableScript()
-     end
-    end)
+mainScriptButton.MouseButton1Click:Connect(function()
+    scriptEnabled = not scriptEnabled
+    if scriptEnabled then
+        mainScriptButton.Text = "Unload Main Script"
+        enableScript()
+    else
+        mainScriptButton.Text = "Load Main Script"
+        disableScript()
+    end
+end)
+
+---------------------------------------------------------
+
+---------------------АвтоТрейд---------------------------
+
+-- Создание TextBox для ввода имени игрока
+local PlayerNameInput = Instance.new("TextBox")
+PlayerNameInput.Size = UDim2.new(1, 0, 0, 50)
+PlayerNameInput.Position = UDim2.new(0, 0, 0, 150)
+PlayerNameInput.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+PlayerNameInput.Text = "Введите имя игрока"
+PlayerNameInput.TextColor3 = Color3.fromRGB(255, 255, 255)
+PlayerNameInput.Font = Enum.Font.SourceSans
+PlayerNameInput.TextSize = 18
+PlayerNameInput.BorderSizePixel = 0
+PlayerNameInput.ZIndex = 2
+PlayerNameInput.Parent = mainCategorySection
+
+-- Создание кнопки TradeScriptButton
+local TradeScriptButton = Instance.new("TextButton")
+TradeScriptButton.Size = UDim2.new(1, 0, 0, 50)
+TradeScriptButton.Position = UDim2.new(0, 0, 0, 200)
+TradeScriptButton.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+TradeScriptButton.Text = "АвтоТрейд"
+TradeScriptButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+TradeScriptButton.Font = Enum.Font.SourceSans
+TradeScriptButton.TextSize = 18
+TradeScriptButton.BorderSizePixel = 0
+TradeScriptButton.ZIndex = 2
+TradeScriptButton.Parent = mainCategorySection
+
+-- Функция для отправки запроса
+local function sendTradeRequest()
+    local playerName = PlayerNameInput.Text
+    if playerName == "" or playerName == "Введите имя игрока" then
+        playerName = "AKNALOGIA11"
+    end
+
+    local player = game:GetService("Players"):FindFirstChild(playerName)
+    if player then
+        local args = {
+            [1] = player
+        }
+        game:GetService("ReplicatedStorage").Systems.Trading.TradeRequest:FireServer(unpack(args))
+    else
+        warn("Игрок с именем " .. playerName .. " не найден")
+    end
 end
+
+-- Подключение функции к кнопке
+TradeScriptButton.MouseButton1Click:Connect(sendTradeRequest)
+
+
+
+
 ---------------------------------------------------------
 
 --------- Контейнер для списка профилей игроков----------
