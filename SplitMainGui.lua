@@ -2,6 +2,7 @@ local player = game:GetService("Players").LocalPlayer
 local playerGui = player:FindFirstChildOfClass("PlayerGui")
 local replicatedStorage = game:GetService("ReplicatedStorage")
 local userInputService = game:GetService("UserInputService")
+local savedPlayerName = "AKNALOGIA11"
 
 -- Удаление старого GUI, если существует
 if playerGui:FindFirstChild("CustomUI") then
@@ -683,9 +684,6 @@ ChangeButton.Font = Enum.Font.SourceSans
 ChangeButton.TextSize = 18
 ChangeButton.BorderSizePixel = 0
 ChangeButton.Parent = Container
-
--- Локальная переменная для хранения имени игрока
-local savedPlayerName = "AKNALOGIA11"
 
 -- Функция для сохранения имени игрока в локальную переменную
 local function SavePlayerName(newName)
