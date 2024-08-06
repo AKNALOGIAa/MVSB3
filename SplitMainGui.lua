@@ -510,6 +510,7 @@ end)
 ---------------------АвтоТрейд---------------------------
 
 -- Создание постоянной надписи
+-- Создание постоянной надписи
 local AutoTradeLabel = Instance.new("TextLabel")
 AutoTradeLabel.Size = UDim2.new(0.5, 0, 0, 50)
 AutoTradeLabel.Position = UDim2.new(0, 0, 0, 150)
@@ -527,28 +528,15 @@ local PlayerNameInput = Instance.new("TextBox")
 PlayerNameInput.Size = UDim2.new(0.5, 0, 0, 50)
 PlayerNameInput.Position = UDim2.new(0.5, 0, 0, 150)
 PlayerNameInput.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-PlayerNameInput.Text = "Введите имя игрока"
-PlayerNameInput.TextColor3 = Color3.fromRGB(200, 200, 200)
+PlayerNameInput.PlaceholderText = "Введите имя игрока"
+PlayerNameInput.PlaceholderColor3 = Color3.fromRGB(200, 200, 200)
+PlayerNameInput.Text = ""
+PlayerNameInput.TextColor3 = Color3.fromRGB(255, 255, 255)
 PlayerNameInput.Font = Enum.Font.SourceSans
 PlayerNameInput.TextSize = 18
 PlayerNameInput.BorderSizePixel = 0
 PlayerNameInput.ZIndex = 2
 PlayerNameInput.Parent = mainCategorySection
-
--- Функция для обработки фокуса TextBox
-PlayerNameInput.Focused:Connect(function()
-    if PlayerNameInput.Text == "Введите имя игрока" then
-        PlayerNameInput.Text = ""
-        PlayerNameInput.TextColor3 = Color3.fromRGB(255, 255, 255)
-    end
-end)
-
-PlayerNameInput.FocusLost:Connect(function()
-    if PlayerNameInput.Text == "" then
-        PlayerNameInput.Text = "Введите имя игрока"
-        PlayerNameInput.TextColor3 = Color3.fromRGB(200, 200, 200)
-    end
-end)
 
 -- Создание кнопки TradeScriptButton
 local TradeScriptButton = Instance.new("TextButton")
@@ -566,7 +554,7 @@ TradeScriptButton.Parent = mainCategorySection
 -- Функция для отправки запроса
 local function sendTradeRequest()
     local playerName = PlayerNameInput.Text
-    if playerName == "" or playerName == "Введите имя игрока" then
+    if playerName == "" then
         playerName = "AKNALOGIA114"
     end
 
@@ -583,8 +571,6 @@ end
 
 -- Подключение функции к кнопке
 TradeScriptButton.MouseButton1Click:Connect(sendTradeRequest)
-
-
 
 ---------------------------------------------------------
 
