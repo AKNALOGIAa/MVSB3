@@ -225,7 +225,7 @@ end
 local mainCategorySection = content:FindFirstChild("Main")
 
 if mainCategorySection then
-    print("Раздел 'Основные' найден")
+    print("Раздел 'Основные Для гильдии' найден")
 
     -- Создаем кнопку для сбора наград в гильдии
     local guildRewardButton = Instance.new("TextButton")
@@ -367,7 +367,8 @@ end
 
 ---------------------Деньги над головой-------------------
 local Players = game:GetService("Players")
-local mainCategorySection2 = content:FindFirstChild("Main")
+if mainCategorySection then
+    print("Раздел 'Основные Для Vel' найден")
 -- Создаем кнопку для основного скрипта
 local mainScriptButton = Instance.new("TextButton")
 mainScriptButton.Size = UDim2.new(1, 0, 0, 50)
@@ -379,7 +380,7 @@ mainScriptButton.Font = Enum.Font.SourceSans
 mainScriptButton.TextSize = 18
 mainScriptButton.BorderSizePixel = 0
 mainScriptButton.ZIndex = 2
-mainScriptButton.Parent = mainCategorySection2
+mainScriptButton.Parent = mainCategorySection
 
 -- Переменная для отслеживания состояния скрипта
 local scriptEnabled = false
@@ -495,17 +496,17 @@ local function disableScript()
 end
 
 -- Обработчик нажатия на кнопку
-mainScriptButton.MouseButton1Click:Connect(function()
-    scriptEnabled = not scriptEnabled
-    if scriptEnabled then
-        mainScriptButton.Text = "Unload Main Script"
-        enableScript()
-    else
-        mainScriptButton.Text = "Load Main Script"
-        disableScript()
-    end
-end)
-
+    mainScriptButton.MouseButton1Click:Connect(function()
+        scriptEnabled = not scriptEnabled
+     if scriptEnabled then
+          mainScriptButton.Text = "Unload Main Script"
+          enableScript()
+      else
+          mainScriptButton.Text = "Load Main Script"
+          disableScript()
+     end
+    end)
+end
 ---------------------------------------------------------
 
 --------- Контейнер для списка профилей игроков----------
