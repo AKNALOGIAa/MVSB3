@@ -510,7 +510,6 @@ end)
 ---------------------АвтоТрейд---------------------------
 
 -- Создание постоянной надписи
--- Создание постоянной надписи
 local AutoTradeLabel = Instance.new("TextLabel")
 AutoTradeLabel.Size = UDim2.new(0.5, 0, 0, 50)
 AutoTradeLabel.Position = UDim2.new(0, 0, 0, 150)
@@ -571,6 +570,25 @@ end
 
 -- Подключение функции к кнопке
 TradeScriptButton.MouseButton1Click:Connect(sendTradeRequest)
+
+---------------------------------------------------------
+
+---------------------Настройки---------------------------
+local SettingCategorySevtion = content:FindFirstChild("Settings")
+-- Создание кнопки TradeScriptButton
+local TradeScriptNick = Instance.new("TextButton")
+TradeScriptNick.Size = UDim2.new(1, 0, 0, 50)
+TradeScriptNick.Position = UDim2.new(0, 0, 0, 200)
+TradeScriptNick.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+TradeScriptNick.Text = "АвтоТрейд"
+TradeScriptNick.TextColor3 = Color3.fromRGB(255, 255, 255)
+TradeScriptNick.Font = Enum.Font.SourceSans
+TradeScriptNick.TextSize = 18
+TradeScriptNick.BorderSizePixel = 0
+TradeScriptNick.ZIndex = 2
+TradeScriptNick.Parent = SettingCategorySevtion
+
+
 
 ---------------------------------------------------------
 
