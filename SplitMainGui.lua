@@ -357,7 +357,6 @@ if itemsSection then
     -- Подписываемся на изменения в Drops
     replicatedStorage.Drops.ChildAdded:Connect(updateItems)
     replicatedStorage.Drops.ChildRemoved:Connect(updateItems)
-    replicatedStorage.Drops.ChildChanged:Connect(updateItems)
 else
     warn("itemsSection категория не найдена в content")
 end
