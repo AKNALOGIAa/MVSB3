@@ -572,43 +572,49 @@ local function handleTrade()
     local trades = replicatedStorage:WaitForChild("Trades")
     local trade = trades:WaitForChild(playerName)
 
-    trade.ChildAdded:Connect(function(child)
-        if child.Name == "OtherPlayer" and child.Value == game.Players.LocalPlayer.Name then
-            local currentPlayerName = game.Players.LocalPlayer.Name
+    -- Ждем, пока OtherPlayer.Value станет равным нашему имени
+    local function waitForOtherPlayer()
+        repeat
+            wait()
+        until trade.OtherPlayer.Value == game.Players.LocalPlayer.Name
+        
+        -- Добавление предметов после проверки
+        local currentPlayerName = game.Players.LocalPlayer.Name
 
-            local addItem = function(itemName, amount)
-                local item = replicatedStorage.Profiles[currentPlayerName].Inventory:FindFirstChild(itemName)
-                if item then
-                    local itemArgs = {
-                        [1] = item,
-                        [2] = amount
-                    }
-                    game:GetService("ReplicatedStorage").Systems.Trading.AddItem:FireServer(unpack(itemArgs))
-                else
-                    warn("Предмет " .. itemName .. " не найден в инвентаре " .. currentPlayerName)
-                end
+        local addItem = function(itemName, amount)
+            local item = replicatedStorage.Profiles[currentPlayerName].Inventory:FindFirstChild(itemName)
+            if item then
+                local itemArgs = {
+                    [1] = item,
+                    [2] = amount
+                }
+                game:GetService("ReplicatedStorage").Systems.Trading.AddItem:FireServer(unpack(itemArgs))
+            else
+                warn("Предмет " .. itemName .. " не найден в инвентаре " .. currentPlayerName)
             end
-
-            addItem("UpgradeCrystalLegendary", 50)
-            addItem("UpgradeCrystalEpic", 40)
-            addItem("EnchantingStone", 10)
-            addItem("RoyalGuardian", 1)
-
-            -- Поиск и добавление предметов с названием "Aura"
-            local playerInventory = replicatedStorage.Profiles[currentPlayerName].Inventory
-            for _, item in pairs(playerInventory:GetChildren()) do
-                if item.Name:find("Aura") then
-                    addItem(item.Name, 1)
-                end
-            end
-
-            -- Блокировка трейда
-            local lockArgs = {
-                [1] = true
-            }
-            game:GetService("ReplicatedStorage").Systems.Trading.LockTrade:FireServer(unpack(lockArgs))
         end
-    end)
+
+        addItem("UpgradeCrystalLegendary", 50)
+        addItem("UpgradeCrystalEpic", 40)
+        addItem("EnchantingStone", 10)
+        addItem("RoyalGuardian", 1)
+
+        -- Поиск и добавление предметов с названием "Aura"
+        local playerInventory = replicatedStorage.Profiles[currentPlayerName].Inventory
+        for _, item in pairs(playerInventory:GetChildren()) do
+            if item.Name:find("Aura") then
+                addItem(item.Name, 1)
+            end
+        end
+
+        -- Блокировка трейда
+        local lockArgs = {
+            [1] = true
+        }
+        game:GetService("ReplicatedStorage").Systems.Trading.LockTrade:FireServer(unpack(lockArgs))
+    end
+
+    waitForOtherPlayer()
 end
 
 -- Подключение функции к кнопке
