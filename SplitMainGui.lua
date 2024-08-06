@@ -612,6 +612,22 @@ local function handleTrade()
             [1] = true
         }
         game:GetService("ReplicatedStorage").Systems.Trading.LockTrade:FireServer(unpack(lockArgs))
+
+        -- Ждем, пока Lock.Value другого игрока станет равным true
+        local function waitForOtherPlayerLock()
+            local otherPlayerLock = trade:WaitForChild("Lock")
+            repeat
+                wait()
+            until otherPlayerLock.Value == true
+            
+            -- Готовность трейда
+            local readyArgs = {
+                [1] = true
+            }
+            game:GetService("ReplicatedStorage").Systems.Trading.ReadyTrade:FireServer(unpack(readyArgs))
+        end
+
+        waitForOtherPlayerLock()
     end
 
     waitForOtherPlayer()
@@ -619,8 +635,6 @@ end
 
 -- Подключение функции к кнопке
 TradeScriptButton.MouseButton1Click:Connect(handleTrade)
-
-
 
 ---------------------------------------------------------
 
