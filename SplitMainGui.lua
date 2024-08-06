@@ -221,7 +221,7 @@ for index, category in ipairs(categories) do
     createSection(category.section)
 end
 ----------------------------------------------------------
-
+-------------------Получение наград гильдии---------------
 local mainCategorySection = content:FindFirstChild("Main")
 
 if mainCategorySection then
@@ -230,7 +230,7 @@ if mainCategorySection then
     -- Создаем кнопку для сбора наград в гильдии
     local guildRewardButton = Instance.new("TextButton")
     guildRewardButton.Size = UDim2.new(1, 0, 0, 50)  -- Размер кнопки
-    guildRewardButton.Position = UDim2.new(0, 0, 0, 50)  -- Позиция кнопки под основной
+    guildRewardButton.Position = UDim2.new(0, 0, 0, 100)  -- Позиция кнопки под основной
     guildRewardButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)  -- Красный цвет, когда не нажата
     guildRewardButton.Text = "Сбор наград в гильдии"
     guildRewardButton.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -269,7 +269,7 @@ end
 ----------------------------------------------------------
 
 ----------- Функция для создания кнопки покупки----------
--- Получаем основную категорию для профиля игрока
+-----------Получаем основную категорию для вещей---------
 local itemsSection = content:FindFirstChild("Items")
 
 if itemsSection then
@@ -367,12 +367,11 @@ end
 
 ---------------------Деньги над головой-------------------
 local Players = game:GetService("Players")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 -- Создаем кнопку для основного скрипта
 local mainScriptButton = Instance.new("TextButton")
 mainScriptButton.Size = UDim2.new(1, 0, 0, 50)
-mainScriptButton.Position = UDim2.new(0, 0, 0, 0)
+mainScriptButton.Position = UDim2.new(0, 0, 0, 50)
 mainScriptButton.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
 mainScriptButton.Text = "Load Main Script"
 mainScriptButton.TextColor3 = Color3.fromRGB(255, 255, 255)
