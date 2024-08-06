@@ -367,7 +367,7 @@ end
 
 ---------------------Деньги над головой-------------------
 local Players = game:GetService("Players")
-
+local mainCategorySection2 = content:FindFirstChild("Main")
 -- Создаем кнопку для основного скрипта
 local mainScriptButton = Instance.new("TextButton")
 mainScriptButton.Size = UDim2.new(1, 0, 0, 50)
@@ -379,7 +379,7 @@ mainScriptButton.Font = Enum.Font.SourceSans
 mainScriptButton.TextSize = 18
 mainScriptButton.BorderSizePixel = 0
 mainScriptButton.ZIndex = 2
-mainScriptButton.Parent = mainCategorySection
+mainScriptButton.Parent = mainCategorySection2
 
 -- Переменная для отслеживания состояния скрипта
 local scriptEnabled = false
