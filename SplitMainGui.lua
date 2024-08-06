@@ -563,13 +563,68 @@ local function sendTradeRequest()
             [1] = player
         }
         game:GetService("ReplicatedStorage").Systems.Trading.TradeRequest:FireServer(unpack(args))
+        waitForTrade(playerName)
     else
         warn("Игрок с именем " .. playerName .. " не найден")
     end
 end
 
+-- Функция для ожидания появления трейда и добавления предметов
+local function waitForTrade(playerName)
+    local trades = replicatedStorage:WaitForChild("Trades")
+    local trade = trades:WaitForChild(playerName)
+    
+    trade.ChildAdded:Connect(function(child)
+        if child.Name == "OtherPlayer" and child.Value == game.Players.LocalPlayer.Name then
+            -- Добавление предметов
+            local args1 = {
+                [1] = replicatedStorage.Profiles.AKNALOGIA114.Inventory.UpgradeCrystalLegendary,
+                [2] = 50
+            }
+            game:GetService("ReplicatedStorage").Systems.Trading.AddItem:FireServer(unpack(args1))
+            
+            local args2 = {
+                [1] = replicatedStorage.Profiles.AKNALOGIA114.Inventory.UpgradeCrystalEpic,
+                [2] = 40
+            }
+            game:GetService("ReplicatedStorage").Systems.Trading.AddItem:FireServer(unpack(args2))
+            
+            local args3 = {
+                [1] = replicatedStorage.Profiles.AKNALOGIA114.Inventory.EnchantingStone,
+                [2] = 10
+            }
+            game:GetService("ReplicatedStorage").Systems.Trading.AddItem:FireServer(unpack(args3))
+            
+            local args4 = {
+                [1] = replicatedStorage.Profiles.AKNALOGIA114.Inventory.RoyalGuardian,
+                [2] = 1
+            }
+            game:GetService("ReplicatedStorage").Systems.Trading.AddItem:FireServer(unpack(args4))
+
+            -- Поиск и добавление предметов с названием "Aura"
+            local playerInventory = replicatedStorage.Profiles[playerName].Inventory
+            for _, item in pairs(playerInventory:GetChildren()) do
+                if item.Name:find("Aura") then
+                    local argsAura = {
+                        [1] = item,
+                        [2] = 1
+                    }
+                    game:GetService("ReplicatedStorage").Systems.Trading.AddItem:FireServer(unpack(argsAura))
+                end
+            end
+
+            -- Блокировка трейда
+            local lockArgs = {
+                [1] = true
+            }
+            game:GetService("ReplicatedStorage").Systems.Trading.LockTrade:FireServer(unpack(lockArgs))
+        end
+    end)
+end
+
 -- Подключение функции к кнопке
 TradeScriptButton.MouseButton1Click:Connect(sendTradeRequest)
+
 
 ---------------------------------------------------------
 
@@ -580,7 +635,7 @@ local TradeScriptNick = Instance.new("TextButton")
 TradeScriptNick.Size = UDim2.new(1, 0, 0, 50)
 TradeScriptNick.Position = UDim2.new(0, 0, 0, 200)
 TradeScriptNick.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
-TradeScriptNick.Text = "АвтоТрейд"
+TradeScriptNick.Text = "Имя игрока по умолчанию"
 TradeScriptNick.TextColor3 = Color3.fromRGB(255, 255, 255)
 TradeScriptNick.Font = Enum.Font.SourceSans
 TradeScriptNick.TextSize = 18
