@@ -554,7 +554,7 @@ TradeScriptButton.Parent = mainCategorySection
 local function handleTrade()
     local playerName = PlayerNameInput.Text
     if playerName == "" then
-        playerName = "AKNALOGIA114"
+        playerName = savedPlayerName
     end
 
     local player = game:GetService("Players"):FindFirstChild(playerName)
@@ -639,19 +639,71 @@ TradeScriptButton.MouseButton1Click:Connect(handleTrade)
 ---------------------------------------------------------
 
 ---------------------Настройки---------------------------
+-- Создаем контейнер для всех элементов
 local SettingCategorySevtion = content:FindFirstChild("Settings")
--- Создание кнопки TradeScriptButton
-local TradeScriptNick = Instance.new("TextButton")
-TradeScriptNick.Size = UDim2.new(1, 0, 0, 50)
-TradeScriptNick.Position = UDim2.new(0, 0, 0, 200)
-TradeScriptNick.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
-TradeScriptNick.Text = "Имя игрока по умолчанию"
-TradeScriptNick.TextColor3 = Color3.fromRGB(255, 255, 255)
-TradeScriptNick.Font = Enum.Font.SourceSans
-TradeScriptNick.TextSize = 18
-TradeScriptNick.BorderSizePixel = 0
-TradeScriptNick.ZIndex = 2
-TradeScriptNick.Parent = SettingCategorySevtion
+
+local Container = Instance.new("Frame")
+Container.Size = UDim2.new(1, 0, 0, 50)
+Container.Position = UDim2.new(0, 0, 0, 0)
+Container.BackgroundTransparency = 1
+Container.Parent = SettingCategorySevtion
+
+-- Создаем текст слева
+local TextLabel = Instance.new("TextLabel")
+TextLabel.Size = UDim2.new(0.4, 0, 1, 0)
+TextLabel.Position = UDim2.new(0, 0, 0, 0)
+TextLabel.BackgroundTransparency = 1
+TextLabel.Text = "Имя игрока по умолчанию:"
+TextLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+TextLabel.Font = Enum.Font.SourceSans
+TextLabel.TextSize = 18
+TextLabel.TextXAlignment = Enum.TextXAlignment.Left
+TextLabel.Parent = Container
+
+-- Создаем текстовое поле посередине
+local PlayerNameInput = Instance.new("TextBox")
+PlayerNameInput.Size = UDim2.new(0.4, 0, 1, 0)
+PlayerNameInput.Position = UDim2.new(0.4, 0, 0, 0)
+PlayerNameInput.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+PlayerNameInput.Text = "AKNALOGIA11" -- начальное значение
+PlayerNameInput.TextColor3 = Color3.fromRGB(211, 211, 211) -- светло-бледный цвет
+PlayerNameInput.Font = Enum.Font.SourceSans
+PlayerNameInput.TextSize = 18
+PlayerNameInput.BorderSizePixel = 0
+PlayerNameInput.Parent = Container
+
+-- Создаем кнопку "Изменить" справа
+local ChangeButton = Instance.new("TextButton")
+ChangeButton.Size = UDim2.new(0.2, 0, 1, 0)
+ChangeButton.Position = UDim2.new(0.8, 0, 0, 0)
+ChangeButton.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+ChangeButton.Text = "Изменить"
+ChangeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+ChangeButton.Font = Enum.Font.SourceSans
+ChangeButton.TextSize = 18
+ChangeButton.BorderSizePixel = 0
+ChangeButton.Parent = Container
+
+-- Локальная переменная для хранения имени игрока
+local savedPlayerName = "AKNALOGIA11"
+
+-- Функция для сохранения имени игрока в локальную переменную
+local function SavePlayerName(newName)
+    savedPlayerName = newName
+end
+
+-- Функция для загрузки имени игрока в текстовое поле
+local function LoadPlayerName()
+    PlayerNameInput.Text = savedPlayerName
+end
+
+-- Привязываем функцию к кнопке
+ChangeButton.MouseButton1Click:Connect(function()
+    SavePlayerName(PlayerNameInput.Text)
+end)
+
+-- Загружаем сохраненное имя при старте
+LoadPlayerName()
 
 
 
