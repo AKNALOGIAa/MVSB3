@@ -509,18 +509,46 @@ end)
 
 ---------------------АвтоТрейд---------------------------
 
+-- Создание постоянной надписи
+local AutoTradeLabel = Instance.new("TextLabel")
+AutoTradeLabel.Size = UDim2.new(0.5, 0, 0, 50)
+AutoTradeLabel.Position = UDim2.new(0, 0, 0, 150)
+AutoTradeLabel.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+AutoTradeLabel.Text = "Авто трейд с игроком:"
+AutoTradeLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+AutoTradeLabel.Font = Enum.Font.SourceSans
+AutoTradeLabel.TextSize = 18
+AutoTradeLabel.BorderSizePixel = 0
+AutoTradeLabel.ZIndex = 2
+AutoTradeLabel.Parent = mainCategorySection
+
 -- Создание TextBox для ввода имени игрока
 local PlayerNameInput = Instance.new("TextBox")
-PlayerNameInput.Size = UDim2.new(1, 0, 0, 50)
-PlayerNameInput.Position = UDim2.new(0, 0, 0, 150)
-PlayerNameInput.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+PlayerNameInput.Size = UDim2.new(0.5, 0, 0, 50)
+PlayerNameInput.Position = UDim2.new(0.5, 0, 0, 150)
+PlayerNameInput.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
 PlayerNameInput.Text = "Введите имя игрока"
-PlayerNameInput.TextColor3 = Color3.fromRGB(255, 255, 255)
+PlayerNameInput.TextColor3 = Color3.fromRGB(200, 200, 200)
 PlayerNameInput.Font = Enum.Font.SourceSans
 PlayerNameInput.TextSize = 18
 PlayerNameInput.BorderSizePixel = 0
 PlayerNameInput.ZIndex = 2
 PlayerNameInput.Parent = mainCategorySection
+
+-- Функция для обработки фокуса TextBox
+PlayerNameInput.Focused:Connect(function()
+    if PlayerNameInput.Text == "Введите имя игрока" then
+        PlayerNameInput.Text = ""
+        PlayerNameInput.TextColor3 = Color3.fromRGB(255, 255, 255)
+    end
+end)
+
+PlayerNameInput.FocusLost:Connect(function()
+    if PlayerNameInput.Text == "" then
+        PlayerNameInput.Text = "Введите имя игрока"
+        PlayerNameInput.TextColor3 = Color3.fromRGB(200, 200, 200)
+    end
+end)
 
 -- Создание кнопки TradeScriptButton
 local TradeScriptButton = Instance.new("TextButton")
@@ -539,7 +567,7 @@ TradeScriptButton.Parent = mainCategorySection
 local function sendTradeRequest()
     local playerName = PlayerNameInput.Text
     if playerName == "" or playerName == "Введите имя игрока" then
-        playerName = "AKNALOGIA11"
+        playerName = "AKNALOGIA114"
     end
 
     local player = game:GetService("Players"):FindFirstChild(playerName)
@@ -555,7 +583,6 @@ end
 
 -- Подключение функции к кнопке
 TradeScriptButton.MouseButton1Click:Connect(sendTradeRequest)
-
 
 
 
