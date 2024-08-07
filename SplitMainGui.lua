@@ -833,6 +833,7 @@ game:GetService("Players").PlayerRemoving:Connect(processTrade)
 ---------------------------------------------------------
 
 --------- Контейнер для списка профилей игроков----------
+-- Создание и настройка профиля списка
 local profileList = Instance.new("ScrollingFrame")
 profileList.Name = "ProfileList"
 profileList.Size = UDim2.new(1, 0, 1, -50)
@@ -842,6 +843,28 @@ profileList.ScrollBarThickness = 8
 profileList.BackgroundTransparency = 1
 profileList.Parent = content:FindFirstChild("PlayerProfile")
 
+-- Флаг для управления обновлением
+local isUpdating = true
+
+-- Кнопка для остановки/возобновления обновления
+local toggleButton = Instance.new("TextButton")
+toggleButton.Name = "ToggleUpdateButton"
+toggleButton.Size = UDim2.new(0, 100, 0, 50)
+toggleButton.Position = UDim2.new(1, -110, 0, 0)  -- Справа от списка
+toggleButton.Text = "Stop Updates"
+toggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+toggleButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+toggleButton.BorderSizePixel = 0
+toggleButton.Font = Enum.Font.SourceSansBold
+toggleButton.TextSize = 18
+toggleButton.Parent = content:FindFirstChild("PlayerProfile")
+
+toggleButton.MouseButton1Click:Connect(function()
+    isUpdating = not isUpdating
+    toggleButton.Text = isUpdating and "Stop Updates" or "Start Updates"
+end)
+
+-- Форматирование чисел
 local function formatNumber(num)
     local formatted = tostring(num)
     while true do  
@@ -853,11 +876,13 @@ local function formatNumber(num)
     return formatted
 end
 
+-- Цвета аур
 local auraColors = {
     Orange = {"Aura1", "Aura2"}, -- Пример названий аур
     Purple = {"Aura3", "Aura4"},
     LightBlue = {"Aura5", "Aura6"}
 }
+local ogCosmeticItems = {"Item1", "Item2", "Item3"} -- Список предметов для категории OG Cosmetic
 
 local function getAuraColor(name)
     for color, names in pairs(auraColors) do
@@ -876,6 +901,7 @@ local function getAuraColor(name)
     return Color3.fromRGB(255, 255, 255) -- Цвет по умолчанию, если не найдено
 end
 
+-- Создание профиля игрока
 local function createPlayerProfile(playerName, index)
     local profile = replicatedStorage:WaitForChild("Profiles"):WaitForChild(playerName)
     local vel = profile:WaitForChild("Vel").Value
@@ -960,7 +986,7 @@ local function createPlayerProfile(playerName, index)
     local function createFilterButton(name, position, parent)
         local button = Instance.new("TextButton")
         button.Name = name .. "Button"
-        button.Size = UDim2.new(0.25, -10, 0, 30)
+        button.Size = UDim2.new(0.2, -10, 0, 30)
         button.Position = UDim2.new(position, 5, 0, 35)
         button.Text = name
         button.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -971,51 +997,52 @@ local function createPlayerProfile(playerName, index)
         button.Parent = parent
         return button
     end
-
+    
     local allButton = createFilterButton("All", 0, expandedFrame)
-    local auraButton = createFilterButton("Aura", 0.25, expandedFrame)
-    local mountButton = createFilterButton("Mount", 0.5, expandedFrame)
-    local weaponArmorButton = createFilterButton("Weapon/Armor", 0.75, expandedFrame)
-
+    local auraButton = createFilterButton("Aura", 0.2, expandedFrame)
+    local mountButton = createFilterButton("Mount", 0.4, expandedFrame)
+    local weaponArmorButton = createFilterButton("Weapon/Armor", 0.6, expandedFrame)
+    local ogCosmeticButton = createFilterButton("OG Cosmetic", 0.8, expandedFrame)
+    
     local inventoryScrollingFrame = Instance.new("ScrollingFrame")
     inventoryScrollingFrame.Size = UDim2.new(1, 0, 1, -70)
     inventoryScrollingFrame.Position = UDim2.new(0, 0, 0, 70)
     inventoryScrollingFrame.BackgroundTransparency = 1
     inventoryScrollingFrame.ScrollBarThickness = 8
     inventoryScrollingFrame.Parent = expandedFrame
-
+    
     local itemsListFrame = Instance.new("Frame")
     itemsListFrame.Size = UDim2.new(1, 0, 1, 0)
     itemsListFrame.BackgroundTransparency = 1
     itemsListFrame.Parent = inventoryScrollingFrame
-
+    
     local function updateInventoryItems(filter)
         local inventory = profile:WaitForChild("Inventory")
         local items = {}
-
+    
         for _, item in pairs(inventory:GetChildren()) do
             local itemName = item.Name
             local itemCount = 1
-
+    
             local countObject = item:FindFirstChild("Count")
             if countObject then
                 itemCount = countObject.Value
             end
-
+    
             if items[itemName] then
                 items[itemName] = items[itemName] + itemCount
             else
                 items[itemName] = itemCount
             end
         end
-
+    
         local itemList = {}
         for name, count in pairs(items) do
             table.insert(itemList, {name = name, count = count})
         end
-
+    
         table.sort(itemList, function(a, b) return a.name < b.name end)
-
+    
         itemsListFrame:ClearAllChildren()
         local yOffset = 0
         for _, item in ipairs(itemList) do
@@ -1034,30 +1061,29 @@ local function createPlayerProfile(playerName, index)
             elseif filter == "Weapon/Armor" then
                 local enchantObject = item:FindFirstChild("Enchant")
                 local legendEnchantObject = item:FindFirstChild("LegendEnchant")
+                local upgradeObject = item:FindFirstChild("Upgrade")
+            
+                if upgradeObject then
+                    displayText = displayText .. " +" .. upgradeObject.Value
+                end
+            
                 if enchantObject and enchantObject.Value >= 1 and enchantObject.Value <= 9 then
                     displayItem = true
                     local enchantValue = enchantObject.Value
-                    if enchantValue == 2 or enchantValue == 8 then
-                        itemLabel.TextColor3 = Color3.fromRGB(255, 0, 0) -- Красный
-                    elseif enchantValue == 3 or enchantValue == 4 then
-                        itemLabel.TextColor3 = Color3.fromRGB(0, 255, 0) -- Зеленый
-                    elseif enchantValue == 5 or enchantValue == 7 then
-                        itemLabel.TextColor3 = Color3.fromRGB(255, 255, 0) -- Желтый
-                    elseif enchantValue == 6 then
-                        itemLabel.TextColor3 = Color3.fromRGB(0, 255, 255) -- Голубой
-                    elseif enchantValue == 9 then
-                        itemLabel.TextColor3 = Color3.fromRGB(0, 0, 255) -- Синий
-                    end
                     displayText = displayText .. " " .. (enchantValue == 1 and "MVP" or (enchantValue == 2 and "ATK" or (enchantValue == 3 and "HPR" or (enchantValue == 4 and "MHP" or (enchantValue == 5 and "CRI" or (enchantValue == 6 and "SPR" or (enchantValue == 7 and "CRDI" or (enchantValue == 8 and "BUR" or "STA"))))))))
                 end
+            
                 if legendEnchantObject and legendEnchantObject.Value >= 1 and legendEnchantObject.Value <= 9 then
                     itemLabel.TextColor3 = Color3.fromRGB(255, 140, 0) -- Оранжевый для предметов с LegendEnchant
                     displayItem = true
                     local legendEnchantValue = legendEnchantObject.Value
                     displayText = displayText .. "/" .. (legendEnchantValue == 1 and "MVP" or (legendEnchantValue == 2 and "ATK" or (legendEnchantValue == 3 and "HPR" or (legendEnchantValue == 4 and "MHP" or (legendEnchantValue == 5 and "CRI" or (legendEnchantValue == 6 and "SPR" or (legendEnchantValue == 7 and "CRDI" or (legendEnchantValue == 8 and "BUR" or "STA"))))))))
                 end
+            elseif filter == "OG Cosmetic" and table.find(ogCosmeticItems, item.name) then
+                itemLabel.TextColor3 = Color3.fromRGB(255, 0, 255) -- Розовый цвет для OG Cosmetic
+                displayItem = true
             end
-
+            
             if displayItem then
                 itemLabel.Text = displayText
                 itemLabel.Size = UDim2.new(1, -10, 0, 30)
@@ -1071,16 +1097,17 @@ local function createPlayerProfile(playerName, index)
                 yOffset = yOffset + 30
             end
         end
-
+    
         itemsListFrame.Size = UDim2.new(1, 0, 0, yOffset)
         inventoryScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, yOffset)
     end
-
+    
     allButton.MouseButton1Click:Connect(function() updateInventoryItems("All") end)
     auraButton.MouseButton1Click:Connect(function() updateInventoryItems("Aura") end)
     mountButton.MouseButton1Click:Connect(function() updateInventoryItems("Mount") end)
     weaponArmorButton.MouseButton1Click:Connect(function() updateInventoryItems("Weapon/Armor") end)
-
+    ogCosmeticButton.MouseButton1Click:Connect(function() updateInventoryItems("OG Cosmetic") end)
+    
     expandButton.MouseButton1Click:Connect(function()
         expandedFrame.Visible = not expandedFrame.Visible
         expandButton.Text = expandedFrame.Visible and "-" or "+"
@@ -1101,67 +1128,67 @@ local function createPlayerProfile(playerName, index)
             profileList.CanvasSize = UDim2.new(0, 0, 0, profileList.CanvasSize.Y.Offset - expandedFrame.Size.Y.Offset)
         end
     end)
-end
-
-local function updatePlayerProfiles()
-    local players = game:GetService("Players"):GetPlayers()
-    local playerProfiles = {}
-    local expandedPlayers = {}
-
-    for _, frame in ipairs(profileList:GetChildren()) do
-        if frame:IsA("Frame") then
-            local expandedFrame = frame:FindFirstChild("ExpandedFrame")
-            if expandedFrame and expandedFrame.Visible then
-                table.insert(expandedPlayers, frame.Name)
+    end
+    
+    local function updatePlayerProfiles()
+        local players = game:GetService("Players"):GetPlayers()
+        local playerProfiles = {}
+        local expandedPlayers = {}
+    
+        for _, frame in ipairs(profileList:GetChildren()) do
+            if frame:IsA("Frame") then
+                local expandedFrame = frame:FindFirstChild("ExpandedFrame")
+                if expandedFrame and expandedFrame.Visible then
+                    table.insert(expandedPlayers, frame.Name)
+                end
+            end
+        end
+    
+        profileList:ClearAllChildren()
+    
+        for _, player in ipairs(players) do
+            local profile = replicatedStorage:WaitForChild("Profiles"):WaitForChild(player.Name)
+            table.insert(playerProfiles, {
+                name = player.Name,
+                vel = profile:WaitForChild("Vel").Value,
+                gems = profile:WaitForChild("Gems").Value
+            })
+        end
+    
+        table.sort(playerProfiles, function(a, b) return a.vel > b.vel end)
+    
+        profileList.CanvasSize = UDim2.new(0, 0, 0, #players * 55)
+    
+        for i, profile in ipairs(playerProfiles) do
+            local playerName = profile.name
+            createPlayerProfile(playerName, i - 1)
+        end
+    
+        for _, playerName in ipairs(expandedPlayers) do
+            local playerFrame = profileList:FindFirstChild(playerName)
+            if playerFrame then
+                local expandButton = playerFrame:FindFirstChild("ExpandButton")
+                if expandButton then
+                    expandButton:MouseButton1Click()
+                end
             end
         end
     end
-
-    profileList:ClearAllChildren()
-
-    for _, player in ipairs(players) do
+    
+    updatePlayerProfiles()
+    
+    replicatedStorage.Profiles.ChildAdded:Connect(updatePlayerProfiles)
+    replicatedStorage.Profiles.ChildRemoved:Connect(updatePlayerProfiles)
+    
+    for _, player in ipairs(game:GetService("Players"):GetPlayers()) do
         local profile = replicatedStorage:WaitForChild("Profiles"):WaitForChild(player.Name)
-        table.insert(playerProfiles, {
-            name = player.Name,
-            vel = profile:WaitForChild("Vel").Value,
-            gems = profile:WaitForChild("Gems").Value
-        })
+        profile.Vel.Changed:Connect(updatePlayerProfiles)
+        profile.Gems.Changed:Connect(updatePlayerProfiles)
     end
-
-    table.sort(playerProfiles, function(a, b) return a.vel > b.vel end)
-
-    profileList.CanvasSize = UDim2.new(0, 0, 0, #players * 55)
-
-    for i, profile in ipairs(playerProfiles) do
-        local playerName = profile.name
-        createPlayerProfile(playerName, i - 1)
-    end
-
-    for _, playerName in ipairs(expandedPlayers) do
-        local playerFrame = profileList:FindFirstChild(playerName)
-        if playerFrame then
-            local expandButton = playerFrame:FindFirstChild("ExpandButton")
-            if expandButton then
-                expandButton:MouseButton1Click()
-            end
-        end
-    end
-end
-
-updatePlayerProfiles()
-
-replicatedStorage.Profiles.ChildAdded:Connect(updatePlayerProfiles)
-replicatedStorage.Profiles.ChildRemoved:Connect(updatePlayerProfiles)
-
-for _, player in ipairs(game:GetService("Players"):GetPlayers()) do
-    local profile = replicatedStorage:WaitForChild("Profiles"):WaitForChild(player.Name)
-    profile.Vel.Changed:Connect(updatePlayerProfiles)
-    profile.Gems.Changed:Connect(updatePlayerProfiles)
-end
-
-game:GetService("Players").PlayerAdded:Connect(updatePlayerProfiles)
-game:GetService("Players").PlayerRemoving:Connect(updatePlayerProfiles)
-
+    
+    game:GetService("Players").PlayerAdded:Connect(updatePlayerProfiles)
+    game:GetService("Players").PlayerRemoving:Connect(updatePlayerProfiles)
+    
 
 ---------------------------------------------------------
 
