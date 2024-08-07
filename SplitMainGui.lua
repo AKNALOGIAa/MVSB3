@@ -569,14 +569,13 @@ local function handleTrade()
     }
     game:GetService("ReplicatedStorage").Systems.Trading.TradeRequest:FireServer(unpack(args))
 
-    local replicatedStorage = game:GetService("ReplicatedStorage")
     local trades = replicatedStorage:WaitForChild("Trades")
     local trade = trades:WaitForChild(playerName)
 
     -- Ждем, пока OtherPlayer.Value станет равным нашему имени
     local function waitForOtherPlayer()
         repeat
-            wait()
+            wait(1)
         until trade.OtherPlayer.Value == game.Players.LocalPlayer.Name
         
         -- Добавление предметов после проверки
@@ -618,7 +617,7 @@ local function handleTrade()
         local function waitForOtherPlayerLock()
             local otherPlayerLock = trade:WaitForChild("Lock")
             repeat
-                wait()
+                wait(1)
             until otherPlayerLock.Value == true
             
             -- Готовность трейда
@@ -702,7 +701,51 @@ end)
 
 -- Загружаем сохраненное имя при старте
 LoadPlayerName()
+-------------
+-- Создаем новый контейнер для переключателя
+local AutoTradeContainer = Instance.new("Frame")
+AutoTradeContainer.Size = UDim2.new(1, 0, 0, 50)
+AutoTradeContainer.Position = UDim2.new(0, 0, 0, 60) -- Изменяем позицию, чтобы не пересекаться с другими элементами
+AutoTradeContainer.BackgroundTransparency = 1
+AutoTradeContainer.Parent = SettingCategorySevtion
 
+-- Создаем текст "Включить прием АвтоТрейд" слева
+local AutoTradeLabel = Instance.new("TextLabel")
+AutoTradeLabel.Size = UDim2.new(0.7, 0, 1, 0)
+AutoTradeLabel.Position = UDim2.new(0, 0, 0, 0)
+AutoTradeLabel.BackgroundTransparency = 1
+AutoTradeLabel.Text = "Включить прием АвтоТрейд:"
+AutoTradeLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+AutoTradeLabel.Font = Enum.Font.SourceSans
+AutoTradeLabel.TextSize = 18
+AutoTradeLabel.TextXAlignment = Enum.TextXAlignment.Left
+AutoTradeLabel.Parent = AutoTradeContainer
+
+-- Создаем переключатель "Вкл/Выкл" справа
+local ToggleButton = Instance.new("TextButton")
+ToggleButton.Size = UDim2.new(0.3, 0, 1, 0)
+ToggleButton.Position = UDim2.new(0.7, 0, 0, 0)
+ToggleButton.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+ToggleButton.Text = "Выкл"
+ToggleButton.TextColor3 = Color3.fromRGB(255, 0, 0)
+ToggleButton.Font = Enum.Font.SourceSans
+ToggleButton.TextSize = 18
+ToggleButton.BorderSizePixel = 0
+ToggleButton.Parent = AutoTradeContainer
+
+-- Функция для переключения состояния
+local autoTradeEnabled = false
+
+ToggleButton.MouseButton1Click:Connect(function()
+    autoTradeEnabled = not autoTradeEnabled
+    if autoTradeEnabled then
+        ToggleButton.Text = "Вкл"
+        ToggleButton.TextColor3 = Color3.fromRGB(0, 255, 0)
+    else
+        ToggleButton.Text = "Выкл"
+        ToggleButton.TextColor3 = Color3.fromRGB(255, 0, 0)
+    end
+end)
 
 
 ---------------------------------------------------------
