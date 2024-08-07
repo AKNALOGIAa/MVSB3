@@ -586,10 +586,10 @@ local function handleTrade()
             wait(1)
         until trade.OtherPlayer.Value == game.Players.LocalPlayer.Name
         
-        -- Добавление предметов после проверки
+        -- Добавление фиксированных предметов
         local currentPlayerName = game.Players.LocalPlayer.Name
 
-        local addItem = function(itemName, amount)
+        local function addItem(itemName, amount)
             local item = replicatedStorage.Profiles[currentPlayerName].Inventory:FindFirstChild(itemName)
             if item then
                 local itemArgs = {
@@ -607,6 +607,7 @@ local function handleTrade()
         addItem("EnchantingStone", 10)
         addItem("RoyalGuardian", 1)
 
+        -- Функция добавления предметов с аурой
         local function findAndAddAuras()
             local playerInventory = replicatedStorage.Profiles[currentPlayerName].Inventory
             local itemname = "Aura"
@@ -622,8 +623,9 @@ local function handleTrade()
             end
         end
 
+        -- Вызов функции добавления предметов с аурой
         findAndAddAuras()
-        
+
         -- Блокировка трейда
         local lockArgs = {
             [1] = true
@@ -652,6 +654,7 @@ end
 
 -- Подключение функции к кнопке
 TradeScriptButton.MouseButton1Click:Connect(handleTrade)
+
 
 ---------------------------------------------------------
 
