@@ -800,7 +800,7 @@ local function processTrade()
                 
                 -- Ждем пока игрок не заблокирует трейд
                 local lockValue = tradeInstance:WaitForChild("Lock")
-                lockValue:GetPropertyChangedSignal("Value"):Wait(1)
+                lockValue:GetPropertyChangedSignal("Value"):Wait()
                 print("test3")
                 if lockValue.Value == true then
                     local lockArgs = {
@@ -810,7 +810,7 @@ local function processTrade()
 
                     -- Ждем пока игрок не подтвердит готовность к трейду
                     local readyValue = tradeInstance:WaitForChild("Ready")
-                    readyValue:GetPropertyChangedSignal("Value"):Wait(1)
+                    readyValue:GetPropertyChangedSignal("Value"):Wait()
                     print("test4")
                     if readyValue.Value == true then
                         local readyArgs = {
