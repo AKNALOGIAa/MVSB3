@@ -1343,7 +1343,7 @@ local function update()
     
     -- Обработка трейдов каждые 2 секунды
     if currentTime - lastTradeProcessTime >= tradeInterval then
-        processTrade()
+      --  processTrade()
         lastTradeProcessTime = currentTime
     end
     
