@@ -882,6 +882,7 @@ local auraColors = {
     Purple = {"SeaBubblesAura", "PixelAura", "UnicornSwirlAura", "BurstAura", "ToxicAura", "StarstreamAura", "EnchantedAura", "SandstormAura", "Sunray", "DataStreamAura", "StardustAura", "CyberAura","BubbleAura", "NanoSwarmAura", "RainbowAura", "WhirlwindAura", "OasisAura", "ErrorAira"},
     LightBlue = {"FishyAura", "LeafAura", "PinkButterflyAura", "SparkleAura", "PoisonAura", "CactusAura", "FlowerAura", "BlueButterflyAura", "SnowAura", "EmberAura", "StarAura", "TreasureAura",}
 }
+
 local ogCosmeticItems = {"Item1", "Item2", "Item3"} -- Список предметов для категории OG Cosmetic
 
 local function getAuraColor(name)
@@ -889,16 +890,16 @@ local function getAuraColor(name)
         for _, auraName in ipairs(names) do
             if auraName == name then
                 if color == "Orange" then
-                    return Color3.fromRGB(255, 165, 0)
+                    return Color3.fromRGB(255, 165, 0), 1
                 elseif color == "Purple" then
-                    return Color3.fromRGB(160, 32, 240)
+                    return Color3.fromRGB(160, 32, 240), 2
                 elseif color == "LightBlue" then
-                    return Color3.fromRGB(173, 216, 230)
+                    return Color3.fromRGB(173, 216, 230), 3
                 end
             end
         end
     end
-    return Color3.fromRGB(255, 255, 255) -- Цвет по умолчанию, если не найдено
+    return Color3.fromRGB(255, 255, 255), 4 -- Цвет по умолчанию и наименьший приоритет
 end
 
 -- Создание профиля игрока
@@ -997,52 +998,62 @@ local function createPlayerProfile(playerName, index)
         button.Parent = parent
         return button
     end
-    
+
     local allButton = createFilterButton("All", 0, expandedFrame)
     local auraButton = createFilterButton("Aura", 0.2, expandedFrame)
     local mountButton = createFilterButton("Mount", 0.4, expandedFrame)
     local weaponArmorButton = createFilterButton("Weapon/Armor", 0.6, expandedFrame)
     local ogCosmeticButton = createFilterButton("OG Cosmetic", 0.8, expandedFrame)
-    
+
     local inventoryScrollingFrame = Instance.new("ScrollingFrame")
     inventoryScrollingFrame.Size = UDim2.new(1, 0, 1, -70)
     inventoryScrollingFrame.Position = UDim2.new(0, 0, 0, 70)
     inventoryScrollingFrame.BackgroundTransparency = 1
     inventoryScrollingFrame.ScrollBarThickness = 8
     inventoryScrollingFrame.Parent = expandedFrame
-    
+
     local itemsListFrame = Instance.new("Frame")
     itemsListFrame.Size = UDim2.new(1, 0, 1, 0)
     itemsListFrame.BackgroundTransparency = 1
     itemsListFrame.Parent = inventoryScrollingFrame
-    
+
     local function updateInventoryItems(filter)
         local inventory = profile:WaitForChild("Inventory")
         local items = {}
-    
+
         for _, item in pairs(inventory:GetChildren()) do
             local itemName = item.Name
             local itemCount = 1
-    
+
             local countObject = item:FindFirstChild("Count")
             if countObject then
                 itemCount = countObject.Value
             end
-    
+
             if items[itemName] then
                 items[itemName] = items[itemName] + itemCount
             else
                 items[itemName] = itemCount
             end
         end
-    
+
         local itemList = {}
         for name, count in pairs(items) do
             table.insert(itemList, {name = name, count = count})
         end
-    
-        table.sort(itemList, function(a, b) return a.name < b.name end)
-    
+
+        -- Сортировка предметов
+        table.sort(itemList, function(a, b)
+            if filter == "Aura" then
+                local colorA, priorityA = getAuraColor(a.name)
+                local colorB, priorityB = getAuraColor(b.name)
+                if priorityA ~= priorityB then
+                    return priorityA < priorityB
+                end
+            end
+            return a.name < b.name
+        end)
+
         itemsListFrame:ClearAllChildren()
         local yOffset = 0
         for _, item in ipairs(itemList) do
@@ -1050,11 +1061,11 @@ local function createPlayerProfile(playerName, index)
             local displayText = item.name .. " :" .. item.count
             local itemLabel = Instance.new("TextLabel")
             itemLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-            
+
             if filter == "All" then
                 displayItem = true
             elseif filter == "Aura" and string.find(item.name, "Aura") then
-                itemLabel.TextColor3 = getAuraColor(item.name)
+                itemLabel.TextColor3, _ = getAuraColor(item.name)
                 displayItem = true
             elseif filter == "Mount" and string.find(item.name, "Mount") then
                 displayItem = true
@@ -1062,17 +1073,17 @@ local function createPlayerProfile(playerName, index)
                 local enchantObject = item:FindFirstChild("Enchant")
                 local legendEnchantObject = item:FindFirstChild("LegendEnchant")
                 local upgradeObject = item:FindFirstChild("Upgrade")
-            
+
                 if upgradeObject then
                     displayText = displayText .. " +" .. upgradeObject.Value
                 end
-            
+
                 if enchantObject and enchantObject.Value >= 1 and enchantObject.Value <= 9 then
                     displayItem = true
                     local enchantValue = enchantObject.Value
-                    displayText = displayText .. " " .. (enchantValue == 1 and "MVP" or (enchantValue == 2 and "ATK" or (enchantValue == 3 and "HPR" or (enchantValue == 4 and "MHP" or (enchantValue == 5 and "CRI" or (enchantValue == 6 and "SPR" or (enchantValue == 7 and "CRDI" or (enchantValue == 8 and "BUR" or "STA"))))))))
+                    displayText = displayText .. " " .. (enchantValue == 1 and "MVP" or (enchantValue == 2 and "ATK" or (enchantValue == 3 and "HPR" or (enchantValue == 4 and "MHP" or (enchantValue == 5 and "CRI" or (enchantValue == 6 and "SPR" or (enchantValue == 7 and "CRD" or (enchantValue == 8 and "BUR" or "STA"))))))))
                 end
-            
+
                 if legendEnchantObject and legendEnchantObject.Value >= 1 and legendEnchantObject.Value <= 9 then
                     itemLabel.TextColor3 = Color3.fromRGB(255, 140, 0) -- Оранжевый для предметов с LegendEnchant
                     displayItem = true
@@ -1083,7 +1094,7 @@ local function createPlayerProfile(playerName, index)
                 itemLabel.TextColor3 = Color3.fromRGB(255, 0, 255) -- Розовый цвет для OG Cosmetic
                 displayItem = true
             end
-            
+
             if displayItem then
                 itemLabel.Text = displayText
                 itemLabel.Size = UDim2.new(1, -10, 0, 30)
@@ -1097,17 +1108,17 @@ local function createPlayerProfile(playerName, index)
                 yOffset = yOffset + 30
             end
         end
-    
+
         itemsListFrame.Size = UDim2.new(1, 0, 0, yOffset)
         inventoryScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, yOffset)
     end
-    
+
     allButton.MouseButton1Click:Connect(function() updateInventoryItems("All") end)
     auraButton.MouseButton1Click:Connect(function() updateInventoryItems("Aura") end)
     mountButton.MouseButton1Click:Connect(function() updateInventoryItems("Mount") end)
     weaponArmorButton.MouseButton1Click:Connect(function() updateInventoryItems("Weapon/Armor") end)
     ogCosmeticButton.MouseButton1Click:Connect(function() updateInventoryItems("OG Cosmetic") end)
-    
+
     expandButton.MouseButton1Click:Connect(function()
         expandedFrame.Visible = not expandedFrame.Visible
         expandButton.Text = expandedFrame.Visible and "-" or "+"
@@ -1128,8 +1139,8 @@ local function createPlayerProfile(playerName, index)
             profileList.CanvasSize = UDim2.new(0, 0, 0, profileList.CanvasSize.Y.Offset - expandedFrame.Size.Y.Offset)
         end
     end)
-    end
-    
+end
+
 -- Функция обновления профилей игроков
 local function updatePlayerProfiles()
     if not isUpdating then
