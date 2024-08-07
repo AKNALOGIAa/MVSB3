@@ -277,6 +277,7 @@ end
 
 ----------- Функция для создания кнопки покупки----------
 -----------Получаем основную категорию для вещей---------
+local players = game:GetService("Players")
 local itemsSection = content:FindFirstChild("Items")
 
 if itemsSection then
@@ -330,9 +331,45 @@ if itemsSection then
 
                     buyButton.MouseButton1Click:Connect(function()
                         local args = {
-                            [1] = game:GetService("ReplicatedStorage").Drops[item.Name]
+                            [1] = item
                         }
-                        game:GetService("ReplicatedStorage").Systems.Shops.Buy:FireServer(unpack(args))
+                        for _, player in pairs(players:GetPlayers()) do
+                            player.PlayerGui.ItemInteract.Visible = true
+                        end
+
+                        -- Создание кнопок "Купить" и "Отменить"
+                        local confirmButton = Instance.new("TextButton")
+                        confirmButton.Size = UDim2.new(0, 100, 0, 50)
+                        confirmButton.Position = UDim2.new(0, 20, 1, -60)
+                        confirmButton.Text = "Купить"
+                        confirmButton.TextColor3 = Color3.new(1, 1, 1)
+                        confirmButton.BackgroundColor3 = Color3.new(0, 0.5, 0)
+                        confirmButton.Parent = itemsSection
+
+                        local cancelButton = Instance.new("TextButton")
+                        cancelButton.Size = UDim2.new(0, 100, 0, 50)
+                        cancelButton.Position = UDim2.new(0, 140, 1, -60)
+                        cancelButton.Text = "Отменить"
+                        cancelButton.TextColor3 = Color3.new(1, 1, 1)
+                        cancelButton.BackgroundColor3 = Color3.new(0.5, 0, 0)
+                        cancelButton.Parent = itemsSection
+
+                        confirmButton.MouseButton1Click:Connect(function()
+                            game:GetService("ReplicatedStorage").Systems.Shops.Buy:FireServer(unpack(args))
+                            confirmButton:Destroy()
+                            cancelButton:Destroy()
+                            for _, player in pairs(players:GetPlayers()) do
+                                player.PlayerGui.ItemInteract.Visible = false
+                            end
+                        end)
+
+                        cancelButton.MouseButton1Click:Connect(function()
+                            for _, player in pairs(players:GetPlayers()) do
+                                player.PlayerGui.ItemInteract.Visible = false
+                            end
+                            confirmButton:Destroy()
+                            cancelButton:Destroy()
+                        end)
                     end)
 
                     col = col + 1
