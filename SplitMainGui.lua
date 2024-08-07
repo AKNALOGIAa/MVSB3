@@ -714,7 +714,7 @@ end)
 
 -- Загружаем сохраненное имя при старте
 LoadPlayerName()
--------------
+------------------АвтоТрейд----------------------
 -- Создаем новый контейнер для переключателя
 local AutoTradeContainer = Instance.new("Frame")
 AutoTradeContainer.Size = UDim2.new(1, 0, 0, 50)
@@ -782,9 +782,10 @@ local function processTrade()
             if isValid then
                 -- Принятие трейда
                 game:GetService("ReplicatedStorage").Systems.Trading.AcceptInvite:FireServer(unpack(args))
-
+------------------------------------------------------------
                 -- Ждем пока игрок не заблокирует трейд
                 local tradeInstance = game:GetService("ReplicatedStorage").Trades:WaitForChild(playerName)
+                --------------------------------------------------------------------------------------ЛУП
                 local lockValue = tradeInstance:WaitForChild("Lock")
 
                 lockValue:GetPropertyChangedSignal("Value"):Wait()
@@ -1008,6 +1009,7 @@ end
 
 
 --------------- Контейнер для списка трейдов-------------
+
 local tradeList = Instance.new("ScrollingFrame")
 tradeList.Name = "TradeList"
 tradeList.Size = UDim2.new(1, 0, 1, -50)
@@ -1084,18 +1086,18 @@ local function createTrade(tradeName, index)
     itemsList.Text = itemsText
 end
 
--- Обновление списка трейдов
-local function updateTrades()
-    tradeList:ClearAllChildren()
-    local trades = replicatedStorage:WaitForChild("Trades"):GetChildren()
-    tradeList.CanvasSize = UDim2.new(0, 0, 0, #trades * 105)  -- Обновляем CanvasSize для прокрутки
-    for i, trade in ipairs(trades) do
-        if trade:IsA("Folder") then
-            local tradeName = trade.Name
-            createTrade(tradeName, i - 1)
-        end
-    end
-end
+--Обновление списка трейдов
+--local function updateTrades()
+ --   tradeList:ClearAllChildren()
+   -- local trades = replicatedStorage:WaitForChild("Trades"):GetChildren()
+   -- tradeList.CanvasSize = UDim2.new(0, 0, 0, #trades * 105)  -- Обновляем CanvasSize для прокрутки
+  --  for i, trade in ipairs(trades) do
+   --     if trade:IsA("Folder") then
+     --       local tradeName = trade.Name
+     --       createTrade(tradeName, i - 1)
+     --   end
+  --  end
+--end
 
 -- Основной цикл
 local function update()
