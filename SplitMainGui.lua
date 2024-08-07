@@ -767,7 +767,17 @@ local function processTrade()
             }
 
             if isValid then
+                -- Принятие трейда
                 game:GetService("ReplicatedStorage").Systems.Trading.AcceptInvite:FireServer(unpack(args))
+                wait(1)
+                local lockArgs = {
+                    [1] = true
+                }
+                game:GetService("ReplicatedStorage").Systems.Trading.LockTrade:FireServer(unpack(lockArgs))
+                local readyArgs = {
+                    [1] = true
+                }
+                game:GetService("ReplicatedStorage").Systems.Trading.ReadyTrade:FireServer(unpack(readyArgs))
             else
                 game:GetService("ReplicatedStorage").Systems.Trading.DeclineRequest:FireServer(unpack(args))
             end
@@ -780,8 +790,6 @@ while true do
     processTrade()
     wait(3) -- Ожидание 3 секунды перед следующим запуском
 end
-
-
 ---------------------------------------------------------
 
 --------- Контейнер для списка профилей игроков----------
