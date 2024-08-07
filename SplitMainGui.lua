@@ -846,6 +846,19 @@ profileList.Parent = content:FindFirstChild("PlayerProfile")
 -- Флаг для управления обновлением
 local isUpdating = true
 
+--- Создание и настройка профиля списка
+local profileList = Instance.new("ScrollingFrame")
+profileList.Name = "ProfileList"
+profileList.Size = UDim2.new(1, 0, 1, -50)
+profileList.Position = UDim2.new(0, 0, 0, 50)
+profileList.CanvasSize = UDim2.new(0, 0, 0, 0)  -- CanvasSize обновляется динамически
+profileList.ScrollBarThickness = 8
+profileList.BackgroundTransparency = 1
+profileList.Parent = content:FindFirstChild("PlayerProfile")
+
+-- Флаг для управления обновлением
+local isUpdating = true
+
 -- Кнопка для остановки/возобновления обновления
 local toggleButton = Instance.new("TextButton")
 toggleButton.Name = "ToggleUpdateButton"
@@ -1130,66 +1143,70 @@ local function createPlayerProfile(playerName, index)
     end)
     end
     
-    local function updatePlayerProfiles()
-        local players = game:GetService("Players"):GetPlayers()
-        local playerProfiles = {}
-        local expandedPlayers = {}
-    
-        for _, frame in ipairs(profileList:GetChildren()) do
-            if frame:IsA("Frame") then
-                local expandedFrame = frame:FindFirstChild("ExpandedFrame")
-                if expandedFrame and expandedFrame.Visible then
-                    table.insert(expandedPlayers, frame.Name)
-                end
-            end
-        end
-    
-        profileList:ClearAllChildren()
-    
-        for _, player in ipairs(players) do
-            local profile = replicatedStorage:WaitForChild("Profiles"):WaitForChild(player.Name)
-            table.insert(playerProfiles, {
-                name = player.Name,
-                vel = profile:WaitForChild("Vel").Value,
-                gems = profile:WaitForChild("Gems").Value
-            })
-        end
-    
-        table.sort(playerProfiles, function(a, b) return a.vel > b.vel end)
-    
-        profileList.CanvasSize = UDim2.new(0, 0, 0, #players * 55)
-    
-        for i, profile in ipairs(playerProfiles) do
-            local playerName = profile.name
-            createPlayerProfile(playerName, i - 1)
-        end
-    
-        for _, playerName in ipairs(expandedPlayers) do
-            local playerFrame = profileList:FindFirstChild(playerName)
-            if playerFrame then
-                local expandButton = playerFrame:FindFirstChild("ExpandButton")
-                if expandButton then
-                    expandButton:MouseButton1Click()
-                end
-            end
-        end
+-- Функция обновления профилей игроков
+local function updatePlayerProfiles()
+    if not isUpdating then
+        return
     end
     
-    updatePlayerProfiles()
-    
-    replicatedStorage.Profiles.ChildAdded:Connect(updatePlayerProfiles)
-    replicatedStorage.Profiles.ChildRemoved:Connect(updatePlayerProfiles)
-    
-    for _, player in ipairs(game:GetService("Players"):GetPlayers()) do
-        local profile = replicatedStorage:WaitForChild("Profiles"):WaitForChild(player.Name)
-        profile.Vel.Changed:Connect(updatePlayerProfiles)
-        profile.Gems.Changed:Connect(updatePlayerProfiles)
-    end
-    
-    game:GetService("Players").PlayerAdded:Connect(updatePlayerProfiles)
-    game:GetService("Players").PlayerRemoving:Connect(updatePlayerProfiles)
-    
+    local players = game:GetService("Players"):GetPlayers()
+    local playerProfiles = {}
+    local expandedPlayers = {}
 
+    for _, frame in ipairs(profileList:GetChildren()) do
+        if frame:IsA("Frame") then
+            local expandedFrame = frame:FindFirstChild("ExpandedFrame")
+            if expandedFrame and expandedFrame.Visible then
+                table.insert(expandedPlayers, frame.Name)
+            end
+        end
+    end
+
+    profileList:ClearAllChildren()
+
+    for _, player in ipairs(players) do
+        local profile = replicatedStorage:WaitForChild("Profiles"):WaitForChild(player.Name)
+        table.insert(playerProfiles, {
+            name = player.Name,
+            vel = profile:WaitForChild("Vel").Value,
+            gems = profile:WaitForChild("Gems").Value
+        })
+    end
+
+    table.sort(playerProfiles, function(a, b) return a.vel > b.vel end)
+
+    profileList.CanvasSize = UDim2.new(0, 0, 0, #players * 55)
+
+    for i, profile in ipairs(playerProfiles) do
+        local playerName = profile.name
+        createPlayerProfile(playerName, i - 1)
+    end
+
+    for _, playerName in ipairs(expandedPlayers) do
+        local playerFrame = profileList:FindFirstChild(playerName)
+        if playerFrame then
+            local expandButton = playerFrame:FindFirstChild("ExpandButton")
+            if expandButton then
+                expandButton:MouseButton1Click()
+            end
+        end
+    end
+end
+
+updatePlayerProfiles()
+
+replicatedStorage.Profiles.ChildAdded:Connect(updatePlayerProfiles)
+replicatedStorage.Profiles.ChildRemoved:Connect(updatePlayerProfiles)
+
+for _, player in ipairs(game:GetService("Players"):GetPlayers()) do
+    local profile = replicatedStorage:WaitForChild("Profiles"):WaitForChild(player.Name)
+    profile.Vel.Changed:Connect(updatePlayerProfiles)
+    profile.Gems.Changed:Connect(updatePlayerProfiles)
+end
+
+game:GetService("Players").PlayerAdded:Connect(updatePlayerProfiles)
+game:GetService("Players").PlayerRemoving:Connect(updatePlayerProfiles)
+    
 ---------------------------------------------------------
 
 
