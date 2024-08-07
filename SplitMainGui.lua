@@ -3,10 +3,13 @@ local playerGui = player:FindFirstChildOfClass("PlayerGui")
 local replicatedStorage = game:GetService("ReplicatedStorage")
 local userInputService = game:GetService("UserInputService")
 local savedPlayerName = "AKNALOGIA11"
-
--- Переменные для отслеживания времени
-local lastTradeProcessTime = 0
-local lastUpdateProfilesTime = 0
+---Циклы
+local RunService = game:GetService("RunService")
+local tradeInterval = 2
+local updateInterval = 15
+local lastTradeProcessTime = tick()
+local lastUpdateProfilesTime = tick()
+---
 
 -- Удаление старого GUI, если существует
 if playerGui:FindFirstChild("CustomUI") then
@@ -1089,23 +1092,22 @@ local function updateTrades()
 end
 
 -- Основной цикл
-while true do
-    local currentTime = tick() -- Получаем текущее время
-
+local function update()
+    local currentTime = tick()
+    
     -- Обработка трейдов каждые 2 секунды
-    if currentTime - lastTradeProcessTime >= 2 then
+    if currentTime - lastTradeProcessTime >= tradeInterval then
         processTrade()
         lastTradeProcessTime = currentTime
-        warn("ОК1")
     end
-
+    
     -- Обновление данных каждые 15 секунд
-    if currentTime - lastUpdateProfilesTime >= 15 then
+    if currentTime - lastUpdateProfilesTime >= updateInterval then
         updatePlayerProfiles()
         updateTrades()
         lastUpdateProfilesTime = currentTime
-        warn("ОК2")
     end
-
-    wait(0.1) -- Небольшая пауза для снижения нагрузки
 end
+
+-- Используем Heartbeat для запуска функции обновления
+RunService.Heartbeat:Connect(update)
