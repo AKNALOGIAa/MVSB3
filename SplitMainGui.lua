@@ -1121,7 +1121,7 @@ local function update()
     -- Обновление данных каждые 15 секунд
     if currentTime - lastUpdateProfilesTime >= updateInterval then
         updatePlayerProfiles()
-        updateTrades()
+     --   updateTrades()
         lastUpdateProfilesTime = currentTime
     end
 end
