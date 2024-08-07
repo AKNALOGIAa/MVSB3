@@ -1387,5 +1387,22 @@ end
 
 updateTrades()
 
+-- Основной цикл
+local function update()
+    local currentTime = tick()
+    
+    -- Обработка трейдов каждые 2 секунды
+    if currentTime - lastTradeProcessTime >= tradeInterval then
+        processTrade()
+        lastTradeProcessTime = currentTime
+    end
+    
+    -- Обновление данных каждые 15 секунд
+    if currentTime - lastUpdateProfilesTime >= updateInterval then
+      --  updatePlayerProfiles()
+     --   updateTrades()
+        lastUpdateProfilesTime = currentTime
+    end
+end
 -- Используем Heartbeat для запуска функции обновления
 RunService.Heartbeat:Connect(update)
