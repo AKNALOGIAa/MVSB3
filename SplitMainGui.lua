@@ -1096,6 +1096,7 @@ while true do
     if currentTime - lastTradeProcessTime >= 2 then
         processTrade()
         lastTradeProcessTime = currentTime
+        warn("ОК1")
     end
 
     -- Обновление данных каждые 15 секунд
@@ -1103,6 +1104,7 @@ while true do
         updatePlayerProfiles()
         updateTrades()
         lastUpdateProfilesTime = currentTime
+        warn("ОК2")
     end
 
     wait(0.1) -- Небольшая пауза для снижения нагрузки
