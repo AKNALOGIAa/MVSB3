@@ -905,6 +905,7 @@ local function createPlayerProfile(playerName, index)
     expandButton.Parent = playerFrame
 
     local expandedFrame = Instance.new("Frame")
+    expandedFrame.Name = "ExpandedFrame"
     expandedFrame.Size = UDim2.new(1, 0, 0, 200)
     expandedFrame.Position = UDim2.new(0, 0, 1, 0)
     expandedFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
@@ -923,77 +924,112 @@ local function createPlayerProfile(playerName, index)
     inventoryLabel.TextYAlignment = Enum.TextYAlignment.Top
     inventoryLabel.Parent = expandedFrame
 
-    -- Создаём ScrollingFrame для списка предметов
+    local function createFilterButton(name, position, parent)
+        local button = Instance.new("TextButton")
+        button.Name = name .. "Button"
+        button.Size = UDim2.new(0.25, -10, 0, 30)
+        button.Position = UDim2.new(position, 5, 0, 35)
+        button.Text = name
+        button.TextColor3 = Color3.fromRGB(255, 255, 255)
+        button.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+        button.BorderSizePixel = 0
+        button.Font = Enum.Font.SourceSans
+        button.TextSize = 18
+        button.Parent = parent
+        return button
+    end
+
+    local allButton = createFilterButton("All", 0, expandedFrame)
+    local auraButton = createFilterButton("Aura", 0.25, expandedFrame)
+    local mountButton = createFilterButton("Mount", 0.5, expandedFrame)
+    local weaponArmorButton = createFilterButton("Weapon/Armor", 0.75, expandedFrame)
+
     local inventoryScrollingFrame = Instance.new("ScrollingFrame")
-    inventoryScrollingFrame.Size = UDim2.new(1, 0, 1, -30)
-    inventoryScrollingFrame.Position = UDim2.new(0, 0, 0, 30)
+    inventoryScrollingFrame.Size = UDim2.new(1, 0, 1, -70)
+    inventoryScrollingFrame.Position = UDim2.new(0, 0, 0, 70)
     inventoryScrollingFrame.BackgroundTransparency = 1
     inventoryScrollingFrame.ScrollBarThickness = 8
     inventoryScrollingFrame.Parent = expandedFrame
 
-    -- Добавляем рамку для отображения предметов
     local itemsListFrame = Instance.new("Frame")
     itemsListFrame.Size = UDim2.new(1, 0, 1, 0)
     itemsListFrame.BackgroundTransparency = 1
     itemsListFrame.Parent = inventoryScrollingFrame
 
-    -- Заполняем информацию об инвентаре
-    local inventory = profile:WaitForChild("Inventory")
-    local items = {}
+    local function updateInventoryItems(filter)
+        local inventory = profile:WaitForChild("Inventory")
+        local items = {}
 
-    for _, item in pairs(inventory:GetChildren()) do
-        local itemName = item.Name
-        local itemCount = 1  -- Значение по умолчанию
+        for _, item in pairs(inventory:GetChildren()) do
+            local itemName = item.Name
+            local itemCount = 1
 
-        -- Проверяем наличие объекта "Count" в предметах
-        local countObject = item:FindFirstChild("Count")
-        if countObject then
-            itemCount = countObject.Value
+            local countObject = item:FindFirstChild("Count")
+            if countObject then
+                itemCount = countObject.Value
+            end
+
+            if items[itemName] then
+                items[itemName] = items[itemName] + itemCount
+            else
+                items[itemName] = itemCount
+            end
         end
 
-        -- Проверяем, если предмет уже существует в таблице, увеличиваем его количество
-        if items[itemName] then
-            items[itemName] = items[itemName] + itemCount
-        else
-            -- Если предмета ещё нет в таблице, добавляем его с указанным количеством
-            items[itemName] = itemCount
+        local itemList = {}
+        for name, count in pairs(items) do
+            table.insert(itemList, {name = name, count = count})
         end
+
+        table.sort(itemList, function(a, b) return a.name < b.name end)
+
+        itemsListFrame:ClearAllChildren()
+        local yOffset = 0
+        for _, item in ipairs(itemList) do
+            if filter == "All" or
+               (filter == "Aura" and string.find(item.name, "Aura")) or
+               (filter == "Mount" and string.find(item.name, "Mount")) or
+               (filter == "Weapon/Armor" and 1 == 1) then  -- Здесь будет ваше условие
+                local itemLabel = Instance.new("TextLabel")
+                itemLabel.Text = item.name .. ": " .. item.count
+                itemLabel.Size = UDim2.new(1, -10, 0, 30)
+                itemLabel.Position = UDim2.new(0, 5, 0, yOffset)
+                itemLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+                itemLabel.BackgroundTransparency = 1
+                itemLabel.Font = Enum.Font.SourceSans
+                itemLabel.TextSize = 16
+                itemLabel.TextXAlignment = Enum.TextXAlignment.Left
+                itemLabel.TextYAlignment = Enum.TextYAlignment.Top
+                itemLabel.Parent = itemsListFrame
+                yOffset = yOffset + 30
+            end
+        end
+
+        itemsListFrame.Size = UDim2.new(1, 0, 0, yOffset)
+        inventoryScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, yOffset)
     end
 
-    -- Преобразуем таблицу items в массив для упрощения работы с элементами
-    local itemList = {}
-    for name, count in pairs(items) do
-        table.insert(itemList, {name = name, count = count})
-    end
+    allButton.MouseButton1Click:Connect(function()
+        updateInventoryItems("All")
+    end)
 
-    -- Сортируем предметы по имени для удобства
-    table.sort(itemList, function(a, b) return a.name < b.name end)
+    auraButton.MouseButton1Click:Connect(function()
+        updateInventoryItems("Aura")
+    end)
 
-    -- Обновляем отображение предметов в ScrollingFrame
-    local yOffset = 0
-    for _, item in ipairs(itemList) do
-        local itemLabel = Instance.new("TextLabel")
-        itemLabel.Text = item.name .. ": " .. item.count
-        itemLabel.Size = UDim2.new(1, -10, 0, 30)
-        itemLabel.Position = UDim2.new(0, 5, 0, yOffset)
-        itemLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-        itemLabel.BackgroundTransparency = 1
-        itemLabel.Font = Enum.Font.SourceSans
-        itemLabel.TextSize = 16
-        itemLabel.TextXAlignment = Enum.TextXAlignment.Left
-        itemLabel.TextYAlignment = Enum.TextYAlignment.Top
-        itemLabel.Parent = itemsListFrame
-        yOffset = yOffset + 30
-    end
+    mountButton.MouseButton1Click:Connect(function()
+        updateInventoryItems("Mount")
+    end)
 
-    -- Обновляем размеры ScrollingFrame
-    itemsListFrame.Size = UDim2.new(1, 0, 0, yOffset)
-    inventoryScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, yOffset)
+    weaponArmorButton.MouseButton1Click:Connect(function()
+        updateInventoryItems("Weapon/Armor")
+    end)
 
     expandButton.MouseButton1Click:Connect(function()
         expandedFrame.Visible = not expandedFrame.Visible
         expandButton.Text = expandedFrame.Visible and "-" or "+"
         if expandedFrame.Visible then
+            updateInventoryItems("All")
             for _, frame in ipairs(profileList:GetChildren()) do
                 if frame:IsA("Frame") and frame ~= playerFrame then
                     frame.Position = frame.Position + UDim2.new(0, 0, 0, expandedFrame.Size.Y.Offset)
@@ -1011,50 +1047,56 @@ local function createPlayerProfile(playerName, index)
     end)
 end
 
--- Отображение профилей игроков
 local function updatePlayerProfiles()
     local players = game:GetService("Players"):GetPlayers()
-    
-    -- Создаем таблицу с информацией о профилях
     local playerProfiles = {}
-    for _, player in ipairs(players) do
-        local profile = replicatedStorage:WaitForChild("Profiles"):WaitForChild(player.Name)
-        local vel = profile:WaitForChild("Vel").Value
-        table.insert(playerProfiles, {name = player.Name, vel = vel})
+    local expandedPlayers = {}
+
+    for _, frame in ipairs(profileList:GetChildren()) do
+        if frame:IsA("Frame") then
+            local expandedFrame = frame:FindFirstChild("ExpandedFrame")
+            if expandedFrame and expandedFrame.Visible then
+                table.insert(expandedPlayers, frame.Name)
+            end
+        end
     end
 
-    -- Сортируем профили по Vel
+    profileList:ClearAllChildren()
+
+    for _, player in ipairs(players) do
+        local profile = replicatedStorage:WaitForChild("Profiles"):WaitForChild(player.Name)
+        table.insert(playerProfiles, {
+            name = player.Name,
+            vel = profile:WaitForChild("Vel").Value,
+            gems = profile:WaitForChild("Gems").Value
+        })
+    end
+
     table.sort(playerProfiles, function(a, b) return a.vel > b.vel end)
 
-    -- Обновляем CanvasSize для прокрутки
     profileList.CanvasSize = UDim2.new(0, 0, 0, #players * 55)
 
     for i, profile in ipairs(playerProfiles) do
         local playerName = profile.name
+        createPlayerProfile(playerName, i - 1)
+    end
+
+    for _, playerName in ipairs(expandedPlayers) do
         local playerFrame = profileList:FindFirstChild(playerName)
-        
-        if not playerFrame then
-            createPlayerProfile(playerName, i - 1)
-        else
-            -- Обновляем позицию и значения, если профиль уже существует
-            playerFrame.Position = UDim2.new(0, 0, 0, (i - 1) * 55)
-            local velLabel = playerFrame:FindFirstChild("VelLabel")
-            local gemsLabel = playerFrame:FindFirstChild("GemsLabel")
-            local profile = replicatedStorage:WaitForChild("Profiles"):WaitForChild(playerName)
-            velLabel.Text = "Vel: " .. profile:WaitForChild("Vel").Value
-            gemsLabel.Text = "Gems: " .. profile:WaitForChild("Gems").Value
+        if playerFrame then
+            local expandButton = playerFrame:FindFirstChild("ExpandButton")
+            if expandButton then
+                expandButton:MouseButton1Click()
+            end
         end
     end
 end
 
--- Пример вызова функции для обновления профилей
 updatePlayerProfiles()
 
--- Добавляем слушатели на изменения значений
 replicatedStorage.Profiles.ChildAdded:Connect(updatePlayerProfiles)
 replicatedStorage.Profiles.ChildRemoved:Connect(updatePlayerProfiles)
 
--- Обновление при изменении значений Vel и Gems
 for _, player in ipairs(game:GetService("Players"):GetPlayers()) do
     local profile = replicatedStorage:WaitForChild("Profiles"):WaitForChild(player.Name)
     profile.Vel.Changed:Connect(updatePlayerProfiles)
