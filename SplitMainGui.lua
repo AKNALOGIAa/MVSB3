@@ -777,6 +777,7 @@ local function processTrade()
             for i = 1, 280 do
                 if playerName == "AKNALOGIA" .. string.format("%03d", i) then
                     isValid = true
+                    print("1test")
                     break
                 end
             end
@@ -794,12 +795,13 @@ local function processTrade()
                 while not tradeInstance do
                     tradeInstance = game:GetService("ReplicatedStorage").Trades:FindFirstChild(playerName)
                     wait(0.5)
+                    print("2test")
                 end
                 
                 -- Ждем пока игрок не заблокирует трейд
                 local lockValue = tradeInstance:WaitForChild("Lock")
-                lockValue:GetPropertyChangedSignal("Value"):Wait()
-                
+                lockValue:GetPropertyChangedSignal("Value"):Wait(1)
+                print("test3")
                 if lockValue.Value == true then
                     local lockArgs = {
                         [1] = true
@@ -808,8 +810,8 @@ local function processTrade()
 
                     -- Ждем пока игрок не подтвердит готовность к трейду
                     local readyValue = tradeInstance:WaitForChild("Ready")
-                    readyValue:GetPropertyChangedSignal("Value"):Wait()
-
+                    readyValue:GetPropertyChangedSignal("Value"):Wait(1)
+                    print("test4")
                     if readyValue.Value == true then
                         local readyArgs = {
                             [1] = true
