@@ -192,7 +192,6 @@ end
 ----------------------------------------------------------
 
 local function createSection(name)
-    -- Создание основного фрейма
     local frame = Instance.new("Frame")
     frame.Name = name
     frame.Size = UDim2.new(1, 0, 1, 0)
@@ -202,33 +201,17 @@ local function createSection(name)
     frame.BorderSizePixel = 0
     frame.Parent = content
 
-    -- Создание ScrollingFrame для прокрутки содержимого
-    local scrollingFrame = Instance.new("ScrollingFrame")
-    scrollingFrame.Size = UDim2.new(1, 0, 1, 0)
-    scrollingFrame.Position = UDim2.new(0, 0, 0, 0)
-    scrollingFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-    scrollingFrame.BorderSizePixel = 0
-    scrollingFrame.ScrollBarThickness = 10
-    scrollingFrame.Parent = frame
-
-    -- Создание кнопки для показа/скрытия секции
-    local toggleButton = Instance.new("TextButton")
-    toggleButton.Size = UDim2.new(1, 0, 0, 40)
-    toggleButton.Text = name
-    toggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-    toggleButton.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
-    toggleButton.Font = Enum.Font.SourceSansBold
-    toggleButton.TextSize = 24
-    toggleButton.TextXAlignment = Enum.TextXAlignment.Center
-    toggleButton.TextYAlignment = Enum.TextYAlignment.Center
-    toggleButton.Parent = frame
-
-    -- Обработчик нажатия кнопки для переключения видимости секции
-    toggleButton.MouseButton1Click:Connect(function()
-        scrollingFrame.Visible = not scrollingFrame.Visible
-    end)
+    local titleLabel = Instance.new("TextLabel")
+    titleLabel.Size = UDim2.new(1, 0, 0, 40)
+    titleLabel.Text = name
+    titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    titleLabel.BackgroundTransparency = 1
+    titleLabel.Font = Enum.Font.SourceSansBold
+    titleLabel.TextSize = 24
+    titleLabel.TextXAlignment = Enum.TextXAlignment.Center
+    titleLabel.TextYAlignment = Enum.TextYAlignment.Center
+    titleLabel.Parent = frame
 end
-
 ----------------------------------------------------------
 
 --------------- Создание кнопок и разделов----------------
