@@ -344,6 +344,7 @@ if itemsSection then
                         confirmButton.Text = "Купить"
                         confirmButton.TextColor3 = Color3.new(1, 1, 1)
                         confirmButton.BackgroundColor3 = Color3.new(0, 0.5, 0)
+                        confirmButton.ZIndex = 1
                         confirmButton.Parent = itemsSection
 
                         local cancelButton = Instance.new("TextButton")
@@ -352,6 +353,7 @@ if itemsSection then
                         cancelButton.Text = "Отменить"
                         cancelButton.TextColor3 = Color3.new(1, 1, 1)
                         cancelButton.BackgroundColor3 = Color3.new(0.5, 0, 0)
+                        cancelButton.ZIndex = 1
                         cancelButton.Parent = itemsSection
 
                         confirmButton.MouseButton1Click:Connect(function()
@@ -1244,12 +1246,14 @@ game:GetService("Players").PlayerRemoving:Connect(updatePlayerProfiles)
 
 
 --------------- Контейнер для списка трейдов-------------
+local replicatedStorage = game:GetService("ReplicatedStorage")
+local content = script.Parent  -- Замените на правильный путь к вашему объекту content
 
 local tradeList = Instance.new("ScrollingFrame")
 tradeList.Name = "TradeList"
 tradeList.Size = UDim2.new(1, 0, 1, -50)
 tradeList.Position = UDim2.new(0, 0, 0, 50)
-tradeList.CanvasSize = UDim2.new(0, 0, 0, 0)  -- CanvasSize обновляется динамически
+tradeList.CanvasSize = UDim2.new(0, 0, 0, 0)
 tradeList.ScrollBarThickness = 8
 tradeList.BackgroundTransparency = 1
 tradeList.Parent = content:FindFirstChild("Trades")
@@ -1321,36 +1325,21 @@ local function createTrade(tradeName, index)
     itemsList.Text = itemsText
 end
 
---Обновление списка трейдов
---local function updateTrades()
- --   tradeList:ClearAllChildren()
-   -- local trades = replicatedStorage:WaitForChild("Trades"):GetChildren()
-   -- tradeList.CanvasSize = UDim2.new(0, 0, 0, #trades * 105)  -- Обновляем CanvasSize для прокрутки
-  --  for i, trade in ipairs(trades) do
-   --     if trade:IsA("Folder") then
-     --       local tradeName = trade.Name
-     --       createTrade(tradeName, i - 1)
-     --   end
-  --  end
---end
-
--- Основной цикл
-local function update()
-    local currentTime = tick()
-    
-    -- Обработка трейдов каждые 2 секунды
-    if currentTime - lastTradeProcessTime >= tradeInterval then
-      --  processTrade()
-        lastTradeProcessTime = currentTime
-    end
-    
-    -- Обновление данных каждые 15 секунд
-    if currentTime - lastUpdateProfilesTime >= updateInterval then
-      --  updatePlayerProfiles()
-     --   updateTrades()
-        lastUpdateProfilesTime = currentTime
+-- Функция для обновления списка трейдов
+local function updateTrades()
+    tradeList:ClearAllChildren()
+    local trades = replicatedStorage:WaitForChild("Trades"):GetChildren()
+    tradeList.CanvasSize = UDim2.new(0, 0, 0, #trades * 105)
+    for i, trade in ipairs(trades) do
+        if trade:IsA("Folder") then
+            local tradeName = trade.Name
+            createTrade(tradeName, i - 1)
+        end
     end
 end
+
+-- Пример вызова обновления списка трейдов
+updateTrades()
 
 -- Используем Heartbeat для запуска функции обновления
 RunService.Heartbeat:Connect(update)
