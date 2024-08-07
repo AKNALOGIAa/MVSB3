@@ -1261,7 +1261,7 @@ local function createTradeCard(trade, parent)
     end
 
     -- Собираем предметы другого игрока
-    for i = 11, 20 do
+    for i = 1, 10 do
         table.insert(itemsOtherPlayer, trade:FindFirstChild("Item"..i))
     end
 
