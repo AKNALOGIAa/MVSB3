@@ -878,12 +878,12 @@ end
 
 -- Цвета аур
 local auraColors = {
-    Orange = {"InfernoAUra", "GalaxyAura","CloundBurstAura", "LightningAura", "SyntwaveAura", "CursedAura", "ElectricAura", "PrismaticAura", }, -- Пример названий аур
-    Purple = {"SeaBubblesAura", "PixelAura", "UnicornSwirlAura", "BurstAura", "ToxicAura", "StarstreamAura", "EnchantedAura", "SandstormAura", "Sunray", "DataStreamAura", "StardustAura", "CyberAura","BubbleAura", "NanoSwarmAura", "RainbowAura", "WhirlwindAura", "OasisAura", "ErrorAira"},
+    Orange = {"InfernoAura", "GalaxyAura","CloudBurstAura", "LightningAura", "SynthwaveAura", "CursedAura", "ElectricAura", "PrismaticAura", }, -- Пример названий аур
+    Purple = {"SeaBubblesAura", "PixelAura", "UnicornSwirlAura", "BurstAura", "ToxicAura", "StarstreamAura", "EnchantedAura", "SandstormAura", "SunrayAura", "DataStreamAura", "StardustAura", "CyberAura","BubbleAura", "NanoSwarmAura", "RainbowAura", "WhirlwindAura", "OasisAura", "ErrorAura"},
     LightBlue = {"FishyAura", "LeafAura", "PinkButterflyAura", "SparkleAura", "PoisonAura", "CactusAura", "FlowerAura", "BlueButterflyAura", "SnowAura", "EmberAura", "StarAura", "TreasureAura",}
 }
 
-local ogCosmeticItems = {"Item1", "Item2", "Item3"} -- Список предметов для категории OG Cosmetic
+local ogCosmeticItems = {"NecromancerCloak", "ShadowTuxedo", "VoidArmor", "FlamingGarment", "CyberEnforcer"} -- Список предметов для категории OG Cosmetic
 
 local function getAuraColor(name)
     for color, names in pairs(auraColors) do
