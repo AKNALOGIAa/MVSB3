@@ -846,19 +846,6 @@ profileList.Parent = content:FindFirstChild("PlayerProfile")
 -- Флаг для управления обновлением
 local isUpdating = true
 
---- Создание и настройка профиля списка
-local profileList = Instance.new("ScrollingFrame")
-profileList.Name = "ProfileList"
-profileList.Size = UDim2.new(1, 0, 1, -50)
-profileList.Position = UDim2.new(0, 0, 0, 50)
-profileList.CanvasSize = UDim2.new(0, 0, 0, 0)  -- CanvasSize обновляется динамически
-profileList.ScrollBarThickness = 8
-profileList.BackgroundTransparency = 1
-profileList.Parent = content:FindFirstChild("PlayerProfile")
-
--- Флаг для управления обновлением
-local isUpdating = true
-
 -- Кнопка для остановки/возобновления обновления
 local toggleButton = Instance.new("TextButton")
 toggleButton.Name = "ToggleUpdateButton"
