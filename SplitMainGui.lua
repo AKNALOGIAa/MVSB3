@@ -842,7 +842,40 @@ profileList.ScrollBarThickness = 8
 profileList.BackgroundTransparency = 1
 profileList.Parent = content:FindFirstChild("PlayerProfile")
 
--- Функция для создания профиля игрока
+local function formatNumber(num)
+    local formatted = tostring(num)
+    while true do  
+        formatted, k = string.gsub(formatted, "^(-?%d+)(%d%d%d)", '%1,%2')
+        if k == 0 then
+            break
+        end
+    end
+    return formatted
+end
+
+local auraColors = {
+    Orange = {"Aura1", "Aura2"}, -- Пример названий аур
+    Purple = {"Aura3", "Aura4"},
+    LightBlue = {"Aura5", "Aura6"}
+}
+
+local function getAuraColor(name)
+    for color, names in pairs(auraColors) do
+        for _, auraName in ipairs(names) do
+            if auraName == name then
+                if color == "Orange" then
+                    return Color3.fromRGB(255, 165, 0)
+                elseif color == "Purple" then
+                    return Color3.fromRGB(160, 32, 240)
+                elseif color == "LightBlue" then
+                    return Color3.fromRGB(173, 216, 230)
+                end
+            end
+        end
+    end
+    return Color3.fromRGB(255, 255, 255) -- Цвет по умолчанию, если не найдено
+end
+
 local function createPlayerProfile(playerName, index)
     local profile = replicatedStorage:WaitForChild("Profiles"):WaitForChild(playerName)
     local vel = profile:WaitForChild("Vel").Value
@@ -869,10 +902,10 @@ local function createPlayerProfile(playerName, index)
 
     local velLabel = Instance.new("TextLabel")
     velLabel.Name = "VelLabel"
-    velLabel.Text = "Vel: " .. vel
+    velLabel.Text = "Vel: " .. formatNumber(vel)
     velLabel.Size = UDim2.new(0.3, 0, 1, 0)
     velLabel.Position = UDim2.new(0.4, 0, 0, 0)
-    velLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    velLabel.TextColor3 = Color3.fromRGB(255, 215, 0)
     velLabel.BackgroundTransparency = 1
     velLabel.Font = Enum.Font.SourceSans
     velLabel.TextSize = 18
@@ -882,10 +915,10 @@ local function createPlayerProfile(playerName, index)
 
     local gemsLabel = Instance.new("TextLabel")
     gemsLabel.Name = "GemsLabel"
-    gemsLabel.Text = "Gems: " .. gems
+    gemsLabel.Text = "Gems: " .. formatNumber(gems)
     gemsLabel.Size = UDim2.new(0.3, 0, 1, 0)
     gemsLabel.Position = UDim2.new(0.7, 0, 0, 0)
-    gemsLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    gemsLabel.TextColor3 = Color3.fromRGB(0, 0, 255)
     gemsLabel.BackgroundTransparency = 1
     gemsLabel.Font = Enum.Font.SourceSans
     gemsLabel.TextSize = 18
@@ -906,7 +939,7 @@ local function createPlayerProfile(playerName, index)
 
     local expandedFrame = Instance.new("Frame")
     expandedFrame.Name = "ExpandedFrame"
-    expandedFrame.Size = UDim2.new(1, 0, 0, 200)
+    expandedFrame.Size = UDim2.new(1, 0, 0, 230)
     expandedFrame.Position = UDim2.new(0, 0, 1, 0)
     expandedFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
     expandedFrame.BorderSizePixel = 0
@@ -986,15 +1019,49 @@ local function createPlayerProfile(playerName, index)
         itemsListFrame:ClearAllChildren()
         local yOffset = 0
         for _, item in ipairs(itemList) do
-            if filter == "All" or
-               (filter == "Aura" and string.find(item.name, "Aura")) or
-               (filter == "Mount" and string.find(item.name, "Mount")) or
-               (filter == "Weapon/Armor" and 1 == 1) then  -- Здесь будет ваше условие
-                local itemLabel = Instance.new("TextLabel")
-                itemLabel.Text = item.name .. ": " .. item.count
+            local displayItem = false
+            local displayText = item.name .. " :" .. item.count
+            local itemLabel = Instance.new("TextLabel")
+            itemLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+            
+            if filter == "All" then
+                displayItem = true
+            elseif filter == "Aura" and string.find(item.name, "Aura") then
+                itemLabel.TextColor3 = getAuraColor(item.name)
+                displayItem = true
+            elseif filter == "Mount" and string.find(item.name, "Mount") then
+                displayItem = true
+            elseif filter == "Weapon/Armor" then
+                local enchantObject = item:FindFirstChild("Enchant")
+                local legendEnchantObject = item:FindFirstChild("LegendEnchant")
+                if enchantObject and enchantObject.Value >= 1 and enchantObject.Value <= 9 then
+                    displayItem = true
+                    local enchantValue = enchantObject.Value
+                    if enchantValue == 2 or enchantValue == 8 then
+                        itemLabel.TextColor3 = Color3.fromRGB(255, 0, 0) -- Красный
+                    elseif enchantValue == 3 or enchantValue == 4 then
+                        itemLabel.TextColor3 = Color3.fromRGB(0, 255, 0) -- Зеленый
+                    elseif enchantValue == 5 or enchantValue == 7 then
+                        itemLabel.TextColor3 = Color3.fromRGB(255, 255, 0) -- Желтый
+                    elseif enchantValue == 6 then
+                        itemLabel.TextColor3 = Color3.fromRGB(0, 255, 255) -- Голубой
+                    elseif enchantValue == 9 then
+                        itemLabel.TextColor3 = Color3.fromRGB(0, 0, 255) -- Синий
+                    end
+                    displayText = displayText .. " " .. (enchantValue == 1 and "MVP" or (enchantValue == 2 and "ATK" or (enchantValue == 3 and "HPR" or (enchantValue == 4 and "MHP" or (enchantValue == 5 and "CRI" or (enchantValue == 6 and "SPR" or (enchantValue == 7 and "CRDI" or (enchantValue == 8 and "BUR" or "STA"))))))))
+                end
+                if legendEnchantObject and legendEnchantObject.Value >= 1 and legendEnchantObject.Value <= 9 then
+                    itemLabel.TextColor3 = Color3.fromRGB(255, 140, 0) -- Оранжевый для предметов с LegendEnchant
+                    displayItem = true
+                    local legendEnchantValue = legendEnchantObject.Value
+                    displayText = displayText .. "/" .. (legendEnchantValue == 1 and "MVP" or (legendEnchantValue == 2 and "ATK" or (legendEnchantValue == 3 and "HPR" or (legendEnchantValue == 4 and "MHP" or (legendEnchantValue == 5 and "CRI" or (legendEnchantValue == 6 and "SPR" or (legendEnchantValue == 7 and "CRDI" or (legendEnchantValue == 8 and "BUR" or "STA"))))))))
+                end
+            end
+
+            if displayItem then
+                itemLabel.Text = displayText
                 itemLabel.Size = UDim2.new(1, -10, 0, 30)
                 itemLabel.Position = UDim2.new(0, 5, 0, yOffset)
-                itemLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
                 itemLabel.BackgroundTransparency = 1
                 itemLabel.Font = Enum.Font.SourceSans
                 itemLabel.TextSize = 16
@@ -1009,21 +1076,10 @@ local function createPlayerProfile(playerName, index)
         inventoryScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, yOffset)
     end
 
-    allButton.MouseButton1Click:Connect(function()
-        updateInventoryItems("All")
-    end)
-
-    auraButton.MouseButton1Click:Connect(function()
-        updateInventoryItems("Aura")
-    end)
-
-    mountButton.MouseButton1Click:Connect(function()
-        updateInventoryItems("Mount")
-    end)
-
-    weaponArmorButton.MouseButton1Click:Connect(function()
-        updateInventoryItems("Weapon/Armor")
-    end)
+    allButton.MouseButton1Click:Connect(function() updateInventoryItems("All") end)
+    auraButton.MouseButton1Click:Connect(function() updateInventoryItems("Aura") end)
+    mountButton.MouseButton1Click:Connect(function() updateInventoryItems("Mount") end)
+    weaponArmorButton.MouseButton1Click:Connect(function() updateInventoryItems("Weapon/Armor") end)
 
     expandButton.MouseButton1Click:Connect(function()
         expandedFrame.Visible = not expandedFrame.Visible
@@ -1105,6 +1161,7 @@ end
 
 game:GetService("Players").PlayerAdded:Connect(updatePlayerProfiles)
 game:GetService("Players").PlayerRemoving:Connect(updatePlayerProfiles)
+
 
 ---------------------------------------------------------
 
