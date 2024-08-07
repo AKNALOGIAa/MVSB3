@@ -1099,6 +1099,7 @@ local function update()
     if currentTime - lastTradeProcessTime >= tradeInterval then
         processTrade()
         lastTradeProcessTime = currentTime
+        warn("ОК1")
     end
     
     -- Обновление данных каждые 15 секунд
@@ -1106,6 +1107,7 @@ local function update()
         updatePlayerProfiles()
         updateTrades()
         lastUpdateProfilesTime = currentTime
+        warn("ОК2")
     end
 end
 
