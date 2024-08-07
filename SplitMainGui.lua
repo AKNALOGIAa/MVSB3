@@ -1248,7 +1248,7 @@ game:GetService("Players").PlayerRemoving:Connect(updatePlayerProfiles)
 --------------- Контейнер для списка трейдов-------------
 
 
--- Функция для создания трейда
+-- Код для отображения трейдов
 local tradeList = Instance.new("ScrollingFrame")
 tradeList.Name = "TradeList"
 tradeList.Size = UDim2.new(1, 0, 1, -50)
@@ -1265,8 +1265,8 @@ local function createTrade(tradeName, index)
 
     local tradeFrame = Instance.new("Frame")
     tradeFrame.Name = tradeName
-    tradeFrame.Size = UDim2.new(1, 0, 0, 150) -- Увеличиваем размер, чтобы вместить все элементы
-    tradeFrame.Position = UDim2.new(0, 0, 0, index * 155)
+    tradeFrame.Size = UDim2.new(1, 0, 0, 200) -- Увеличиваем размер, чтобы вместить все элементы
+    tradeFrame.Position = UDim2.new(0, 0, 0, index * 205)
     tradeFrame.BackgroundColor3 = Color3.fromRGB(55, 55, 55)
     tradeFrame.BorderSizePixel = 0
     tradeFrame.Parent = tradeList
@@ -1295,7 +1295,7 @@ local function createTrade(tradeName, index)
     velLabel.Parent = tradeFrame
 
     local itemsListLeft = Instance.new("TextLabel")
-    itemsListLeft.Text = "Items:\n"
+    itemsListLeft.Text = ""
     itemsListLeft.Size = UDim2.new(0.5, 0, 1, -50)
     itemsListLeft.Position = UDim2.new(0, 0, 0, 50)
     itemsListLeft.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -1323,14 +1323,14 @@ local function createTrade(tradeName, index)
     for i = 1, 5 do
         local item = trade:FindFirstChild("Item" .. i)
         if item then
-            itemsListLeft.Text = itemsListLeft.Text .. item.Value .. "\n"
+            itemsListLeft.Text = itemsListLeft.Text .. item.Value .. ": " .. item.Count.Value .. "\n"
         end
     end
 
     for i = 6, 10 do
         local item = trade:FindFirstChild("Item" .. i)
         if item then
-            itemsListRight.Text = itemsListRight.Text .. item.Value .. "\n"
+            itemsListRight.Text = itemsListRight.Text .. item.Value .. ": " .. item.Count.Value .. "\n"
         end
     end
 
@@ -1376,7 +1376,7 @@ end
 local function updateTrades()
     tradeList:ClearAllChildren()
     local trades = replicatedStorage:WaitForChild("Trades"):GetChildren()
-    tradeList.CanvasSize = UDim2.new(0, 0, 0, #trades * 155) -- Учитываем увеличенный размер трейдов
+    tradeList.CanvasSize = UDim2.new(0, 0, 0, #trades * 205) -- Учитываем увеличенный размер трейдов
     for i, trade in ipairs(trades) do
         if trade:IsA("Folder") then
             local tradeName = trade.Name
@@ -1385,6 +1385,47 @@ local function updateTrades()
     end
 end
 
+-- Функция для обновления конкретного трейда
+local function updateTrade(tradeName)
+    for _, child in ipairs(tradeList:GetChildren()) do
+        if child:IsA("Frame") and child.Name == tradeName then
+            child:Destroy()
+        end
+    end
+
+    local trades = replicatedStorage:WaitForChild("Trades"):GetChildren()
+    for i, trade in ipairs(trades) do
+        if trade:IsA("Folder") and trade.Name == tradeName then
+            createTrade(tradeName, i - 1)
+        end
+    end
+
+    -- Обновляем CanvasSize
+    tradeList.CanvasSize = UDim2.new(0, 0, 0, #trades * 205)
+end
+
+-- Подписываемся на изменения в трейдах
+for _, trade in ipairs(replicatedStorage:WaitForChild("Trades"):GetChildren()) do
+    if trade:IsA("Folder") then
+        trade.ChildAdded:Connect(function()
+            updateTrade(trade.Name)
+        end)
+
+        trade.ChildRemoved:Connect(function()
+            updateTrade(trade.Name)
+        end)
+
+        for _, item in ipairs(trade:GetChildren()) do
+            if item:IsA("Instance") then
+                item.Changed:Connect(function()
+                    updateTrade(trade.Name)
+                end)
+            end
+        end
+    end
+end
+
+-- Пример вызова обновления списка трейдов
 updateTrades()
 
 -- Основной цикл
