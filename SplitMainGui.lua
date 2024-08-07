@@ -625,18 +625,19 @@ local function handleTrade()
 
         -- Вызов функции добавления предметов с аурой
         findAndAddAuras()
-
         -- Блокировка трейда
         local lockArgs = {
+  
             [1] = true
         }
+        wait(1)
         game:GetService("ReplicatedStorage").Systems.Trading.LockTrade:FireServer(unpack(lockArgs))
 
         -- Ждем, пока Lock.Value другого игрока станет равным true
         local function waitForOtherPlayerLock()
             local otherPlayerLock = trade:WaitForChild("Lock")
             repeat
-                wait(1)
+                wait(2)
             until otherPlayerLock.Value == true
             
             -- Готовность трейда
