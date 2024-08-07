@@ -630,7 +630,6 @@ local function handleTrade()
   
             [1] = true
         }
-        wait(1)
         game:GetService("ReplicatedStorage").Systems.Trading.LockTrade:FireServer(unpack(lockArgs))
 
         -- Ждем, пока Lock.Value другого игрока станет равным true
