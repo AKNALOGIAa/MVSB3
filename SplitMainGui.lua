@@ -1257,59 +1257,66 @@ local function createTradeCard(trade, parent)
 
     -- Собираем предметы первого игрока
     for i = 1, 10 do
-        table.insert(itemsPlayer, trade:FindFirstChild("Item"..i))
+        local item = trade:FindFirstChild("Item"..i)
+        if item then
+            table.insert(itemsPlayer, item)
+        end
     end
 
     -- Собираем предметы другого игрока
-    for i = 1, 10 do
-        table.insert(itemsOtherPlayer, trade:FindFirstChild("Item"..i))
+    for i = 11, 20 do
+        local item = trade:FindFirstChild("Item"..i)
+        if item then
+            table.insert(itemsOtherPlayer, item)
+        end
     end
 
     -- Создаем рамку для карточки трейда
     local tradeCard = Instance.new("Frame")
-    tradeCard.Size = UDim2.new(1, 0, 0, 100)
+    tradeCard.Size = UDim2.new(1, 0, 0, 150)
     tradeCard.BackgroundTransparency = 0.5
     tradeCard.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
     tradeCard.BorderSizePixel = 0
-    tradeCard.Parent = content:FindFirstChild("Trades")
+    tradeCard.Parent = parent
 
     -- Создаем метки для имен игроков
     local playerLabel = Instance.new("TextLabel")
     playerLabel.Text = playerName
-    playerLabel.Size = UDim2.new(0.5, -10, 0, 20)
+    playerLabel.Size = UDim2.new(0.45, -10, 0, 20)
     playerLabel.Position = UDim2.new(0, 5, 0, 5)
     playerLabel.Parent = tradeCard
 
     local otherPlayerLabel = Instance.new("TextLabel")
     otherPlayerLabel.Text = otherPlayerName
-    otherPlayerLabel.Size = UDim2.new(0.5, -10, 0, 20)
-    otherPlayerLabel.Position = UDim2.new(0.5, 5, 0, 5)
+    otherPlayerLabel.Size = UDim2.new(0.45, -10, 0, 20)
+    otherPlayerLabel.Position = UDim2.new(0.55, 5, 0, 5)
     otherPlayerLabel.Parent = tradeCard
 
     -- Создаем среднюю метку для стрелки
     local arrowLabel = Instance.new("TextLabel")
     arrowLabel.Text = "→"
-    arrowLabel.Size = UDim2.new(0, 20, 0, 20)
-    arrowLabel.Position = UDim2.new(0.5, -10, 0, 5)
+    arrowLabel.Size = UDim2.new(0.05, 0, 0, 20)
+    arrowLabel.Position = UDim2.new(0.475, 0, 0, 5)
     arrowLabel.Parent = tradeCard
 
-    -- Создаем списки предметов
+    -- Создаем списки предметов для первого игрока
     for i, item in ipairs(itemsPlayer) do
         if item then
             local itemLabel = Instance.new("TextLabel")
             itemLabel.Text = item.Name .. ": " .. item.Count.Value
-            itemLabel.Size = UDim2.new(0.5, -10, 0, 20)
+            itemLabel.Size = UDim2.new(0.45, -10, 0, 20)
             itemLabel.Position = UDim2.new(0, 5, 0, 25 + (i - 1) * 20)
             itemLabel.Parent = tradeCard
         end
     end
 
+    -- Создаем списки предметов для второго игрока
     for i, item in ipairs(itemsOtherPlayer) do
         if item then
             local itemLabel = Instance.new("TextLabel")
             itemLabel.Text = item.Name .. ": " .. item.Count.Value
-            itemLabel.Size = UDim2.new(0.5, -10, 0, 20)
-            itemLabel.Position = UDim2.new(0.5, 5, 0, 25 + (i - 11) * 20)
+            itemLabel.Size = UDim2.new(0.45, -10, 0, 20)
+            itemLabel.Position = UDim2.new(0.55, 5, 0, 25 + (i - 1) * 20)
             itemLabel.Parent = tradeCard
         end
     end
@@ -1318,24 +1325,24 @@ local function createTradeCard(trade, parent)
     local lockLabel = Instance.new("TextLabel")
     lockLabel.Text = "Lock: "
     lockLabel.Size = UDim2.new(0, 50, 0, 20)
-    lockLabel.Position = UDim2.new(0, 5, 0, 75)
+    lockLabel.Position = UDim2.new(0, 5, 0, 125)
     lockLabel.Parent = tradeCard
 
     local lockIndicator = Instance.new("Frame")
     lockIndicator.Size = UDim2.new(0, 20, 0, 20)
-    lockIndicator.Position = UDim2.new(0, 55, 0, 75)
+    lockIndicator.Position = UDim2.new(0, 55, 0, 125)
     lockIndicator.BackgroundColor3 = trade.Lock.Value and Color3.new(0, 1, 0) or Color3.new(1, 0, 0)
     lockIndicator.Parent = tradeCard
 
     local readyLabel = Instance.new("TextLabel")
     readyLabel.Text = "Ready: "
     readyLabel.Size = UDim2.new(0, 50, 0, 20)
-    readyLabel.Position = UDim2.new(0, 75, 0, 75)
+    readyLabel.Position = UDim2.new(0, 75, 0, 125)
     readyLabel.Parent = tradeCard
 
     local readyIndicator = Instance.new("Frame")
     readyIndicator.Size = UDim2.new(0, 20, 0, 20)
-    readyIndicator.Position = UDim2.new(0, 125, 0, 75)
+    readyIndicator.Position = UDim2.new(0, 125, 0, 125)
     readyIndicator.BackgroundColor3 = trade.Ready.Value and Color3.new(0, 1, 0) or Color3.new(1, 0, 0)
     readyIndicator.Parent = tradeCard
 
@@ -1354,7 +1361,7 @@ local tradeList = Instance.new("ScrollingFrame")
 tradeList.Name = "TradeList"
 tradeList.Size = UDim2.new(1, 0, 1, -50)
 tradeList.Position = UDim2.new(0, 0, 0, 50)
-tradeList.CanvasSize = UDim2.new(0, 0, 0, 0)
+tradeList.CanvasSize = UDim2.new(0, 0, 0, #game:GetService("ReplicatedStorage").Trades:GetChildren() * 150)
 tradeList.ScrollBarThickness = 8
 tradeList.BackgroundTransparency = 1
 tradeList.Parent = content:FindFirstChild("Trades")
@@ -1371,12 +1378,13 @@ end)
 
 game:GetService("ReplicatedStorage").Trades.ChildRemoved:Connect(function(trade)
     for _, child in ipairs(tradeList:GetChildren()) do
-        if child:IsA("Frame") and child.Name == trade.Name then
+        if child:IsA("Frame") and child:FindFirstChild("TextLabel").Text == trade.Name then
             child:Destroy()
             break
         end
     end
 end)
+
 
 
 -- Основной цикл
