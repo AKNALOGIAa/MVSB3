@@ -878,9 +878,9 @@ end
 
 -- Цвета аур
 local auraColors = {
-    Orange = {"Aura1", "Aura2"}, -- Пример названий аур
-    Purple = {"Aura3", "Aura4"},
-    LightBlue = {"Aura5", "Aura6"}
+    Orange = {"InfernoAUra", "GalaxyAura","CloundBurstAura", "LightningAura", "SyntwaveAura", "CursedAura", "ElectricAura", "PrismaticAura", }, -- Пример названий аур
+    Purple = {"SeaBubblesAura", "PixelAura", "UnicornSwirlAura", "BurstAura", "ToxicAura", "StarstreamAura", "EnchantedAura", "SandstormAura", "Sunray", "DataStreamAura", "StardustAura", "CyberAura","BubbleAura", "NanoSwarmAura", "RainbowAura", "WhirlwindAura", "OasisAura", "ErrorAira"},
+    LightBlue = {"FishyAura", "LeafAura", "PinkButterflyAura", "SparkleAura", "PoisonAura", "CactusAura", "FlowerAura", "BlueButterflyAura", "SnowAura", "EmberAura", "StarAura", "TreasureAura",}
 }
 local ogCosmeticItems = {"Item1", "Item2", "Item3"} -- Список предметов для категории OG Cosmetic
 
