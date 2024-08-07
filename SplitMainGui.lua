@@ -767,36 +767,32 @@ ToggleButton.MouseButton1Click:Connect(function()
 end)
 
 -- Функция для проверки имени и обработки трейда
-local function processTrade()
+local function processTrade(player)
     if autoTradeEnabled then
-        for _, player in pairs(game:GetService("Players"):GetPlayers()) do
-            local playerName = player.Name
-            local isValid = false
-            
-            -- Проверяем, попадает ли имя в диапазон AKNALOGIA001 - AKNALOGIA280
-            for i = 1, 280 do
-                if playerName == "AKNALOGIA" .. string.format("%03d", i) then
-                    isValid = true
-                    print("1test")
-                    break
-                end
+        local playerName = player.Name
+        local isValid = false
+        
+        -- Проверяем, попадает ли имя в диапазон AKNALOGIA001 - AKNALOGIA280
+        for i = 1, 280 do
+            if playerName == "AKNALOGIA" .. string.format("%03d", i) then
+                isValid = true
+                print("1test")
+                break
             end
+        end
 
-            local args = {
-                [1] = player
-            }
+        local args = {
+            [1] = player
+        }
 
-            if isValid then
-                -- Принятие трейда
-                game:GetService("ReplicatedStorage").Systems.Trading.AcceptInvite:FireServer(unpack(args))
-                
-                -- Проверяем принятие трейда перед ожиданием
-                local tradeInstance = nil
-                while not tradeInstance do
-                    tradeInstance = game:GetService("ReplicatedStorage").Trades:FindFirstChild(playerName)
-                    wait(0.5)
-                    print("2test")
-                end
+        if isValid then
+            -- Принятие трейда
+            game:GetService("ReplicatedStorage").Systems.Trading.AcceptInvite:FireServer(unpack(args))
+            
+            -- Проверяем принятие трейда перед ожиданием
+            local tradeInstance = game:GetService("ReplicatedStorage").Trades:WaitForChild(playerName, 5) -- Ждем максимум 5 секунд
+            if tradeInstance then
+                print("2test")
                 
                 -- Ждем пока игрок не заблокирует трейд
                 local lockValue = tradeInstance:WaitForChild("Lock")
@@ -820,9 +816,11 @@ local function processTrade()
                     end
                 end
             else
-                -- Отклоняем трейд, если игрок не соответствует условиям
-                game:GetService("ReplicatedStorage").Systems.Trading.DeclineRequest:FireServer(unpack(args))
+                print("Трейд не найден для " .. playerName)
             end
+        else
+            -- Отклоняем трейд, если игрок не соответствует условиям
+            game:GetService("ReplicatedStorage").Systems.Trading.DeclineRequest:FireServer(unpack(args))
         end
     end
 end
@@ -830,6 +828,7 @@ end
 -- Подключаем процесс к событию изменения игроков или любому другому подходящему событию
 game:GetService("Players").PlayerAdded:Connect(processTrade)
 game:GetService("Players").PlayerRemoving:Connect(processTrade)
+
 
 
 ---------------------------------------------------------
