@@ -1246,9 +1246,9 @@ game:GetService("Players").PlayerRemoving:Connect(updatePlayerProfiles)
 
 
 --------------- Контейнер для списка трейдов-------------
-local replicatedStorage = game:GetService("ReplicatedStorage")
-local content = script.Parent  -- Замените на правильный путь к вашему объекту content
 
+
+-- Функция для создания трейда
 local tradeList = Instance.new("ScrollingFrame")
 tradeList.Name = "TradeList"
 tradeList.Size = UDim2.new(1, 0, 1, -50)
@@ -1258,7 +1258,6 @@ tradeList.ScrollBarThickness = 8
 tradeList.BackgroundTransparency = 1
 tradeList.Parent = content:FindFirstChild("Trades")
 
--- Функция для создания трейда
 local function createTrade(tradeName, index)
     local trade = replicatedStorage:WaitForChild("Trades"):WaitForChild(tradeName)
     local otherPlayer = trade:WaitForChild("OtherPlayer").Value
@@ -1266,15 +1265,15 @@ local function createTrade(tradeName, index)
 
     local tradeFrame = Instance.new("Frame")
     tradeFrame.Name = tradeName
-    tradeFrame.Size = UDim2.new(1, 0, 0, 100)
-    tradeFrame.Position = UDim2.new(0, 0, 0, index * 105)
+    tradeFrame.Size = UDim2.new(1, 0, 0, 150) -- Увеличиваем размер, чтобы вместить все элементы
+    tradeFrame.Position = UDim2.new(0, 0, 0, index * 155)
     tradeFrame.BackgroundColor3 = Color3.fromRGB(55, 55, 55)
     tradeFrame.BorderSizePixel = 0
     tradeFrame.Parent = tradeList
 
     local tradeNameLabel = Instance.new("TextLabel")
-    tradeNameLabel.Text = tradeName
-    tradeNameLabel.Size = UDim2.new(0.4, 0, 0, 50)
+    tradeNameLabel.Text = tradeName .. " -> " .. otherPlayer
+    tradeNameLabel.Size = UDim2.new(0.6, 0, 0, 50)
     tradeNameLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
     tradeNameLabel.BackgroundTransparency = 1
     tradeNameLabel.Font = Enum.Font.SourceSansBold
@@ -1286,8 +1285,8 @@ local function createTrade(tradeName, index)
     local velLabel = Instance.new("TextLabel")
     velLabel.Text = "Vel: " .. vel
     velLabel.Size = UDim2.new(0.3, 0, 0, 50)
-    velLabel.Position = UDim2.new(0.4, 0, 0, 0)
-    velLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    velLabel.Position = UDim2.new(0.7, 0, 0, 0)
+    velLabel.TextColor3 = Color3.fromRGB(255, 255, 0) -- Желтый цвет
     velLabel.BackgroundTransparency = 1
     velLabel.Font = Enum.Font.SourceSans
     velLabel.TextSize = 18
@@ -1295,41 +1294,89 @@ local function createTrade(tradeName, index)
     velLabel.TextYAlignment = Enum.TextYAlignment.Center
     velLabel.Parent = tradeFrame
 
-    local itemsList = Instance.new("TextLabel")
-    itemsList.Text = "Items:\n"
-    itemsList.Size = UDim2.new(1, 0, 1, -50)
-    itemsList.Position = UDim2.new(0, 0, 0, 50)
-    itemsList.TextColor3 = Color3.fromRGB(255, 255, 255)
-    itemsList.BackgroundTransparency = 1
-    itemsList.Font = Enum.Font.SourceSans
-    itemsList.TextSize = 16
-    itemsList.TextXAlignment = Enum.TextXAlignment.Left
-    itemsList.TextYAlignment = Enum.TextYAlignment.Top
-    itemsList.TextWrapped = true
-    itemsList.Parent = tradeFrame
+    local itemsListLeft = Instance.new("TextLabel")
+    itemsListLeft.Text = "Items:\n"
+    itemsListLeft.Size = UDim2.new(0.5, 0, 1, -50)
+    itemsListLeft.Position = UDim2.new(0, 0, 0, 50)
+    itemsListLeft.TextColor3 = Color3.fromRGB(255, 255, 255)
+    itemsListLeft.BackgroundTransparency = 1
+    itemsListLeft.Font = Enum.Font.SourceSans
+    itemsListLeft.TextSize = 16
+    itemsListLeft.TextXAlignment = Enum.TextXAlignment.Left
+    itemsListLeft.TextYAlignment = Enum.TextYAlignment.Top
+    itemsListLeft.TextWrapped = true
+    itemsListLeft.Parent = tradeFrame
 
-    local tradeItems = {}
-    for i = 1, 10 do
+    local itemsListRight = Instance.new("TextLabel")
+    itemsListRight.Text = ""
+    itemsListRight.Size = UDim2.new(0.5, 0, 1, -50)
+    itemsListRight.Position = UDim2.new(0.5, 0, 0, 50)
+    itemsListRight.TextColor3 = Color3.fromRGB(255, 255, 255)
+    itemsListRight.BackgroundTransparency = 1
+    itemsListRight.Font = Enum.Font.SourceSans
+    itemsListRight.TextSize = 16
+    itemsListRight.TextXAlignment = Enum.TextXAlignment.Left
+    itemsListRight.TextYAlignment = Enum.TextYAlignment.Top
+    itemsListRight.TextWrapped = true
+    itemsListRight.Parent = tradeFrame
+
+    for i = 1, 5 do
         local item = trade:FindFirstChild("Item" .. i)
         if item then
-            local itemName = item.Value
-            local itemCount = item:FindFirstChild("Count") and item.Count.Value or 1
-            tradeItems[itemName] = itemCount
+            itemsListLeft.Text = itemsListLeft.Text .. item.Value .. "\n"
         end
     end
 
-    local itemsText = ""
-    for itemName, itemCount in pairs(tradeItems) do
-        itemsText = itemsText .. itemName .. ": " .. itemCount .. "\n"
+    for i = 6, 10 do
+        local item = trade:FindFirstChild("Item" .. i)
+        if item then
+            itemsListRight.Text = itemsListRight.Text .. item.Value .. "\n"
+        end
     end
-    itemsList.Text = itemsText
+
+    local lockLabel = Instance.new("TextLabel")
+    lockLabel.Text = "Lock:"
+    lockLabel.Size = UDim2.new(0.2, 0, 0, 50)
+    lockLabel.Position = UDim2.new(0, 0, 1, -50)
+    lockLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    lockLabel.BackgroundTransparency = 1
+    lockLabel.Font = Enum.Font.SourceSans
+    lockLabel.TextSize = 18
+    lockLabel.TextXAlignment = Enum.TextXAlignment.Left
+    lockLabel.TextYAlignment = Enum.TextYAlignment.Center
+    lockLabel.Parent = tradeFrame
+
+    local lockValue = Instance.new("Frame")
+    lockValue.Size = UDim2.new(0, 50, 0, 50)
+    lockValue.Position = UDim2.new(0.2, 0, 1, -50)
+    lockValue.BackgroundColor3 = trade.Lock.Value and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0) -- Зеленый если true, красный если false
+    lockValue.BorderSizePixel = 0
+    lockValue.Parent = tradeFrame
+
+    local readyLabel = Instance.new("TextLabel")
+    readyLabel.Text = "Ready:"
+    readyLabel.Size = UDim2.new(0.2, 0, 0, 50)
+    readyLabel.Position = UDim2.new(0.4, 0, 1, -50)
+    readyLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    readyLabel.BackgroundTransparency = 1
+    readyLabel.Font = Enum.Font.SourceSans
+    readyLabel.TextSize = 18
+    readyLabel.TextXAlignment = Enum.TextXAlignment.Left
+    readyLabel.TextYAlignment = Enum.TextYAlignment.Center
+    readyLabel.Parent = tradeFrame
+
+    local readyValue = Instance.new("Frame")
+    readyValue.Size = UDim2.new(0, 50, 0, 50)
+    readyValue.Position = UDim2.new(0.6, 0, 1, -50)
+    readyValue.BackgroundColor3 = trade.Ready.Value and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0) -- Зеленый если true, красный если false
+    readyValue.BorderSizePixel = 0
+    readyValue.Parent = tradeFrame
 end
 
--- Функция для обновления списка трейдов
 local function updateTrades()
     tradeList:ClearAllChildren()
     local trades = replicatedStorage:WaitForChild("Trades"):GetChildren()
-    tradeList.CanvasSize = UDim2.new(0, 0, 0, #trades * 105)
+    tradeList.CanvasSize = UDim2.new(0, 0, 0, #trades * 155) -- Учитываем увеличенный размер трейдов
     for i, trade in ipairs(trades) do
         if trade:IsA("Folder") then
             local tradeName = trade.Name
@@ -1338,7 +1385,6 @@ local function updateTrades()
     end
 end
 
--- Пример вызова обновления списка трейдов
 updateTrades()
 
 -- Используем Heartbeat для запуска функции обновления
