@@ -374,6 +374,7 @@ end
 
 ---------------------Деньги над головой-------------------
 local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 -- Создаем кнопку для основного скрипта
 local mainScriptButton = Instance.new("TextButton")
@@ -436,7 +437,7 @@ local function createInfoTag(player)
 
     -- Функция для обновления текста
     local function updateText()
-        local profile = ReplicatedStorage.Profiles:FindFirstChild(player.Name)
+        local profile = ReplicatedStorage:FindFirstChild("Profiles"):FindFirstChild(player.Name)
         if profile then
             local velValue = profile:FindFirstChild("Vel")
             local gemsValue = profile:FindFirstChild("Gems")
@@ -449,7 +450,7 @@ local function createInfoTag(player)
     end
 
     -- Подписка на изменения значений
-    local profile = ReplicatedStorage.Profiles:FindFirstChild(player.Name)
+    local profile = ReplicatedStorage:FindFirstChild("Profiles"):FindFirstChild(player.Name)
     if profile then
         local velValue = profile:FindFirstChild("Vel")
         local gemsValue = profile:FindFirstChild("Gems")
@@ -505,10 +506,10 @@ end
 mainScriptButton.MouseButton1Click:Connect(function()
     scriptEnabled = not scriptEnabled
     if scriptEnabled then
-        mainScriptButton.Text = "Unload Main Script"
+        mainScriptButton.Text = "Скрыть деньги над головой"
         enableScript()
     else
-        mainScriptButton.Text = "Load Main Script"
+        mainScriptButton.Text = "Отобразить деньги над головой"
         disableScript()
     end
 end)
@@ -1099,7 +1100,6 @@ local function update()
     if currentTime - lastTradeProcessTime >= tradeInterval then
         processTrade()
         lastTradeProcessTime = currentTime
-        warn("ОК1")
     end
     
     -- Обновление данных каждые 15 секунд
@@ -1107,7 +1107,6 @@ local function update()
         updatePlayerProfiles()
         updateTrades()
         lastUpdateProfilesTime = currentTime
-        warn("ОК2")
     end
 end
 
