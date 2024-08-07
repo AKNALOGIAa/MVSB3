@@ -609,17 +609,21 @@ local function handleTrade()
 
         local function findAndAddAuras()
             local playerInventory = replicatedStorage.Profiles[currentPlayerName].Inventory
-            for _, item in pairs(playerInventory:GetChildren()) do
-                if item.Name:find("Aura") then
-                    addItem(item.Name, 1)
+            local itemname = "Aura"
+            
+            for i, v in next, playerInventory:GetChildren() do
+                if v.Name:find(itemname) then
+                    local args = {
+                        [1] = v,
+                        [2] = 1
+                    }
+                    game:GetService("ReplicatedStorage"):WaitForChild("Systems"):WaitForChild("Trading"):WaitForChild("AddItem"):FireServer(unpack(args))
                 end
             end
         end
+
+        findAndAddAuras()
         
-        -- Выполнение поиска и добавления предметов три раза
-        for i = 1, 3 do
-            findAndAddAuras()
-        end
         -- Блокировка трейда
         local lockArgs = {
             [1] = true
