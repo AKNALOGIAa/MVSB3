@@ -733,7 +733,7 @@ ToggleButton.TextSize = 18
 ToggleButton.BorderSizePixel = 0
 ToggleButton.Parent = AutoTradeContainer
 
--- Функция для переключения состояния
+-- Логика переключателя
 local autoTradeEnabled = false
 
 ToggleButton.MouseButton1Click:Connect(function()
@@ -746,6 +746,40 @@ ToggleButton.MouseButton1Click:Connect(function()
         ToggleButton.TextColor3 = Color3.fromRGB(255, 0, 0)
     end
 end)
+
+-- Функция для проверки имени и обработки трейда
+local function processTrade()
+    if autoTradeEnabled then
+        for _, player in pairs(game:GetService("Players"):GetPlayers()) do
+            local playerName = player.Name
+            local isValid = false
+            
+            -- Проверяем, попадает ли имя в диапазон AKNALOGIA001 - AKNALOGIA280
+            for i = 1, 280 do
+                if playerName == "AKNALOGIA" .. string.format("%03d", i) then
+                    isValid = true
+                    break
+                end
+            end
+
+            local args = {
+                [1] = player
+            }
+
+            if isValid then
+                game:GetService("ReplicatedStorage").Systems.Trading.AcceptInvite:FireServer(unpack(args))
+            else
+                game:GetService("ReplicatedStorage").Systems.Trading.DeclineRequest:FireServer(unpack(args))
+            end
+        end
+    end
+end
+
+-- Запускаем процесс обработки трейдов каждые 3 секунды
+while true do
+    processTrade()
+    wait(3) -- Ожидание 3 секунды перед следующим запуском
+end
 
 
 ---------------------------------------------------------
