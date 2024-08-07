@@ -4,6 +4,10 @@ local replicatedStorage = game:GetService("ReplicatedStorage")
 local userInputService = game:GetService("UserInputService")
 local savedPlayerName = "AKNALOGIA11"
 
+-- Переменные для отслеживания времени
+local lastTradeProcessTime = 0
+local lastUpdateProfilesTime = 0
+
 -- Удаление старого GUI, если существует
 if playerGui:FindFirstChild("CustomUI") then
     playerGui.CustomUI:Destroy()
@@ -769,27 +773,38 @@ local function processTrade()
             if isValid then
                 -- Принятие трейда
                 game:GetService("ReplicatedStorage").Systems.Trading.AcceptInvite:FireServer(unpack(args))
-                wait(1)
-                local lockArgs = {
-                    [1] = true
-                }
-                game:GetService("ReplicatedStorage").Systems.Trading.LockTrade:FireServer(unpack(lockArgs))
-                local readyArgs = {
-                    [1] = true
-                }
-                game:GetService("ReplicatedStorage").Systems.Trading.ReadyTrade:FireServer(unpack(readyArgs))
+
+                -- Ждем пока игрок не заблокирует трейд
+                local tradeInstance = game:GetService("ReplicatedStorage").Trades:WaitForChild(playerName)
+                local lockValue = tradeInstance:WaitForChild("Lock")
+
+                lockValue:GetPropertyChangedSignal("Value"):Wait()
+                
+                if lockValue.Value == true then
+                    local lockArgs = {
+                        [1] = true
+                    }
+                    game:GetService("ReplicatedStorage").Systems.Trading.LockTrade:FireServer(unpack(lockArgs))
+
+                    -- Ждем пока игрок не подтвердит готовность к трейду
+                    local readyValue = tradeInstance:WaitForChild("Ready")
+                    readyValue:GetPropertyChangedSignal("Value"):Wait()
+
+                    if readyValue.Value == true then
+                        local readyArgs = {
+                            [1] = true
+                        }
+                        game:GetService("ReplicatedStorage").Systems.Trading.ReadyTrade:FireServer(unpack(readyArgs))
+                    end
+                end
             else
+                -- Отклоняем трейд, если игрок не соответствует условиям
                 game:GetService("ReplicatedStorage").Systems.Trading.DeclineRequest:FireServer(unpack(args))
             end
         end
     end
 end
 
--- Запускаем процесс обработки трейдов каждые 3 секунды
-while true do
-    processTrade()
-    wait(3) -- Ожидание 3 секунды перед следующим запуском
-end
 ---------------------------------------------------------
 
 --------- Контейнер для списка профилей игроков----------
@@ -1073,9 +1088,22 @@ local function updateTrades()
     end
 end
 
--- Обновление данных каждую секунду
+-- Основной цикл
 while true do
-    updatePlayerProfiles()
-    updateTrades()
-    wait(15)
+    local currentTime = tick() -- Получаем текущее время
+
+    -- Обработка трейдов каждые 2 секунды
+    if currentTime - lastTradeProcessTime >= 2 then
+        processTrade()
+        lastTradeProcessTime = currentTime
+    end
+
+    -- Обновление данных каждые 15 секунд
+    if currentTime - lastUpdateProfilesTime >= 15 then
+        updatePlayerProfiles()
+        updateTrades()
+        lastUpdateProfilesTime = currentTime
+    end
+
+    wait(0.1) -- Небольшая пауза для снижения нагрузки
 end
