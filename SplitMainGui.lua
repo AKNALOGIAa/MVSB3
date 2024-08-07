@@ -334,7 +334,7 @@ if itemsSection then
                             [1] = item
                         }
                         for _, player in pairs(players:GetPlayers()) do
-                            player.PlayerGui.ItemInteract.Visible = true
+                            player.PlayerGui.ItemInteract.Enabled = true
                         end
 
                         -- Создание кнопок "Купить" и "Отменить"
@@ -359,13 +359,13 @@ if itemsSection then
                             confirmButton:Destroy()
                             cancelButton:Destroy()
                             for _, player in pairs(players:GetPlayers()) do
-                                player.PlayerGui.ItemInteract.Visible = false
+                                player.PlayerGui.ItemInteract.Enabled = false
                             end
                         end)
 
                         cancelButton.MouseButton1Click:Connect(function()
                             for _, player in pairs(players:GetPlayers()) do
-                                player.PlayerGui.ItemInteract.Visible = false
+                                player.PlayerGui.ItemInteract.Enabled = false
                             end
                             confirmButton:Destroy()
                             cancelButton:Destroy()
