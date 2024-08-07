@@ -782,12 +782,16 @@ local function processTrade()
             if isValid then
                 -- Принятие трейда
                 game:GetService("ReplicatedStorage").Systems.Trading.AcceptInvite:FireServer(unpack(args))
-------------------------------------------------------------
+                
+                -- Проверяем принятие трейда перед ожиданием
+                local tradeInstance = nil
+                while not tradeInstance do
+                    tradeInstance = game:GetService("ReplicatedStorage").Trades:FindFirstChild(playerName)
+                    wait(0.5)
+                end
+                
                 -- Ждем пока игрок не заблокирует трейд
-                local tradeInstance = game:GetService("ReplicatedStorage").Trades:WaitForChild(playerName)
-                --------------------------------------------------------------------------------------ЛУП
                 local lockValue = tradeInstance:WaitForChild("Lock")
-
                 lockValue:GetPropertyChangedSignal("Value"):Wait()
                 
                 if lockValue.Value == true then
@@ -814,6 +818,11 @@ local function processTrade()
         end
     end
 end
+
+-- Подключаем процесс к событию изменения игроков или любому другому подходящему событию
+game:GetService("Players").PlayerAdded:Connect(processTrade)
+game:GetService("Players").PlayerRemoving:Connect(processTrade)
+
 
 ---------------------------------------------------------
 
