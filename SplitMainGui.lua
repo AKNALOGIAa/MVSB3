@@ -278,6 +278,7 @@ end
 ----------- Функция для создания кнопки покупки----------
 -----------Получаем основную категорию для вещей---------
 local players = game:GetService("Players")
+local replicatedStorage = game:GetService("ReplicatedStorage")
 local itemsSection = content:FindFirstChild("Items")
 
 if itemsSection then
@@ -333,9 +334,8 @@ if itemsSection then
                         local args = {
                             [1] = item
                         }
-                        for _, player in pairs(players:GetPlayers()) do
-                            player.PlayerGui.ItemInteract.Enabled = true
-                        end
+                        local player = players.LocalPlayer
+                        player.PlayerGui.ItemInteract.Enabled = true
 
                         -- Создание кнопок "Купить" и "Отменить"
                         local confirmButton = Instance.new("TextButton")
@@ -358,15 +358,11 @@ if itemsSection then
                             game:GetService("ReplicatedStorage").Systems.Shops.Buy:FireServer(unpack(args))
                             confirmButton:Destroy()
                             cancelButton:Destroy()
-                            for _, player in pairs(players:GetPlayers()) do
-                                player.PlayerGui.ItemInteract.Enabled = false
-                            end
+                            player.PlayerGui.ItemInteract.Enabled = false
                         end)
 
                         cancelButton.MouseButton1Click:Connect(function()
-                            for _, player in pairs(players:GetPlayers()) do
-                                player.PlayerGui.ItemInteract.Enabled = false
-                            end
+                            player.PlayerGui.ItemInteract.Enabled = false
                             confirmButton:Destroy()
                             cancelButton:Destroy()
                         end)
@@ -404,6 +400,7 @@ if itemsSection then
 else
     warn("itemsSection категория не найдена в content")
 end
+
 
 
 ----------------------------------------------------------
