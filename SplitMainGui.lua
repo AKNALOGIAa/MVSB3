@@ -804,6 +804,11 @@ end)
 
 -- Функция для проверки имени и обработки трейда
 local function processTrade(player)
+    if player == nil then
+        warn("player is nil, skipping trade processing.")
+        return
+    end
+    
     if autoTradeEnabled then
         local playerName = player.Name
         local isValid = false
@@ -866,10 +871,6 @@ local function processTrade(player)
         end
     end
 end
-
--- Подключаем процесс к событию добавления игрока
-game:GetService("Players").PlayerAdded:Connect(processTrade)
-
 
 
 
