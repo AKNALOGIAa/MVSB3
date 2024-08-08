@@ -1329,8 +1329,10 @@ local function createTradeCard(trade)
                 itemLabel.TextSize = 16
                 itemLabel.TextColor3 = Color3.new(1, 1, 1)
 
+                -- Проверка наличия свойства Value и количества
+                local itemValue = item:FindFirstChild("Value") and item.Value.Value or "-"
                 local itemCount = item:FindFirstChild("Count") and item.Count.Value or 1
-                itemLabel.Text = item.Value .. ":" .. tostring(itemCount)
+                itemLabel.Text = tostring(itemValue) .. ":" .. tostring(itemCount)
 
                 itemLabel.Parent = itemsFrame
                 itemYPos = itemYPos + 20
@@ -1338,7 +1340,7 @@ local function createTradeCard(trade)
                 -- Динамическое обновление количества предмета
                 if item:FindFirstChild("Count") then
                     item.Count:GetPropertyChangedSignal("Value"):Connect(function()
-                        itemLabel.Text = item.Value .. ":" .. tostring(item.Count.Value)
+                        itemLabel.Text = tostring(itemValue) .. ":" .. tostring(item.Count.Value)
                     end)
                 end
             else
