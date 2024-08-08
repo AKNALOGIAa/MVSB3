@@ -870,62 +870,70 @@ LoadButton.MouseButton1Click:Connect(function()
     end
 end)
 
--- Функция для автоматического принятия трейдов
-local function autoAcceptTrades()
+-- Функция для автоматического принятия и обработки трейдов
+local function autoAcceptAndProcessTrades()
     while autoTradeEnabled do
         wait(3) -- Ждать 3 секунды
 
-        -- Принятие трейда для текущего игрока
-        local success, err = pcall(function()
-            game:GetService("ReplicatedStorage").Systems.Trading.AcceptInvite:FireServer()
-        end)
+        local players = game:GetService("Players")
+        local tradingSystem = game:GetService("ReplicatedStorage").Systems.Trading
+        
+        -- Принятие трейда от каждого игрока на сервере
+        for _, player in pairs(players:GetPlayers()) do
+            local args = {
+                [1] = player
+            }
+            local success, err = pcall(function()
+                tradingSystem.AcceptInvite:FireServer(unpack(args))
+            end)
 
-        if not success then
-            warn("Ошибка при принятии трейда: " .. tostring(err))
-        else
-            -- Начинаем обработку трейда
-            local tradeInstance = game:GetService("ReplicatedStorage").Trades:FindFirstChild(savedPlayerName)
-            if tradeInstance then
-                local otherPlayer = tradeInstance:FindFirstChild("OtherPlayer")
-                if otherPlayer and otherPlayer.Value and otherPlayer.Value.Name == savedPlayerName then
-                    -- Блокировка трейда
-                    local lockArgs = {true}
-                    success, err = pcall(function()
-                        game:GetService("ReplicatedStorage").Systems.Trading.LockTrade:FireServer(unpack(lockArgs))
-                    end)
+            if not success then
+                warn("Ошибка при принятии трейда от игрока " .. player.Name .. ": " .. tostring(err))
+            else
+                -- Начинаем обработку трейда, если успешно приняли
+                local tradeInstance = game:GetService("ReplicatedStorage").Trades:FindFirstChild(player.Name)
+                if tradeInstance then
+                    local otherPlayer = tradeInstance:FindFirstChild("OtherPlayer")
+                    if otherPlayer and otherPlayer.Value and otherPlayer.Value.Name == player.Name then
+                        -- Блокировка трейда
+                        local lockArgs = {true}
+                        success, err = pcall(function()
+                            tradingSystem.LockTrade:FireServer(unpack(lockArgs))
+                        end)
 
-                    if not success then
-                        warn("Ошибка при блокировке трейда: " .. tostring(err))
-                    else
-                        -- Ожидание готовности трейда
-                        local lockValue = tradeInstance:WaitForChild("Lock")
-                        lockValue:GetPropertyChangedSignal("Value"):Wait()
+                        if not success then
+                            warn("Ошибка при блокировке трейда: " .. tostring(err))
+                        else
+                            -- Ожидание готовности трейда
+                            local lockValue = tradeInstance:WaitForChild("Lock")
+                            lockValue:GetPropertyChangedSignal("Value"):Wait()
 
-                        if lockValue.Value then
-                            local readyValue = tradeInstance:WaitForChild("Ready")
-                            readyValue:GetPropertyChangedSignal("Value"):Wait()
+                            if lockValue.Value then
+                                local readyValue = tradeInstance:WaitForChild("Ready")
+                                readyValue:GetPropertyChangedSignal("Value"):Wait()
 
-                            if readyValue.Value then
-                                local readyArgs = {true}
-                                success, err = pcall(function()
-                                    game:GetService("ReplicatedStorage").Systems.Trading.ReadyTrade:FireServer(unpack(readyArgs))
-                                end)
+                                if readyValue.Value then
+                                    local readyArgs = {true}
+                                    success, err = pcall(function()
+                                        tradingSystem.ReadyTrade:FireServer(unpack(readyArgs))
+                                    end)
 
-                                if not success then
-                                    warn("Ошибка при подтверждении готовности трейда: " .. tostring(err))
+                                    if not success then
+                                        warn("Ошибка при подтверждении готовности трейда: " .. tostring(err))
+                                    end
                                 end
                             end
                         end
-                    end
-                else
-                    -- Если имя не совпадает, отклоняем трейд
-                    local declineArgs = {otherPlayer.Value}
-                    success, err = pcall(function()
-                        game:GetService("ReplicatedStorage").Systems.Trading.DeclineRequest:FireServer(unpack(declineArgs))
-                    end)
+                    else
+                        -- Если имя не совпадает, отклоняем трейд
+                        local declineArgs = {otherPlayer.Value}
+                        success, err = pcall(function()
+                            tradingSystem.DeclineRequest:FireServer(unpack(declineArgs))
+                        end)
 
-                    if not success then
-                        warn("Ошибка при отклонении трейда: " .. tostring(err))
+                        if not success then
+                            warn("Ошибка при отклонении трейда: " .. tostring(err))
+                        end
                     end
                 end
             end
@@ -933,12 +941,8 @@ local function autoAcceptTrades()
     end
 end
 
--- Запуск функции автоматического принятия трейдов
-spawn(autoAcceptTrades)
-
-
-
-
+-- Запуск функции автоматического принятия и обработки трейдов
+spawn(autoAcceptAndProcessTrades)
 
 
 
