@@ -873,7 +873,7 @@ end)
 -- Функция для автоматического принятия трейдов
 local function autoAcceptTrades()
     while autoTradeEnabled do
-        wait(3) -- Ждать 3 секунды1
+        wait(3) -- Ждать 3 секунды
 
         -- Принятие трейда для текущего игрока
         local player = game.Players.LocalPlayer
