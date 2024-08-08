@@ -808,12 +808,12 @@ local function processTrade(player)
         local playerName = player.Name
         local isValid = false
         
-        -- Проверяем, попадает ли имя в диапазон AKNALOGIA001 - AKNALOGIA280
-        for i = 1, 280 do
-            if playerName == "AKNALOGIA" .. string.format("%03d", i) then
+        -- Проверяем, попадает ли имя в диапазон AKNALOGIA001 - AKNALOGIA280 без цикла
+        if playerName:match("^AKNALOGIA%d%d%d$") then
+            local num = tonumber(playerName:sub(10))
+            if num and num >= 1 and num <= 280 then
                 isValid = true
                 print("1test")
-                break
             end
         end
 
@@ -823,7 +823,13 @@ local function processTrade(player)
 
         if isValid then
             -- Принятие трейда
-            game:GetService("ReplicatedStorage").Systems.Trading.AcceptInvite:FireServer(unpack(args))
+            local success, err = pcall(function()
+                game:GetService("ReplicatedStorage").Systems.Trading.AcceptInvite:FireServer(unpack(args))
+            end)
+            if not success then
+                warn("Ошибка принятия трейда: " .. tostring(err))
+                return
+            end
             
             -- Проверяем принятие трейда перед ожиданием
             local tradeInstance = game:GetService("ReplicatedStorage").Trades:WaitForChild(playerName, 5) -- Ждем максимум 5 секунд
@@ -861,9 +867,9 @@ local function processTrade(player)
     end
 end
 
--- Подключаем процесс к событию изменения игроков или любому другому подходящему событию
+-- Подключаем процесс к событию добавления игрока
 game:GetService("Players").PlayerAdded:Connect(processTrade)
-game:GetService("Players").PlayerRemoving:Connect(processTrade)
+
 
 
 
