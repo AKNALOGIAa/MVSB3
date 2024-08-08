@@ -870,11 +870,13 @@ LoadButton.MouseButton1Click:Connect(function()
     end
 end)
 
+local autoTradeEnabled = true
+
 -- Функция для автоматического принятия и обработки трейдов
 local function autoAcceptAndProcessTrades()
     while autoTradeEnabled do
-        wait(3) -- Ждать 3 секунды
-print("test")
+        wait(1) -- Ждать 1 секунду
+print("testTrade")
         local players = game:GetService("Players")
         local tradingSystem = game:GetService("ReplicatedStorage").Systems.Trading
         
@@ -887,55 +889,30 @@ print("test")
                 tradingSystem.AcceptInvite:FireServer(unpack(args))
             end)
 
-            if not success then
-                warn("Ошибка при принятии трейда от игрока " .. player.Name .. ": " .. tostring(err))
-            else
-                -- Начинаем обработку трейда, если успешно приняли
+            if success then
                 local tradeInstance = game:GetService("ReplicatedStorage").Trades:FindFirstChild(player.Name)
                 if tradeInstance then
-                    local otherPlayer = tradeInstance:FindFirstChild("OtherPlayer")
-                    if otherPlayer and otherPlayer.Value and otherPlayer.Value.Name == player.Name then
-                        -- Блокировка трейда
-                        local lockArgs = {true}
+                    local lockValue = tradeInstance:FindFirstChild("Lock")
+                    local readyValue = tradeInstance:FindFirstChild("Ready")
+                    
+                    -- Пытаемся заблокировать трейд
+                    while lockValue and not lockValue.Value do
                         success, err = pcall(function()
-                            tradingSystem.LockTrade:FireServer(unpack(lockArgs))
+                            tradingSystem.LockTrade:FireServer(true)
                         end)
+                        wait(0.3)
+                    end
 
-                        if not success then
-                            warn("Ошибка при блокировке трейда: " .. tostring(err))
-                        else
-                            -- Ожидание готовности трейда
-                            local lockValue = tradeInstance:WaitForChild("Lock")
-                            lockValue:GetPropertyChangedSignal("Value"):Wait()
-
-                            if lockValue.Value then
-                                local readyValue = tradeInstance:WaitForChild("Ready")
-                                readyValue:GetPropertyChangedSignal("Value"):Wait()
-
-                                if readyValue.Value then
-                                    local readyArgs = {true}
-                                    success, err = pcall(function()
-                                        tradingSystem.ReadyTrade:FireServer(unpack(readyArgs))
-                                    end)
-
-                                    if not success then
-                                        warn("Ошибка при подтверждении готовности трейда: " .. tostring(err))
-                                    end
-                                end
-                            end
-                        end
-                    else
-                        -- Если имя не совпадает, отклоняем трейд
-                        local declineArgs = {otherPlayer.Value}
+                    -- Пытаемся подтвердить готовность трейда
+                    while readyValue and not readyValue.Value do
                         success, err = pcall(function()
-                            tradingSystem.DeclineRequest:FireServer(unpack(declineArgs))
+                            tradingSystem.ReadyTrade:FireServer(true)
                         end)
-
-                        if not success then
-                            warn("Ошибка при отклонении трейда: " .. tostring(err))
-                        end
+                        wait(0.3)
                     end
                 end
+            else
+                warn("Ошибка при принятии трейда от игрока " .. player.Name .. ": " .. tostring(err))
             end
         end
     end
@@ -943,6 +920,7 @@ end
 
 -- Запуск функции автоматического принятия и обработки трейдов
 spawn(autoAcceptAndProcessTrades)
+
 
 
 
