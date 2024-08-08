@@ -977,6 +977,13 @@ local auraColors = {
     Purple = {"SeaBubblesAura", "PixelAura", "UnicornSwirlAura", "BurstAura", "ToxicAura", "StarstreamAura", "EnchantedAura", "SandstormAura", "SunrayAura", "DataStreamAura", "StardustAura", "CyberAura","BubbleAura", "NanoSwarmAura", "RainbowAura", "WhirlwindAura", "OasisAura", "ErrorAura"},
     LightBlue = {"FishyAura", "LeafAura", "PinkButterflyAura", "SparkleAura", "PoisonAura", "CactusAura", "FlowerAura", "BlueButterflyAura", "SnowAura", "EmberAura", "StarAura", "TreasureAura",}
 }
+
+local MountsPriority = {
+    Orange = 1,
+    Purple = 2,
+    Default = 3
+}
+
 local MountsColor = {
     Orange = {"VoidErebusMount", "VoidGAliardMount", "DarkUnicornMount", "DarkCrab", "ShadowCrab",},
     Purple = {"ErebusMount", "GAliardMount", "IcewhalMount", "OwlMount", "SandTerrorMount", "SeaSerpentMount"}
@@ -1144,17 +1151,23 @@ local function createPlayerProfile(playerName, index)
             for color, mounts in pairs(MountsColor) do
                 for _, mount in ipairs(mounts) do
                     if itemName == mount then
+                        local colorValue = Color3.fromRGB(255, 255, 255) -- По умолчанию белый цвет
+                        local priority = MountsPriority.Default
+                        
                         if color == "Orange" then
-                            return Color3.fromRGB(255, 165, 0) -- Оранжевый
+                            colorValue = Color3.fromRGB(255, 165, 0) -- Оранжевый
+                            priority = MountsPriority.Orange
                         elseif color == "Purple" then
-                            return Color3.fromRGB(128, 0, 128) -- Фиолетовый
+                            colorValue = Color3.fromRGB(128, 0, 128) -- Фиолетовый
+                            priority = MountsPriority.Purple
                         end
+        
+                        return colorValue, priority
                     end
                 end
             end
-            return Color3.fromRGB(255, 255, 255) -- По умолчанию белый цвет
+            return Color3.fromRGB(255, 255, 255), MountsPriority.Default -- По умолчанию белый цвет и приоритет
         end
-        
         -- Сортировка предметов
         table.sort(itemList, function(a, b)
             if filter == "Aura" then
@@ -1163,9 +1176,16 @@ local function createPlayerProfile(playerName, index)
                 if priorityA ~= priorityB then
                     return priorityA < priorityB
                 end
+            elseif filter == "Mount" then
+                local _, priorityA = getMountColor(a.name)
+                local _, priorityB = getMountColor(b.name)
+                if priorityA ~= priorityB then
+                    return priorityA < priorityB
+                end
             end
             return a.name < b.name
         end)
+        
     
         itemsListFrame:ClearAllChildren()
         local yOffset = 0
