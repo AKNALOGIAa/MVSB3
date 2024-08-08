@@ -973,7 +973,7 @@ end
 
 -- Цвета аур
 local auraColors = {
-    Orange = {"InfernoAura", "GalaxyAura","CloudBurstAura", "LightningAura", "SynthwaveAura", "CursedAura", "ElectricAura", "PrismaticAura", }, -- Пример названий аур
+    Orange = {"InfernoAura", "GalaxyAura","CloudBurstAura", "LightningAura", "SynthwaveAura", "CursedAura", "ElectricAura", "PrismaticAura", }, 
     Purple = {"SeaBubblesAura", "PixelAura", "UnicornSwirlAura", "BurstAura", "ToxicAura", "StarstreamAura", "EnchantedAura", "SandstormAura", "SunrayAura", "DataStreamAura", "StardustAura", "CyberAura","BubbleAura", "NanoSwarmAura", "RainbowAura", "WhirlwindAura", "OasisAura", "ErrorAura"},
     LightBlue = {"FishyAura", "LeafAura", "PinkButterflyAura", "SparkleAura", "PoisonAura", "CactusAura", "FlowerAura", "BlueButterflyAura", "SnowAura", "EmberAura", "StarAura", "TreasureAura",}
 }
@@ -1156,7 +1156,7 @@ local function createPlayerProfile(playerName, index)
             local displayText = item.name .. " :" .. item.count
             local itemLabel = Instance.new("TextLabel")
             itemLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-
+        
             if filter == "All" then
                 displayItem = true
             elseif filter == "Aura" and string.find(item.name, "Aura") then
@@ -1168,28 +1168,34 @@ local function createPlayerProfile(playerName, index)
                 local enchantObject = item:FindFirstChild("Enchant")
                 local legendEnchantObject = item:FindFirstChild("LegendEnchant")
                 local upgradeObject = item:FindFirstChild("Upgrade")
-
+        
+                -- Проверка и обновление текста, если объекты существуют
                 if upgradeObject then
                     displayText = displayText .. " +" .. upgradeObject.Value
                 end
-
+        
                 if enchantObject and enchantObject.Value >= 1 and enchantObject.Value <= 9 then
                     displayItem = true
                     local enchantValue = enchantObject.Value
                     displayText = displayText .. " " .. (enchantValue == 1 and "MVP" or (enchantValue == 2 and "ATK" or (enchantValue == 3 and "HPR" or (enchantValue == 4 and "MHP" or (enchantValue == 5 and "CRI" or (enchantValue == 6 and "SPR" or (enchantValue == 7 and "CRD" or (enchantValue == 8 and "BUR" or "STA"))))))))
                 end
-
+        
                 if legendEnchantObject and legendEnchantObject.Value >= 1 and legendEnchantObject.Value <= 9 then
                     itemLabel.TextColor3 = Color3.fromRGB(255, 140, 0) -- Оранжевый для предметов с LegendEnchant
                     displayItem = true
                     local legendEnchantValue = legendEnchantObject.Value
                     displayText = displayText .. "/" .. (legendEnchantValue == 1 and "MVP" or (legendEnchantValue == 2 and "ATK" or (legendEnchantValue == 3 and "HPR" or (legendEnchantValue == 4 and "MHP" or (legendEnchantValue == 5 and "CRI" or (legendEnchantValue == 6 and "SPR" or (legendEnchantValue == 7 and "CRDI" or (legendEnchantValue == 8 and "BUR" or "STA"))))))))
                 end
+        
             elseif filter == "OG Cosmetic" and table.find(ogCosmeticItems, item.name) then
-                itemLabel.TextColor3 = Color3.fromRGB(255, 0, 255) -- Розовый цвет для OG Cosmetic
-                displayItem = true
+                -- Проверка на отсутствие дочерних объектов
+                if #item:GetChildren() == 0 then
+                    itemLabel.TextColor3 = Color3.fromRGB(255, 0, 255) -- Розовый цвет для OG Cosmetic
+                    displayItem = true
+                end
             end
-
+        
+            -- Если предмет соответствует условиям, выводим его
             if displayItem then
                 itemLabel.Text = displayText
                 itemLabel.Size = UDim2.new(1, -10, 0, 30)
@@ -1203,9 +1209,10 @@ local function createPlayerProfile(playerName, index)
                 yOffset = yOffset + 30
             end
         end
-
+        
         itemsListFrame.Size = UDim2.new(1, 0, 0, yOffset)
         inventoryScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, yOffset)
+        
     end
 
     allButton.MouseButton1Click:Connect(function() updateInventoryItems("All") end)
