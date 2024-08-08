@@ -1257,7 +1257,7 @@ profileList.BackgroundTransparency = 1
 profileList.Parent = content:FindFirstChild("Trades")
 
 local tradesFolder = game:GetService("ReplicatedStorage").Trades
-local itemHeight = 50  -- Увеличенная высота каждого элемента списка
+local itemHeight = 70  -- Увеличенная высота каждого элемента списка
 local yPosition = 0
 
 local function createTradeCard(trade)
@@ -1272,7 +1272,7 @@ local function createTradeCard(trade)
 
     -- Имя игрока
     local playerNameLabel = Instance.new("TextLabel")
-    playerNameLabel.Size = UDim2.new(0.4, 0, 1, 0)
+    playerNameLabel.Size = UDim2.new(0.4, 0, 0.5, 0)
     playerNameLabel.Position = UDim2.new(0, 10, 0, 0)
     playerNameLabel.BackgroundTransparency = 1
     playerNameLabel.Text = trade.Name
@@ -1284,10 +1284,10 @@ local function createTradeCard(trade)
 
     -- Значение Vel
     local velLabel = Instance.new("TextLabel")
-    velLabel.Size = UDim2.new(0.3, -10, 1, 0)
+    velLabel.Size = UDim2.new(0.3, -10, 0.5, 0)
     velLabel.Position = UDim2.new(0.4, 0, 0, 0)
     velLabel.BackgroundTransparency = 1
-    velLabel.Text = tostring(trade:FindFirstChild("Vel").Value)
+    velLabel.Text = trade:FindFirstChild("Vel") and tostring(trade.Vel.Value) or ""
     velLabel.TextColor3 = Color3.new(1, 1, 0)
     velLabel.TextXAlignment = Enum.TextXAlignment.Right
     velLabel.Font = Enum.Font.SourceSans
@@ -1296,25 +1296,48 @@ local function createTradeCard(trade)
 
     -- Имя другого игрока (OtherPlayer)
     local otherPlayerLabel = Instance.new("TextLabel")
-    otherPlayerLabel.Size = UDim2.new(0.3, -10, 1, 0)
+    otherPlayerLabel.Size = UDim2.new(0.3, -10, 0.5, 0)
     otherPlayerLabel.Position = UDim2.new(0.7, 0, 0, 0)
     otherPlayerLabel.BackgroundTransparency = 1
-    otherPlayerLabel.Text = tostring(trade:FindFirstChild("OtherPlayer").Value)
+    otherPlayerLabel.Text = trade:FindFirstChild("OtherPlayer") and tostring(trade.OtherPlayer.Value) or ""
     otherPlayerLabel.TextColor3 = Color3.new(0.7, 0.7, 1)
     otherPlayerLabel.TextXAlignment = Enum.TextXAlignment.Right
     otherPlayerLabel.Font = Enum.Font.SourceSans
     otherPlayerLabel.TextSize = 18
     otherPlayerLabel.Parent = tradeFrame
 
+    -- Отображение Item1 под ником игрока
+    local itemLabel = Instance.new("TextLabel")
+    itemLabel.Size = UDim2.new(1, 0, 0.5, 0)
+    itemLabel.Position = UDim2.new(0, 10, 0.5, 0)
+    itemLabel.BackgroundTransparency = 1
+    itemLabel.Text = trade:FindFirstChild("Item1") and tostring(trade.Item1.Value) or ""
+    itemLabel.TextColor3 = Color3.new(1, 1, 1)
+    itemLabel.TextXAlignment = Enum.TextXAlignment.Left
+    itemLabel.Font = Enum.Font.SourceSans
+    itemLabel.TextSize = 16
+    itemLabel.Parent = tradeFrame
+
     -- Обновление значения Vel при изменении
-    trade.Vel:GetPropertyChangedSignal("Value"):Connect(function()
-        velLabel.Text = tostring(trade.Vel.Value)
-    end)
+    if trade:FindFirstChild("Vel") then
+        trade.Vel:GetPropertyChangedSignal("Value"):Connect(function()
+            velLabel.Text = tostring(trade.Vel.Value)
+        end)
+    end
 
     -- Обновление значения OtherPlayer при изменении
-    trade.OtherPlayer:GetPropertyChangedSignal("Value"):Connect(function()
-        otherPlayerLabel.Text = tostring(trade.OtherPlayer.Value)
-    end)
+    if trade:FindFirstChild("OtherPlayer") then
+        trade.OtherPlayer:GetPropertyChangedSignal("Value"):Connect(function()
+            otherPlayerLabel.Text = tostring(trade.OtherPlayer.Value)
+        end)
+    end
+
+    -- Обновление значения Item1 при изменении
+    if trade:FindFirstChild("Item1") then
+        trade.Item1:GetPropertyChangedSignal("Value"):Connect(function()
+            itemLabel.Text = tostring(trade.Item1.Value)
+        end)
+    end
 
     return tradeFrame
 end
