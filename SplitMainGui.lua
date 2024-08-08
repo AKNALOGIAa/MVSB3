@@ -1257,49 +1257,95 @@ profileList.BackgroundTransparency = 1
 profileList.Parent = content:FindFirstChild("Trades")
 
 local tradesFolder = game:GetService("ReplicatedStorage").Trades
-local tradeItems = tradesFolder:GetChildren()
-
+local itemHeight = 50  -- Увеличенная высота каждого элемента списка
 local yPosition = 0
-local itemHeight = 30  -- Высота каждого элемента списка
 
-for _, trade in pairs(tradeItems) do
+local function createTradeCard(trade)
     local tradeFrame = Instance.new("Frame")
     tradeFrame.Name = trade.Name
     tradeFrame.Size = UDim2.new(1, 0, 0, itemHeight)
     tradeFrame.Position = UDim2.new(0, 0, 0, yPosition)
-    tradeFrame.BackgroundTransparency = 0.5
+    tradeFrame.BackgroundTransparency = 0.3
+    tradeFrame.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+    tradeFrame.BorderSizePixel = 0
     tradeFrame.Parent = profileList
 
     -- Имя игрока
     local playerNameLabel = Instance.new("TextLabel")
-    playerNameLabel.Size = UDim2.new(0.5, 0, 1, 0)
+    playerNameLabel.Size = UDim2.new(0.4, 0, 1, 0)
     playerNameLabel.Position = UDim2.new(0, 10, 0, 0)
     playerNameLabel.BackgroundTransparency = 1
     playerNameLabel.Text = trade.Name
     playerNameLabel.TextColor3 = Color3.new(1, 1, 1)
     playerNameLabel.TextXAlignment = Enum.TextXAlignment.Left
+    playerNameLabel.Font = Enum.Font.SourceSansBold
+    playerNameLabel.TextSize = 18
     playerNameLabel.Parent = tradeFrame
 
     -- Значение Vel
     local velLabel = Instance.new("TextLabel")
-    velLabel.Size = UDim2.new(0.5, -10, 1, 0)
-    velLabel.Position = UDim2.new(0.5, 0, 0, 0)
+    velLabel.Size = UDim2.new(0.3, -10, 1, 0)
+    velLabel.Position = UDim2.new(0.4, 0, 0, 0)
     velLabel.BackgroundTransparency = 1
     velLabel.Text = tostring(trade:FindFirstChild("Vel").Value)
     velLabel.TextColor3 = Color3.new(1, 1, 0)
     velLabel.TextXAlignment = Enum.TextXAlignment.Right
+    velLabel.Font = Enum.Font.SourceSans
+    velLabel.TextSize = 18
     velLabel.Parent = tradeFrame
+
+    -- Имя другого игрока (OtherPlayer)
+    local otherPlayerLabel = Instance.new("TextLabel")
+    otherPlayerLabel.Size = UDim2.new(0.3, -10, 1, 0)
+    otherPlayerLabel.Position = UDim2.new(0.7, 0, 0, 0)
+    otherPlayerLabel.BackgroundTransparency = 1
+    otherPlayerLabel.Text = tostring(trade:FindFirstChild("OtherPlayer").Value)
+    otherPlayerLabel.TextColor3 = Color3.new(0.7, 0.7, 1)
+    otherPlayerLabel.TextXAlignment = Enum.TextXAlignment.Right
+    otherPlayerLabel.Font = Enum.Font.SourceSans
+    otherPlayerLabel.TextSize = 18
+    otherPlayerLabel.Parent = tradeFrame
 
     -- Обновление значения Vel при изменении
     trade.Vel:GetPropertyChangedSignal("Value"):Connect(function()
         velLabel.Text = tostring(trade.Vel.Value)
     end)
 
-    yPosition = yPosition + itemHeight
+    -- Обновление значения OtherPlayer при изменении
+    trade.OtherPlayer:GetPropertyChangedSignal("Value"):Connect(function()
+        otherPlayerLabel.Text = tostring(trade.OtherPlayer.Value)
+    end)
+
+    return tradeFrame
 end
 
--- Обновляем CanvasSize в зависимости от количества элементов
-profileList.CanvasSize = UDim2.new(0, 0, 0, yPosition)
+local function refreshTradeList()
+    -- Очистка списка перед обновлением
+    profileList:ClearAllChildren()
+    yPosition = 0
+
+    local tradeItems = tradesFolder:GetChildren()
+    for _, trade in pairs(tradeItems) do
+        local tradeCard = createTradeCard(trade)
+        tradeCard.Position = UDim2.new(0, 0, 0, yPosition)
+        yPosition = yPosition + itemHeight
+    end
+
+    -- Обновляем CanvasSize в зависимости от количества элементов
+    profileList.CanvasSize = UDim2.new(0, 0, 0, yPosition)
+end
+
+-- Первоначальное создание списка
+refreshTradeList()
+
+-- Динамическое обновление списка при изменении трейдов
+tradesFolder.ChildAdded:Connect(function()
+    refreshTradeList()
+end)
+
+tradesFolder.ChildRemoved:Connect(function()
+    refreshTradeList()
+end)
 
 
 
