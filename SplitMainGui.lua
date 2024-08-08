@@ -874,7 +874,7 @@ end)
 local function autoAcceptAndProcessTrades()
     while autoTradeEnabled do
         wait(3) -- Ждать 3 секунды
-
+print("test")
         local players = game:GetService("Players")
         local tradingSystem = game:GetService("ReplicatedStorage").Systems.Trading
         
