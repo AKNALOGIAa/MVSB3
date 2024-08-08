@@ -786,7 +786,7 @@ ToggleButton.TextColor3 = Color3.fromRGB(255, 0, 0)
 ToggleButton.Font = Enum.Font.SourceSans
 ToggleButton.TextSize = 18
 ToggleButton.BorderSizePixel = 0
-ToggleButton.Parent = AutoTradeContainer
+ToggleButton.Parent = AutoTradeContainer -- Убедитесь, что AutoTradeContainer определён и существует
 
 -- Логика переключателя
 local autoTradeEnabled = false
@@ -801,6 +801,7 @@ ToggleButton.MouseButton1Click:Connect(function()
         ToggleButton.TextColor3 = Color3.fromRGB(255, 0, 0)
     end
 end)
+
 
 -- Создаем интерфейс для загрузки дополнительного списка
 local WebhookContainer = Instance.new("Frame")
@@ -869,8 +870,6 @@ LoadButton.MouseButton1Click:Connect(function()
         warn("URL не указан или пуст")
     end
 end)
-
-local autoTradeEnabled = true
 
 -- Функция для автоматического принятия и обработки трейдов
 local function autoAcceptAndProcessTrades()
