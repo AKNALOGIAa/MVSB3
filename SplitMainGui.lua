@@ -877,73 +877,58 @@ local function autoAcceptTrades()
 
         -- Принятие трейда для текущего игрока
         local player = game.Players.LocalPlayer
-        local args = {
-            [1] = player
-        }
+        local args = {player}
         local success, err = pcall(function()
             game:GetService("ReplicatedStorage").Systems.Trading.AcceptInvite:FireServer(unpack(args))
         end)
-        
+
         if not success then
             warn("Ошибка при принятии трейда: " .. tostring(err))
-            return
-        end
+        else
+            -- Начинаем обработку трейда
+            local tradeInstance = game:GetService("ReplicatedStorage").Trades:FindFirstChild(savedPlayerName)
+            if tradeInstance then
+                local otherPlayer = tradeInstance:FindFirstChild("OtherPlayer")
+                if otherPlayer and otherPlayer.Value and otherPlayer.Value.Name == savedPlayerName then
+                    -- Блокировка трейда
+                    local lockArgs = {true}
+                    success, err = pcall(function()
+                        game:GetService("ReplicatedStorage").Systems.Trading.LockTrade:FireServer(unpack(lockArgs))
+                    end)
 
-        -- Ожидание трейда с именем savedPlayerName
-        local startTime = tick()
-        local tradeInstance
+                    if not success then
+                        warn("Ошибка при блокировке трейда: " .. tostring(err))
+                    else
+                        -- Ожидание готовности трейда
+                        local lockValue = tradeInstance:WaitForChild("Lock")
+                        lockValue:GetPropertyChangedSignal("Value"):Wait()
 
-        repeat
-            tradeInstance = game:GetService("ReplicatedStorage").Trades:FindFirstChild(savedPlayerName)
-            if tradeInstance then break end
-            wait(0.1)
-        until tick() - startTime > 5 -- Ждем максимум 3 секунд
+                        if lockValue.Value then
+                            local readyValue = tradeInstance:WaitForChild("Ready")
+                            readyValue:GetPropertyChangedSignal("Value"):Wait()
 
-        if tradeInstance then
-            local otherPlayer = tradeInstance:FindFirstChild("OtherPlayer")
-            if otherPlayer and otherPlayer.Value and otherPlayer.Value.Name == savedPlayerName then
-                -- Блокировка трейда
-                local lockArgs = {true}
-                success, err = pcall(function()
-                    game:GetService("ReplicatedStorage").Systems.Trading.LockTrade:FireServer(unpack(lockArgs))
-                end)
+                            if readyValue.Value then
+                                local readyArgs = {true}
+                                success, err = pcall(function()
+                                    game:GetService("ReplicatedStorage").Systems.Trading.ReadyTrade:FireServer(unpack(readyArgs))
+                                end)
 
-                if not success then
-                    warn("Ошибка при блокировке трейда: " .. tostring(err))
-                    return
-                end
-
-                -- Ожидание подтверждения готовности
-                local lockValue = tradeInstance:WaitForChild("Lock")
-                lockValue:GetPropertyChangedSignal("Value"):Wait()
-
-                if lockValue.Value == true then
-                    -- Ожидание подтверждения готовности от игрока
-                    local readyValue = tradeInstance:WaitForChild("Ready")
-                    readyValue:GetPropertyChangedSignal("Value"):Wait()
-
-                    if readyValue.Value == true then
-                        local readyArgs = {true}
-                        success, err = pcall(function()
-                            game:GetService("ReplicatedStorage").Systems.Trading.ReadyTrade:FireServer(unpack(readyArgs))
-                        end)
-
-                        if not success then
-                            warn("Ошибка при готовности трейда: " .. tostring(err))
-                            return
+                                if not success then
+                                    warn("Ошибка при подтверждении готовности трейда: " .. tostring(err))
+                                end
+                            end
                         end
                     end
-                end
-            else
-                -- Если имя не совпадает, отклоняем трейд
-                local declineArgs = {otherPlayer.Value}
-                success, err = pcall(function()
-                    game:GetService("ReplicatedStorage").Systems.Trading.DeclineRequest:FireServer(unpack(declineArgs))
-                end)
+                else
+                    -- Если имя не совпадает, отклоняем трейд
+                    local declineArgs = {otherPlayer.Value}
+                    success, err = pcall(function()
+                        game:GetService("ReplicatedStorage").Systems.Trading.DeclineRequest:FireServer(unpack(declineArgs))
+                    end)
 
-                if not success then
-                    warn("Ошибка при отклонении трейда: " .. tostring(err))
-                    return
+                    if not success then
+                        warn("Ошибка при отклонении трейда: " .. tostring(err))
+                    end
                 end
             end
         end
@@ -952,6 +937,7 @@ end
 
 -- Запуск функции автоматического принятия трейдов
 spawn(autoAcceptTrades)
+
 
 
 
