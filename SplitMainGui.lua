@@ -1345,9 +1345,22 @@ local function createTradeCard(trade)
                 -- Размещение в нужной строке и колонке
                 itemLabel.Position = UDim2.new(itemLabel.Position.X.Scale, itemLabel.Position.X.Offset, 0, ((i - 1) % 4) * 20)
                 itemLabel.Parent = itemsFrame
+
+                -- Обработчики для обновления значений предметов
+                if item:FindFirstChild("Value") then
+                    item.Value:GetPropertyChangedSignal("Value"):Connect(function()
+                        itemLabel.Text = tostring(item.Value.Value) .. ":" .. tostring(itemCount)
+                    end)
+                end
+                if item:FindFirstChild("Count") then
+                    item.Count:GetPropertyChangedSignal("Value"):Connect(function()
+                        itemLabel.Text = tostring(itemValue) .. ":" .. tostring(item.Count.Value)
+                    end)
+                end
             end
         end
     end
+
     -- Ожидание появления Vel и OtherPlayer и обновление значений
     local function updateVelAndOtherPlayer()
         -- Проверка на существование и изменение Vel
@@ -1417,12 +1430,6 @@ end)
 tradesFolder.ChildRemoved:Connect(function()
     refreshTradeList()
 end)
-
-
-
-
-
-
 
 -- Основной цикл
 local function update()
