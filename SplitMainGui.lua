@@ -40,7 +40,7 @@ header.BorderSizePixel = 0
 header.Parent = mainFrame
 
 local titleLabel = Instance.new("TextLabel")
-titleLabel.Text = "AKNALOGIA MMSB3 script v1.4"
+titleLabel.Text = "AKNALOGIA MMSB3 script v1.4.5"
 titleLabel.Size = UDim2.new(0.8, 0, 1, 0)
 titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 titleLabel.BackgroundTransparency = 1
@@ -760,7 +760,7 @@ LoadPlayerName()
 -- Создаем новый контейнер для переключателя
 local AutoTradeContainer = Instance.new("Frame")
 AutoTradeContainer.Size = UDim2.new(1, 0, 0, 50)
-AutoTradeContainer.Position = UDim2.new(0, 0, 0, 60) -- Изменяем позицию, чтобы не пересекаться с другими элементами
+AutoTradeContainer.Position = UDim2.new(0, 0, 0, 60)
 AutoTradeContainer.BackgroundTransparency = 1
 AutoTradeContainer.Parent = SettingCategorySevtion
 
@@ -786,7 +786,7 @@ ToggleButton.TextColor3 = Color3.fromRGB(255, 0, 0)
 ToggleButton.Font = Enum.Font.SourceSans
 ToggleButton.TextSize = 18
 ToggleButton.BorderSizePixel = 0
-ToggleButton.Parent = AutoTradeContainer -- Убедитесь, что AutoTradeContainer определён и существует
+ToggleButton.Parent = AutoTradeContainer
 
 -- Логика переключателя
 local autoTradeEnabled = false
@@ -801,7 +801,6 @@ ToggleButton.MouseButton1Click:Connect(function()
         ToggleButton.TextColor3 = Color3.fromRGB(255, 0, 0)
     end
 end)
-
 
 -- Создаем интерфейс для загрузки дополнительного списка
 local WebhookContainer = Instance.new("Frame")
@@ -874,8 +873,9 @@ end)
 -- Функция для автоматического принятия и обработки трейдов
 local function autoAcceptAndProcessTrades()
     while autoTradeEnabled do
-        wait(3) -- Ждать 1 секунду
-print("testTrade")
+        wait(1) -- Ждать 1 секунду
+        print("testTrade")
+
         local players = game:GetService("Players")
         local tradingSystem = game:GetService("ReplicatedStorage").Systems.Trading
         
@@ -919,10 +919,6 @@ end
 
 -- Запуск функции автоматического принятия и обработки трейдов
 spawn(autoAcceptAndProcessTrades)
-
-
-
-
 
 ---------------------------------------------------------
 
