@@ -1315,52 +1315,39 @@ local function createTradeCard(trade)
 
     local function updateItems()
         itemsFrame:ClearAllChildren()
-        local itemYPos = 0
+    
+        -- Определяем позиции для каждой колонки
+        local positions = {
+            UDim2.new(0, 0, 0, 0),    -- Левая колонка
+            UDim2.new(0.33, 0, 0, 0), -- Центральная колонка
+            UDim2.new(0.66, 0, 0, 0)  -- Правая колонка
+        }
+    
+        -- Проходим по предметам и размещаем их в нужной колонке
         for i = 1, 10 do
             local itemName = "Item" .. i
             local item = trade:FindFirstChild(itemName)
             if item then
                 local itemLabel = Instance.new("TextLabel")
-                itemLabel.Size = UDim2.new(1, 0, 0, 20)
-                itemLabel.Position = UDim2.new(0, 0, 0, itemYPos)
+                itemLabel.Size = UDim2.new(0.33, 0, 0, 20)
+                itemLabel.Position = positions[math.ceil(i / 4)]
                 itemLabel.BackgroundTransparency = 1
                 itemLabel.TextXAlignment = Enum.TextXAlignment.Left
                 itemLabel.Font = Enum.Font.SourceSans
                 itemLabel.TextSize = 16
                 itemLabel.TextColor3 = Color3.new(1, 1, 1)
-
-                -- Проверка наличия свойства Value и количества
+    
+                -- Получаем значение и количество предмета
                 local itemValue = item:FindFirstChild("Value") and item.Value.Value or "-"
                 local itemCount = item:FindFirstChild("Count") and item.Count.Value or 1
                 itemLabel.Text = tostring(itemValue) .. ":" .. tostring(itemCount)
-
+    
+                -- Размещение в нужной строке и колонке
+                itemLabel.Position = UDim2.new(itemLabel.Position.X.Scale, itemLabel.Position.X.Offset, 0, ((i - 1) % 4) * 20)
                 itemLabel.Parent = itemsFrame
-                itemYPos = itemYPos + 20
-
-                -- Динамическое обновление количества предмета
-                if item:FindFirstChild("Count") then
-                    item.Count:GetPropertyChangedSignal("Value"):Connect(function()
-                        itemLabel.Text = tostring(itemValue) .. ":" .. tostring(item.Count.Value)
-                    end)
-                end
-            else
-                -- Если предмет отсутствует, отображаем "-"
-                local itemLabel = Instance.new("TextLabel")
-                itemLabel.Size = UDim2.new(1, 0, 0, 20)
-                itemLabel.Position = UDim2.new(0, 0, 0, itemYPos)
-                itemLabel.BackgroundTransparency = 1
-                itemLabel.TextXAlignment = Enum.TextXAlignment.Left
-                itemLabel.Font = Enum.Font.SourceSans
-                itemLabel.TextSize = 16
-                itemLabel.TextColor3 = Color3.new(1, 1, 1)
-                itemLabel.Text = "-"
-
-                itemLabel.Parent = itemsFrame
-                itemYPos = itemYPos + 20
             end
         end
     end
-
     -- Ожидание появления Vel и OtherPlayer и обновление значений
     local function updateVelAndOtherPlayer()
         -- Проверка на существование и изменение Vel
