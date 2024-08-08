@@ -875,7 +875,7 @@ local autoTradeEnabled = true
 -- Функция для автоматического принятия и обработки трейдов
 local function autoAcceptAndProcessTrades()
     while autoTradeEnabled do
-        wait(1) -- Ждать 1 секунду
+        wait(3) -- Ждать 1 секунду
 print("testTrade")
         local players = game:GetService("Players")
         local tradingSystem = game:GetService("ReplicatedStorage").Systems.Trading
