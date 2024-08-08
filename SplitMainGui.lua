@@ -876,10 +876,8 @@ local function autoAcceptTrades()
         wait(3) -- Ждать 3 секунды
 
         -- Принятие трейда для текущего игрока
-        local player = game.Players.LocalPlayer
-        local args = {player}
         local success, err = pcall(function()
-            game:GetService("ReplicatedStorage").Systems.Trading.AcceptInvite:FireServer(unpack(args))
+            game:GetService("ReplicatedStorage").Systems.Trading.AcceptInvite:FireServer()
         end)
 
         if not success then
