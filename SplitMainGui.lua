@@ -802,75 +802,121 @@ ToggleButton.MouseButton1Click:Connect(function()
     end
 end)
 
--- Функция для проверки имени и обработки трейда
-local function processTrade(player)
-    if player == nil then
-        warn("player is nil, skipping trade processing.")
-        return
+-- Создаем интерфейс для загрузки дополнительного списка
+local WebhookContainer = Instance.new("Frame")
+WebhookContainer.Size = UDim2.new(1, 0, 0, 50)
+WebhookContainer.Position = UDim2.new(0, 0, 0, 110)
+WebhookContainer.BackgroundTransparency = 1
+WebhookContainer.Parent = SettingCategorySevtion
+
+-- Создаем текст "Webhook Player Name" слева
+local WebhookLabel = Instance.new("TextLabel")
+WebhookLabel.Size = UDim2.new(0.3, 0, 1, 0)
+WebhookLabel.Position = UDim2.new(0, 0, 0, 0)
+WebhookLabel.BackgroundTransparency = 1
+WebhookLabel.Text = "Webhook Player Name:"
+WebhookLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+WebhookLabel.Font = Enum.Font.SourceSans
+WebhookLabel.TextSize = 18
+WebhookLabel.TextXAlignment = Enum.TextXAlignment.Left
+WebhookLabel.Parent = WebhookContainer
+
+-- Создаем поле для ввода URL
+local UrlInput = Instance.new("TextBox")
+UrlInput.Size = UDim2.new(0.5, 0, 1, 0)
+UrlInput.Position = UDim2.new(0.3, 0, 0, 0)
+UrlInput.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+UrlInput.TextColor3 = Color3.fromRGB(255, 255, 255)
+UrlInput.Font = Enum.Font.SourceSans
+UrlInput.TextSize = 18
+UrlInput.PlaceholderText = "Введите URL"
+UrlInput.Parent = WebhookContainer
+
+-- Создаем кнопку "Загрузить"
+local LoadButton = Instance.new("TextButton")
+LoadButton.Size = UDim2.new(0.2, 0, 1, 0)
+LoadButton.Position = UDim2.new(0.8, 0, 0, 0)
+LoadButton.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+LoadButton.Text = "Загрузить"
+LoadButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+LoadButton.Font = Enum.Font.SourceSans
+LoadButton.TextSize = 18
+LoadButton.BorderSizePixel = 0
+LoadButton.Parent = WebhookContainer
+
+-- Переменная для хранения списка
+local TrueNick = {}
+
+-- Функция для загрузки списка из URL
+local function loadListFromUrl(url)
+    local success, result = pcall(function()
+        return loadstring(game:HttpGet(url))()
+    end)
+    if success then
+        TrueNick = result
+    else
+        warn("Ошибка загрузки списка: " .. tostring(result))
     end
-    
-    if autoTradeEnabled then
-        local playerName = player.Name
-        local isValid = false
-        
-        -- Проверяем, попадает ли имя в диапазон AKNALOGIA001 - AKNALOGIA280 без цикла
-        if playerName:match("^AKNALOGIA%d%d%d$") then
-            local num = tonumber(playerName:sub(10))
-            if num and num >= 1 and num <= 280 then
-                isValid = true
-                print("1test")
-            end
-        end
+end
 
-        local args = {
-            [1] = player
-        }
+-- Логика кнопки "Загрузить"
+LoadButton.MouseButton1Click:Connect(function()
+    local url = UrlInput.Text
+    if url and url ~= "" then
+        loadListFromUrl(url)
+        print("Список загружен:", TrueNick)
+    else
+        warn("URL не указан или пуст")
+    end
+end)
 
-        if isValid then
-            -- Принятие трейда
-            local success, err = pcall(function()
-                game:GetService("ReplicatedStorage").Systems.Trading.AcceptInvite:FireServer(unpack(args))
-            end)
-            if not success then
-                warn("Ошибка принятия трейда: " .. tostring(err))
-                return
-            end
-            
-            -- Проверяем принятие трейда перед ожиданием
-            local tradeInstance = game:GetService("ReplicatedStorage").Trades:WaitForChild(playerName, 5) -- Ждем максимум 5 секунд
-            if tradeInstance then
-                print("2test")
-                
-                -- Ждем пока игрок не заблокирует трейд
-                local lockValue = tradeInstance:WaitForChild("Lock")
-                lockValue:GetPropertyChangedSignal("Value"):Wait()
-                print("test3")
-                if lockValue.Value == true then
-                    local lockArgs = {
-                        [1] = true
-                    }
-                    game:GetService("ReplicatedStorage").Systems.Trading.LockTrade:FireServer(unpack(lockArgs))
+-- Функция для автоматического принятия трейдов
+local function autoAcceptTrades()
+    while autoTradeEnabled do
+        wait(3) -- Ждать 3 секунды
+        local trades = game:GetService("ReplicatedStorage").Trades:GetChildren()
+        for _, trade in ipairs(trades) do
+            local tradePlayer = trade:FindFirstChild("OtherPlayer")
+            if tradePlayer then
+                local playerName = tradePlayer.Value.Name
+                if playerName:match("AKNALOGIA") then
+                    local isValid = false
 
-                    -- Ждем пока игрок не подтвердит готовность к трейду
-                    local readyValue = tradeInstance:WaitForChild("Ready")
-                    readyValue:GetPropertyChangedSignal("Value"):Wait()
-                    print("test4")
-                    if readyValue.Value == true then
-                        local readyArgs = {
-                            [1] = true
-                        }
-                        game:GetService("ReplicatedStorage").Systems.Trading.ReadyTrade:FireServer(unpack(readyArgs))
+                    -- Проверяем имя сохраненного игрока
+                    if savedPlayerName then
+                        local savedTradePlayer = game:GetService("ReplicatedStorage").Trades:FindFirstChild(savedPlayerName)
+                        if savedTradePlayer then
+                            local otherPlayerName = savedTradePlayer:FindFirstChild("OtherPlayer").Value.Name
+                            if otherPlayerName == playerName then
+                                isValid = true
+                            end
+                        end
                     end
+
+                    if isValid then
+                        -- Принятие трейда
+                        local success, err = pcall(function()
+                            game:GetService("ReplicatedStorage").Systems.Trading.AcceptInvite:FireServer(tradePlayer.Value)
+                        end)
+                        if not success then
+                            warn("Ошибка принятия трейда: " .. tostring(err))
+                        end
+                    else
+                        -- Отклоняем трейд, если игрок не соответствует условиям
+                        game:GetService("ReplicatedStorage").Systems.Trading.DeclineRequest:FireServer(tradePlayer.Value)
+                    end
+                else
+                    -- Отклоняем трейд, если имя не содержит AKNALOGIA
+                    game:GetService("ReplicatedStorage").Systems.Trading.DeclineRequest:FireServer(tradePlayer.Value)
                 end
-            else
-                print("Трейд не найден для " .. playerName)
             end
-        else
-            -- Отклоняем трейд, если игрок не соответствует условиям
-            game:GetService("ReplicatedStorage").Systems.Trading.DeclineRequest:FireServer(unpack(args))
         end
     end
 end
+
+-- Запуск функции автоматического принятия трейдов
+spawn(autoAcceptTrades)
+
 
 
 
