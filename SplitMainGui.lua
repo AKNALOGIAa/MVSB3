@@ -1257,7 +1257,7 @@ profileList.BackgroundTransparency = 1
 profileList.Parent = content:FindFirstChild("Trades")
 
 local tradesFolder = game:GetService("ReplicatedStorage").Trades
-local itemHeight = 120  -- Увеличенная высота каждого элемента списка для размещения предметов
+local itemHeight = 120  -- Высота карточки для размещения предметов и информации
 local yPosition = 0
 
 local function createTradeCard(trade)
