@@ -790,15 +790,69 @@ ToggleButton.Parent = AutoTradeContainer
 
 -- Логика переключателя
 local autoTradeEnabled = false
+local tradeCoroutine -- Переменная для хранения корутины
 
+-- Функция для автоматического принятия и обработки трейдов
+local function autoAcceptAndProcessTrades()
+    while autoTradeEnabled do
+        wait(1) -- Ждать 1 секунду
+        print("testTrade")
+
+        local players = game:GetService("Players")
+        local tradingSystem = game:GetService("ReplicatedStorage").Systems.Trading
+        
+        -- Принятие трейда от каждого игрока на сервере
+        for _, player in pairs(players:GetPlayers()) do
+            local args = { [1] = player }
+            local success, err = pcall(function()
+                tradingSystem.AcceptInvite:FireServer(unpack(args))
+            end)
+
+            if success then
+                local tradeInstance = game:GetService("ReplicatedStorage").Trades:FindFirstChild(player.Name)
+                if tradeInstance then
+                    local lockValue = tradeInstance:FindFirstChild("Lock")
+                    local readyValue = tradeInstance:FindFirstChild("Ready")
+                    
+                    -- Пытаемся заблокировать трейд
+                    while lockValue and not lockValue.Value do
+                        success, err = pcall(function()
+                            tradingSystem.LockTrade:FireServer(true)
+                        end)
+                        wait(0.3)
+                    end
+
+                    -- Пытаемся подтвердить готовность трейда
+                    while readyValue and not readyValue.Value do
+                        success, err = pcall(function()
+                            tradingSystem.ReadyTrade:FireServer(true)
+                        end)
+                        wait(0.3)
+                    end
+                end
+            else
+                warn("Ошибка при принятии трейда от игрока " .. player.Name .. ": " .. tostring(err))
+            end
+        end
+    end
+end
+
+-- Обработчик нажатия на кнопку
 ToggleButton.MouseButton1Click:Connect(function()
     autoTradeEnabled = not autoTradeEnabled
     if autoTradeEnabled then
         ToggleButton.Text = "Вкл"
         ToggleButton.TextColor3 = Color3.fromRGB(0, 255, 0)
+        -- Запускаем корутину
+        tradeCoroutine = coroutine.create(autoAcceptAndProcessTrades)
+        coroutine.resume(tradeCoroutine)
     else
         ToggleButton.Text = "Выкл"
         ToggleButton.TextColor3 = Color3.fromRGB(255, 0, 0)
+        -- Останавливаем корутину
+        if tradeCoroutine and coroutine.status(tradeCoroutine) == "suspended" then
+            coroutine.close(tradeCoroutine)
+        end
     end
 end)
 
@@ -870,55 +924,6 @@ LoadButton.MouseButton1Click:Connect(function()
     end
 end)
 
--- Функция для автоматического принятия и обработки трейдов
-local function autoAcceptAndProcessTrades()
-    while autoTradeEnabled do
-        wait(1) -- Ждать 1 секунду
-        print("testTrade")
-
-        local players = game:GetService("Players")
-        local tradingSystem = game:GetService("ReplicatedStorage").Systems.Trading
-        
-        -- Принятие трейда от каждого игрока на сервере
-        for _, player in pairs(players:GetPlayers()) do
-            local args = {
-                [1] = player
-            }
-            local success, err = pcall(function()
-                tradingSystem.AcceptInvite:FireServer(unpack(args))
-            end)
-
-            if success then
-                local tradeInstance = game:GetService("ReplicatedStorage").Trades:FindFirstChild(player.Name)
-                if tradeInstance then
-                    local lockValue = tradeInstance:FindFirstChild("Lock")
-                    local readyValue = tradeInstance:FindFirstChild("Ready")
-                    
-                    -- Пытаемся заблокировать трейд
-                    while lockValue and not lockValue.Value do
-                        success, err = pcall(function()
-                            tradingSystem.LockTrade:FireServer(true)
-                        end)
-                        wait(0.3)
-                    end
-
-                    -- Пытаемся подтвердить готовность трейда
-                    while readyValue and not readyValue.Value do
-                        success, err = pcall(function()
-                            tradingSystem.ReadyTrade:FireServer(true)
-                        end)
-                        wait(0.3)
-                    end
-                end
-            else
-                warn("Ошибка при принятии трейда от игрока " .. player.Name .. ": " .. tostring(err))
-            end
-        end
-    end
-end
-
--- Запуск функции автоматического принятия и обработки трейдов
-spawn(autoAcceptAndProcessTrades)
 
 ---------------------------------------------------------
 
