@@ -985,8 +985,8 @@ local MountsPriority = {
 }
 
 local MountsColor = {
-    Orange = {"VoidErebusMount", "VoidGAliardMount", "DarkUnicornMount", "DarkCrab", "ShadowCrab",},
-    Purple = {"ErebusMount", "GAliardMount", "IcewhalMount", "OwlMount", "SandTerrorMount", "SeaSerpentMount"}
+    Orange = {"VoidErebusMount", "VoidGaliardMount", "DarkUnicornMount", "DarkCrab", "ShadowCrab",},
+    Purple = {"ErebusMount", "GaliardMount", "IcewhalMount", "OwlMount", "SandTerrorMount", "SeaSerpentMount"}
 }
 local ogCosmeticItems = {"NecromancerCloak", "ShadowTuxedo", "VoidArmor", "FlamingGarment", "CyberEnforcer", "GoldenKimono"} -- Список предметов для категории OG Cosmetic
 
