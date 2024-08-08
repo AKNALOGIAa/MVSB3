@@ -1341,23 +1341,44 @@ local function createTradeCard(trade)
                         itemLabel.Text = item.Value .. ":" .. tostring(item.Count.Value)
                     end)
                 end
+            else
+                -- Если предмет отсутствует, отображаем "-"
+                local itemLabel = Instance.new("TextLabel")
+                itemLabel.Size = UDim2.new(1, 0, 0, 20)
+                itemLabel.Position = UDim2.new(0, 0, 0, itemYPos)
+                itemLabel.BackgroundTransparency = 1
+                itemLabel.TextXAlignment = Enum.TextXAlignment.Left
+                itemLabel.Font = Enum.Font.SourceSans
+                itemLabel.TextSize = 16
+                itemLabel.TextColor3 = Color3.new(1, 1, 1)
+                itemLabel.Text = "-"
+
+                itemLabel.Parent = itemsFrame
+                itemYPos = itemYPos + 20
             end
         end
     end
 
     -- Ожидание появления Vel и OtherPlayer и обновление значений
     local function updateVelAndOtherPlayer()
+        -- Проверка на существование и изменение Vel
         if trade:FindFirstChild("Vel") then
             velLabel.Text = tostring(trade.Vel.Value)
             trade.Vel:GetPropertyChangedSignal("Value"):Connect(function()
                 velLabel.Text = tostring(trade.Vel.Value)
             end)
+        else
+            velLabel.Text = "-"  -- если Vel отсутствует
         end
+        
+        -- Проверка на существование и изменение OtherPlayer
         if trade:FindFirstChild("OtherPlayer") then
             otherPlayerLabel.Text = tostring(trade.OtherPlayer.Value)
             trade.OtherPlayer:GetPropertyChangedSignal("Value"):Connect(function()
                 otherPlayerLabel.Text = tostring(trade.OtherPlayer.Value)
             end)
+        else
+            otherPlayerLabel.Text = "-"  -- если OtherPlayer отсутствует
         end
     end
 
@@ -1407,6 +1428,7 @@ end)
 tradesFolder.ChildRemoved:Connect(function()
     refreshTradeList()
 end)
+
 
 
 
