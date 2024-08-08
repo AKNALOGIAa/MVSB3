@@ -1263,20 +1263,44 @@ local yPosition = 0
 local itemHeight = 30  -- Высота каждого элемента списка
 
 for _, trade in pairs(tradeItems) do
-    local tradeLabel = Instance.new("TextLabel")
-    tradeLabel.Name = trade.Name
-    tradeLabel.Size = UDim2.new(1, 0, 0, itemHeight)
-    tradeLabel.Position = UDim2.new(0, 0, 0, yPosition)
-    tradeLabel.BackgroundTransparency = 0.5
-    tradeLabel.Text = trade.Name
-    tradeLabel.TextColor3 = Color3.new(1, 1, 1)
-    tradeLabel.Parent = profileList
+    local tradeFrame = Instance.new("Frame")
+    tradeFrame.Name = trade.Name
+    tradeFrame.Size = UDim2.new(1, 0, 0, itemHeight)
+    tradeFrame.Position = UDim2.new(0, 0, 0, yPosition)
+    tradeFrame.BackgroundTransparency = 0.5
+    tradeFrame.Parent = profileList
+
+    -- Имя игрока
+    local playerNameLabel = Instance.new("TextLabel")
+    playerNameLabel.Size = UDim2.new(0.5, 0, 1, 0)
+    playerNameLabel.Position = UDim2.new(0, 10, 0, 0)
+    playerNameLabel.BackgroundTransparency = 1
+    playerNameLabel.Text = trade.Name
+    playerNameLabel.TextColor3 = Color3.new(1, 1, 1)
+    playerNameLabel.TextXAlignment = Enum.TextXAlignment.Left
+    playerNameLabel.Parent = tradeFrame
+
+    -- Значение Vel
+    local velLabel = Instance.new("TextLabel")
+    velLabel.Size = UDim2.new(0.5, -10, 1, 0)
+    velLabel.Position = UDim2.new(0.5, 0, 0, 0)
+    velLabel.BackgroundTransparency = 1
+    velLabel.Text = tostring(trade:FindFirstChild("Vel").Value)
+    velLabel.TextColor3 = Color3.new(1, 1, 0)
+    velLabel.TextXAlignment = Enum.TextXAlignment.Right
+    velLabel.Parent = tradeFrame
+
+    -- Обновление значения Vel при изменении
+    trade.Vel:GetPropertyChangedSignal("Value"):Connect(function()
+        velLabel.Text = tostring(trade.Vel.Value)
+    end)
 
     yPosition = yPosition + itemHeight
 end
 
 -- Обновляем CanvasSize в зависимости от количества элементов
 profileList.CanvasSize = UDim2.new(0, 0, 0, yPosition)
+
 
 
 
