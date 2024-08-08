@@ -1188,11 +1188,10 @@ local function createPlayerProfile(playerName, index)
                 end
         
             elseif filter == "OG Cosmetic" and table.find(ogCosmeticItems, item.name) then
-                -- Проверка на отсутствие дочерних объектов
-                if #item:GetChildren() == 0 then
-                    itemLabel.TextColor3 = Color3.fromRGB(255, 0, 255) -- Розовый цвет для OG Cosmetic
-                    displayItem = true
-                end
+        
+            elseif filter == "OG Cosmetic" and table.find(ogCosmeticItems, item.name) then
+                itemLabel.TextColor3 = Color3.fromRGB(255, 0, 255) -- Розовый цвет для OG Cosmetic
+                displayItem = true
             end
         
             -- Если предмет соответствует условиям, выводим его
