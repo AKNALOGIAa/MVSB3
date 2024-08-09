@@ -1160,7 +1160,6 @@ local function createPlayerProfile(playerName, index)
         local inventory = profile:WaitForChild("Inventory")
         local items = {}
     
-        -- Собираем информацию о предметах в инвентаре
         for _, item in pairs(inventory:GetChildren()) do
             local itemName = item.Name
             local itemCount = 1
@@ -1182,95 +1181,82 @@ local function createPlayerProfile(playerName, index)
             table.insert(itemList, {name = name, count = count})
         end
     
-        -- Функция для получения цвета и приоритета Маунтов
-        local function getMountColor(itemName)
-            for color, mounts in pairs(MountsColor) do
-                for _, mount in ipairs(mounts) do
-                    if itemName == mount then
-                        local colorValue = Color3.fromRGB(255, 255, 255) -- По умолчанию белый цвет
-                        local priority = MountsPriority.Default
-                        
-                        if color == "Orange" then
-                            colorValue = Color3.fromRGB(255, 165, 0) -- Оранжевый
-                            priority = MountsPriority.Orange
-                        elseif color == "Purple" then
-                            colorValue = Color3.fromRGB(128, 0, 128) -- Фиолетовый
-                            priority = MountsPriority.Purple
-                        end
-    
-                        return colorValue, priority
-                    end
-                end
-            end
-            return Color3.fromRGB(255, 255, 255), MountsPriority.Default -- По умолчанию белый цвет и приоритет
-        end
-    
         -- Сортировка предметов
         table.sort(itemList, function(a, b)
-            if filter == "Aura" then
-                local colorA, priorityA = getAuraColor(a.name)
-                local colorB, priorityB = getAuraColor(b.name)
-                if priorityA ~= priorityB then
-                    return priorityA < priorityB
-                end
-            elseif filter == "Mount" then
-                local _, priorityA = getMountColor(a.name)
-                local _, priorityB = getMountColor(b.name)
-                if priorityA ~= priorityB then
-                    return priorityA < priorityB
-                end
-            end
             return a.name < b.name
         end)
     
         itemsListFrame:ClearAllChildren()
         local yOffset = 0
     
-        -- Отображение предметов
-        for _, itemInfo in ipairs(itemList) do
+        for _, item in ipairs(itemList) do
             local displayItem = false
-            local displayText = itemInfo.name .. " :" .. itemInfo.count
+            local displayText = item.name .. " :" .. item.count
             local itemLabel = Instance.new("TextLabel")
             itemLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
     
-            -- Найти соответствующий объект в инвентаре
-            local item = inventory:FindFirstChild(itemInfo.name)
+            if filter == "All" then
+                displayItem = true
+            elseif filter == "Aura" and string.find(item.name, "Aura") then
+                itemLabel.TextColor3, _ = getAuraColor(item.name)
+                displayItem = true
+            elseif filter == "Mount" and string.find(item.name, "Mount") then
+                displayItem = true
+                itemLabel.TextColor3 = getMountColor(item.name)
+            elseif filter == "Weapon/Armor" then
+                local enchantObject = item:FindFirstChild("Enchant")
+                local legendEnchantObject = item:FindFirstChild("LegendEnchant")
+                local upgradeObject = item:FindFirstChild("Upgrade")
     
-            if item then
-                if filter == "All" then
-                    displayItem = true
-                elseif filter == "Aura" and string.find(itemInfo.name, "Aura") then
-                    itemLabel.TextColor3, _ = getAuraColor(itemInfo.name)
-                    displayItem = true
-                elseif filter == "Mount" and string.find(itemInfo.name, "Mount") then
-                    displayItem = true
-                    itemLabel.TextColor3 = getMountColor(itemInfo.name)
-                elseif filter == "Weapon/Armor" then
-                    local enchantObject = item:FindFirstChild("Enchant")
-                    local legendEnchantObject = item:FindFirstChild("LegendEnchant")
-                    local upgradeObject = item:FindFirstChild("Upgrade")
-    
-                    -- Проверка и обновление текста, если объекты существуют
-                    if upgradeObject then
-                        displayText = displayText .. " +" .. upgradeObject.Value
+                -- Проверка и обновление текста, если объекты существуют
+                if upgradeObject then
+                    displayText = displayText .. " +" .. upgradeObject.Value
+                    if upgradeObject.Value == 10 then
+                        local upgradeLabel = Instance.new("TextLabel")
+                        upgradeLabel.Text = "+" .. upgradeObject.Value
+                        upgradeLabel.TextColor3 = Color3.fromRGB(224, 50, 50) -- Светло-красный для upgradeObject = 10
+                        upgradeLabel.Parent = itemLabel
                     end
-    
-                    if enchantObject and enchantObject.Value >= 1 and enchantObject.Value <= 9 then
-                        displayItem = true
-                        local enchantValue = enchantObject.Value
-                        displayText = displayText .. " " .. (enchantValue == 1 and "MVP" or (enchantValue == 2 and "ATK" or (enchantValue == 3 and "HPR" or (enchantValue == 4 and "MHP" or (enchantValue == 5 and "CRI" or (enchantValue == 6 and "SPR" or (enchantValue == 7 and "CRD" or (enchantValue == 8 and "BUR" or "STA"))))))))
-                    end
-    
-                    if legendEnchantObject and legendEnchantObject.Value >= 1 and legendEnchantObject.Value <= 9 then
-                        itemLabel.TextColor3 = Color3.fromRGB(255, 140, 0) -- Оранжевый для предметов с LegendEnchant
-                        displayItem = true
-                        local legendEnchantValue = legendEnchantObject.Value
-                        displayText = displayText .. "/" .. (legendEnchantValue == 1 and "MVP" or (legendEnchantValue == 2 and "ATK" or (legendEnchantValue == 3 and "HPR" or (legendEnchantValue == 4 and "MHP" or (legendEnchantValue == 5 and "CRI" or (legendEnchantValue == 6 and "SPR" or (legendEnchantValue == 7 and "CRDI" or (legendEnchantValue == 8 and "BUR" or "STA"))))))))
-                    end
-                elseif filter == "OG Cosmetic" and table.find(ogCosmeticItems, itemInfo.name) then
-                    itemLabel.TextColor3 = Color3.fromRGB(255, 0, 255) -- Розовый цвет для OG Cosmetic
-                    displayItem = true
                 end
+    
+                -- Проверка Enchant и LegendEnchant
+                if enchantObject and enchantObject.Value >= 1 and enchantObject.Value <= 9 then
+                    displayItem = true
+                    local enchantValue = enchantObject.Value
+                    displayText = displayText .. " " .. (enchantValue == 1 and "MVP" or (enchantValue == 2 and "ATK" or (enchantValue == 3 and "HPR" or (enchantValue == 4 and "MHP" or (enchantValue == 5 and "CRI" or (enchantValue == 6 and "SPR" or (enchantValue == 7 and "CRD" or (enchantValue == 8 and "BUR" or "STA"))))))))
+                end
+    
+                if legendEnchantObject and legendEnchantObject.Value >= 1 and legendEnchantObject.Value <= 9 then
+                    itemLabel.TextColor3 = Color3.fromRGB(255, 140, 0) -- Оранжевый для предметов с LegendEnchant
+                    displayItem = true
+                    local legendEnchantValue = legendEnchantObject.Value
+                    displayText = displayText .. "/" .. (legendEnchantValue == 1 and "MVP" or (legendEnchantValue == 2 and "ATK" or (legendEnchantValue == 3 and "HPR" or (legendEnchantValue == 4 and "MHP" or (legendEnchantValue == 5 and "CRI" or (legendEnchantValue == 6 and "SPR" or (legendEnchantValue == 7 and "CRDI" or (legendEnchantValue == 8 and "BUR" or "STA"))))))))
+                end
+    
+                -- Установка цвета для специфичных меток
+                local colorMapping = {
+                    ATK = Color3.fromRGB(255, 165, 0), -- Оранжевый
+                    SPR = Color3.fromRGB(0, 0, 255), -- Голубой
+                    CRI = Color3.fromRGB(255, 0, 0), -- Красный
+                    CRD = Color3.fromRGB(255, 0, 0), -- Красный
+                    MHP = Color3.fromRGB(0, 128, 0), -- Зеленый
+                    HPR = Color3.fromRGB(144, 238, 144), -- Светло-зеленый
+                    BUR = Color3.fromRGB(255, 140, 0), -- Темно-оранжевый
+                    STA = Color3.fromRGB(0, 0, 128), -- Синий
+                    SPD = Color3.fromRGB(173, 216, 230) -- Бледно-голубой
+                }
+    
+                for key, color in pairs(colorMapping) do
+                    if string.find(displayText, key) then
+                        local label = Instance.new("TextLabel")
+                        label.Text = key
+                        label.TextColor3 = color
+                        label.Parent = itemLabel
+                    end
+                end
+            elseif filter == "OG Cosmetic" and table.find(ogCosmeticItems, item.name) then
+                itemLabel.TextColor3 = Color3.fromRGB(255, 0, 255) -- Розовый цвет для OG Cosmetic
+                displayItem = true
             end
     
             -- Если предмет соответствует условиям, выводим его
@@ -1285,13 +1271,14 @@ local function createPlayerProfile(playerName, index)
                 itemLabel.TextYAlignment = Enum.TextYAlignment.Top
                 itemLabel.Parent = itemsListFrame
                 yOffset = yOffset + 30
-             --   print(displayText)
+              --  print(displayText)
             end
         end
     
         itemsListFrame.Size = UDim2.new(1, 0, 0, yOffset)
         inventoryScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, yOffset)
     end
+    
     
     
 
