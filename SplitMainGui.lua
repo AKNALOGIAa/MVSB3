@@ -1483,7 +1483,7 @@ local function createTradeCard(trade)
                 itemLabel.TextColor3 = Color3.new(1, 1, 1)
     
                 -- Получаем значение и количество предмета
-                local itemValue = item:FindFirstChild("Value") and item.Value.Value or "-"
+                local itemValue = item:FindFirstChild("Value") and item.Value or "-"
                 local itemCount = item:FindFirstChild("Count") and item.Count.Value or 1
                 itemLabel.Text = tostring(itemValue) .. ":" .. tostring(itemCount)
     
@@ -1596,7 +1596,9 @@ end
 -- Используем Heartbeat для запуска функции обновления
 RunService.Heartbeat:Connect(update)
 
---anti afk kick
+
+
+------------------------------------------anti afk kick
 local vu = cloneref(game:GetService("VirtualUser"))
 game:GetService("Players").LocalPlayer.Idled:connect(function()
    vu:Button2Down(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
