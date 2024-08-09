@@ -381,26 +381,24 @@ if itemsSection then
                     buyButton.MouseButton1Click:Connect(function()
                         local player = players.LocalPlayer
                         local character = player.Character or player.CharacterAdded:Wait()
-
+                    
                         -- Находим объект в Workspace
                         local dropItem = workspaceDrops:FindFirstChild(item.Name)
                         if dropItem then
-                            local part = dropItem:FindFirstChildWhichIsA("MeshPart") or dropItem:FindFirstChildWhichIsA("Part")
-                            if part then
-                                -- Телепортируем персонажа к предмету
-                                local originalPosition = character:GetPrimaryPartCFrame()
-                                character:SetPrimaryPartCFrame(part.CFrame)
-
-                                -- После телепортации отправляем нажатие клавиши "E"
-                                local VirtualInputManager = game:GetService('VirtualInputManager')
-                                VirtualInputManager:SendKeyEvent(true, "E", false, game)
-                                wait(0.1)
-
-                                -- Возвращаем персонажа на его исходное место
-                                character:SetPrimaryPartCFrame(originalPosition)
+                            -- Телепортируем все MeshPart и Part объекты к персонажу
+                            for _, part in pairs(dropItem:GetChildren()) do
+                                if part:IsA("MeshPart") or part:IsA("Part") then
+                                    -- Телепортируем объект к персонажу
+                                    part.CFrame = character:GetPrimaryPartCFrame() * CFrame.new(0, 0, 2) -- Позиционируем перед персонажем (можно изменить смещение)
+                                end
                             end
+                    
+                            -- После телепортации отправляем нажатие клавиши "E"
+                            local VirtualInputManager = game:GetService('VirtualInputManager')
+                            VirtualInputManager:SendKeyEvent(true, "E", false, game)
                         end
                     end)
+                    
 
                     col = col + 1
                     if col >= columns then
