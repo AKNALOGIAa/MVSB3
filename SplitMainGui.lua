@@ -398,7 +398,7 @@ if itemsSection then
                                 part.CFrame = character:GetPrimaryPartCFrame() * CFrame.new(0, 0, 2) -- Позиционируем перед персонажем (можно изменить смещение)
                             end
                             wait(0.1)
-                            
+
                             -- После телепортации отправляем нажатие клавиши "E"
                             local VirtualInputManager = game:GetService('VirtualInputManager')
                             VirtualInputManager:SendKeyEvent(true, "E", false, game)
@@ -1276,6 +1276,7 @@ local function createPlayerProfile(playerName, index)
                 itemLabel.TextYAlignment = Enum.TextYAlignment.Top
                 itemLabel.Parent = itemsListFrame
                 yOffset = yOffset + 30
+                print(displayText)
             end
         end
     
