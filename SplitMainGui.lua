@@ -11,6 +11,13 @@ local lastTradeProcessTime = tick()
 local lastUpdateProfilesTime = tick()
 ---
 
+local MountsColor = {
+    Orange = {"VoidErebusMount", "VoidGaliardMount", "DarkUnicornMount", "DarkCrab", "ShadowCrab",},
+    Purple = {"ErebusMount", "GaliardMount", "IcewhalMount", "OwlMount", "SandTerrorMount", "SeaSerpentMount"}
+}
+local ogCosmeticItems = {"NecromancerCloak", "ShadowTuxedo", "VoidArmor", "FlamingGarment", "CyberEnforcer", "GoldenKimono"} -- Список предметов для категории OG Cosmetic
+
+
 -- Удаление старого GUI, если существует
 if playerGui:FindFirstChild("CustomUI") then
     playerGui.CustomUI:Destroy()
@@ -279,48 +286,95 @@ end
 -----------Получаем основную категорию для вещей---------
 local players = game:GetService("Players")
 local replicatedStorage = game:GetService("ReplicatedStorage")
+local workspaceDrops = game:GetService("Workspace").Drops
 local itemsSection = content:FindFirstChild("Items")
+
+local MountsColor = {
+    Orange = {"VoidErebusMount", "VoidGaliardMount", "DarkUnicornMount", "DarkCrab", "ShadowCrab"},
+    Purple = {"ErebusMount", "GaliardMount", "IcewhalMount", "OwlMount", "SandTerrorMount", "SeaSerpentMount"}
+}
+
+local ogCosmeticItems = {"NecromancerCloak", "ShadowTuxedo", "VoidArmor", "FlamingGarment", "CyberEnforcer", "GoldenKimono"}
+local ogCosmeticColor = Color3.new(1, 0, 1) -- Розовый цвет для OG косметики
+
+local categories = {"Все", "Маунты", "Оружие", "Броня", "OG Косметика"}
 
 if itemsSection then
     -- Создаем ScrollingFrame для возможности прокрутки
     local scrollingFrame = Instance.new("ScrollingFrame")
-    scrollingFrame.Size = UDim2.new(1, 0, 1, 0)
+    scrollingFrame.Size = UDim2.new(1, 0, 0.9, 0) -- Сместим вниз, чтобы освободить место для кнопок
     scrollingFrame.Position = UDim2.new(0, 0, 0, 0)
     scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
     scrollingFrame.ScrollBarThickness = 12
     scrollingFrame.Parent = itemsSection
 
-    -- Получаем категорию Items
-    local itemCategorySection = scrollingFrame
+    -- Добавляем кнопки для категорий
+    local buttonsFrame = Instance.new("Frame")
+    buttonsFrame.Size = UDim2.new(1, 0, 0.1, 0)
+    buttonsFrame.Position = UDim2.new(0, 0, 0.9, 0)
+    buttonsFrame.BackgroundTransparency = 1
+    buttonsFrame.Parent = itemsSection
 
-    local function updateItems()
+    local function createCategoryButtons()
+        for i, category in ipairs(categories) do
+            local button = Instance.new("TextButton")
+            button.Size = UDim2.new(0.2, 0, 1, 0) -- 0.2 для 5 кнопок
+            button.Position = UDim2.new((i - 1) * 0.2, 0, 0, 0)
+            button.Text = category
+            button.TextColor3 = Color3.new(1, 1, 1)
+            button.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+            button.Parent = buttonsFrame
+
+            button.MouseButton1Click:Connect(function()
+                updateItems(category)
+            end)
+        end
+    end
+
+    local function updateItems(selectedCategory)
         local drops = replicatedStorage:FindFirstChild("Drops")
         
         if drops then
             local items = drops:GetChildren()
             
-            for _, child in pairs(itemCategorySection:GetChildren()) do
+            -- Очистка старых предметов
+            for _, child in pairs(scrollingFrame:GetChildren()) do
                 if child:IsA("TextLabel") or child:IsA("TextButton") then
                     child:Destroy()
                 end
             end
             
-            if #items > 0 then
-                local columns = 3
-                local spacing = 10
-                local itemWidth = (itemCategorySection.AbsoluteSize.X - spacing * (columns - 1)) / columns
-                local itemHeight = 50
-                local row = 0
-                local col = 0
+            local columns = 3
+            local spacing = 10
+            local itemWidth = (scrollingFrame.AbsoluteSize.X - spacing * (columns - 1)) / columns
+            local itemHeight = 50
+            local row = 0
+            local col = 0
 
-                for i, item in ipairs(items) do
+            for i, item in ipairs(items) do
+                -- Фильтр по категориям
+                local itemCategory = item:GetAttribute("Category") -- допустим, у предмета есть атрибут "Category"
+                if selectedCategory == "Все" or itemCategory == selectedCategory or (selectedCategory == "OG Косметика" and table.find(ogCosmeticItems, item.Name)) then
                     local itemDisplay = Instance.new("TextLabel")
                     itemDisplay.Size = UDim2.new(0, itemWidth, 0, itemHeight)
                     itemDisplay.Position = UDim2.new(0, col * (itemWidth + spacing), 0, row * (itemHeight * 2 + spacing))
                     itemDisplay.Text = item.Name
                     itemDisplay.TextColor3 = Color3.new(1, 1, 1)
                     itemDisplay.BackgroundTransparency = 1
-                    itemDisplay.Parent = itemCategorySection
+
+                    -- Проверяем цвет для маунтов
+                    for color, mountNames in pairs(MountsColor) do
+                        if table.find(mountNames, item.Name) then
+                            itemDisplay.BackgroundColor3 = color == "Orange" and Color3.new(1, 0.5, 0) or Color3.new(0.5, 0, 1)
+                        end
+                    end
+
+                    -- Проверяем OG косметику
+                    if table.find(ogCosmeticItems, item.Name) then
+                        itemDisplay.BackgroundColor3 = ogCosmeticColor
+                    end
+
+                    itemDisplay.Parent = scrollingFrame
 
                     local buyButton = Instance.new("TextButton")
                     buyButton.Size = UDim2.new(0, itemWidth, 0, itemHeight)
@@ -328,46 +382,30 @@ if itemsSection then
                     buyButton.Text = "Купить"
                     buyButton.TextColor3 = Color3.new(1, 1, 1)
                     buyButton.BackgroundColor3 = Color3.new(0, 0.5, 0)
-                    buyButton.Parent = itemCategorySection
+                    buyButton.Parent = scrollingFrame
 
                     buyButton.MouseButton1Click:Connect(function()
-                        local args = {
-                            [1] = item
-                        }
                         local player = players.LocalPlayer
-                        player.PlayerGui.ItemInteract.Enabled = true
+                        local character = player.Character or player.CharacterAdded:Wait()
 
-                        -- Создание кнопок "Купить" и "Отменить"
-                        local confirmButton = Instance.new("TextButton")
-                        confirmButton.Size = UDim2.new(0, 100, 0, 50)
-                        confirmButton.Position = UDim2.new(0, 20, 1, -60)
-                        confirmButton.Text = "Купить"
-                        confirmButton.TextColor3 = Color3.new(1, 1, 1)
-                        confirmButton.BackgroundColor3 = Color3.new(0, 0.5, 0)
-                        confirmButton.ZIndex = 1
-                        confirmButton.Parent = itemsSection
+                        -- Находим объект в Workspace
+                        local dropItem = workspaceDrops:FindFirstChild(item.Name)
+                        if dropItem then
+                            local part = dropItem:FindFirstChildWhichIsA("MeshPart") or dropItem:FindFirstChildWhichIsA("Part")
+                            if part then
+                                -- Телепортируем персонажа к предмету
+                                local originalPosition = character:GetPrimaryPartCFrame()
+                                character:SetPrimaryPartCFrame(part.CFrame)
 
-                        local cancelButton = Instance.new("TextButton")
-                        cancelButton.Size = UDim2.new(0, 100, 0, 50)
-                        cancelButton.Position = UDim2.new(0, 140, 1, -60)
-                        cancelButton.Text = "Отменить"
-                        cancelButton.TextColor3 = Color3.new(1, 1, 1)
-                        cancelButton.BackgroundColor3 = Color3.new(0.5, 0, 0)
-                        cancelButton.ZIndex = 1
-                        cancelButton.Parent = itemsSection
+                                -- После телепортации отправляем нажатие клавиши "E"
+                                local VirtualInputManager = game:GetService('VirtualInputManager')
+                                VirtualInputManager:SendKeyEvent(true, "E", false, game)
+                                wait(0.1)
 
-                        confirmButton.MouseButton1Click:Connect(function()
-                            game:GetService("ReplicatedStorage").Systems.Shops.Buy:FireServer(unpack(args))
-                            confirmButton:Destroy()
-                            cancelButton:Destroy()
-                            player.PlayerGui.ItemInteract.Enabled = false
-                        end)
-
-                        cancelButton.MouseButton1Click:Connect(function()
-                            player.PlayerGui.ItemInteract.Enabled = false
-                            confirmButton:Destroy()
-                            cancelButton:Destroy()
-                        end)
+                                -- Возвращаем персонажа на его исходное место
+                                character:SetPrimaryPartCFrame(originalPosition)
+                            end
+                        end
                     end)
 
                     col = col + 1
@@ -376,29 +414,24 @@ if itemsSection then
                         row = row + 1
                     end
                 end
-
-                itemCategorySection.CanvasSize = UDim2.new(0, 0, 0, (row + 1) * (itemHeight * 2 + spacing))
-            else
-                local message = Instance.new("TextLabel")
-                message.Size = UDim2.new(1, 0, 1, 0)
-                message.Position = UDim2.new(0.5, 0, 0.5, 0)
-                message.AnchorPoint = Vector2.new(0.5, 0.5)
-                message.Text = "Предметов нет"
-                message.TextColor3 = Color3.new(1, 0, 0)
-                message.TextScaled = true
-                message.BackgroundTransparency = 1
-                message.Parent = itemCategorySection
             end
+
+            scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, (row + 1) * (itemHeight * 2 + spacing))
         else
             warn("Drops не найдены в ReplicatedStorage")
         end
     end
 
-    updateItems()
+    createCategoryButtons()
+    updateItems("Все") -- Отображаем все предметы по умолчанию
 
     -- Подписываемся на изменения в Drops
-    replicatedStorage.Drops.ChildAdded:Connect(updateItems)
-    replicatedStorage.Drops.ChildRemoved:Connect(updateItems)
+    replicatedStorage.Drops.ChildAdded:Connect(function()
+        updateItems("Все")
+    end)
+    replicatedStorage.Drops.ChildRemoved:Connect(function()
+        updateItems("Все")
+    end)
 else
     warn("itemsSection категория не найдена в content")
 end
@@ -983,12 +1016,6 @@ local MountsPriority = {
     Purple = 2,
     Default = 3
 }
-
-local MountsColor = {
-    Orange = {"VoidErebusMount", "VoidGaliardMount", "DarkUnicornMount", "DarkCrab", "ShadowCrab",},
-    Purple = {"ErebusMount", "GaliardMount", "IcewhalMount", "OwlMount", "SandTerrorMount", "SeaSerpentMount"}
-}
-local ogCosmeticItems = {"NecromancerCloak", "ShadowTuxedo", "VoidArmor", "FlamingGarment", "CyberEnforcer", "GoldenKimono"} -- Список предметов для категории OG Cosmetic
 
 local function getAuraColor(name)
     for color, names in pairs(auraColors) do
