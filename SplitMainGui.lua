@@ -1271,15 +1271,13 @@ local function createPlayerProfile(playerName, index)
                 itemLabel.TextYAlignment = Enum.TextYAlignment.Top
                 itemLabel.Parent = itemsListFrame
                 yOffset = yOffset + 30
-              --  print(displayText)
+                print(displayText)
             end
         end
     
         itemsListFrame.Size = UDim2.new(1, 0, 0, yOffset)
         inventoryScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, yOffset)
     end
-    
-    
     
 
     allButton.MouseButton1Click:Connect(function() updateInventoryItems("All") end)
