@@ -397,7 +397,8 @@ if itemsSection then
                             for part, originalPosition in pairs(originalPositions) do
                                 part.CFrame = character:GetPrimaryPartCFrame() * CFrame.new(0, 0, 2) -- Позиционируем перед персонажем (можно изменить смещение)
                             end
-                    
+                            wait(0.1)
+                            
                             -- После телепортации отправляем нажатие клавиши "E"
                             local VirtualInputManager = game:GetService('VirtualInputManager')
                             VirtualInputManager:SendKeyEvent(true, "E", false, game)
