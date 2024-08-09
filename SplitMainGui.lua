@@ -47,7 +47,7 @@ header.BorderSizePixel = 0
 header.Parent = mainFrame
 
 local titleLabel = Instance.new("TextLabel")
-titleLabel.Text = "AKNALOGIA MMSB3 script v1.4.8"
+titleLabel.Text = "AKNALOGIA MMSB3 script v1.4.8Beta"
 titleLabel.Size = UDim2.new(0.8, 0, 1, 0)
 titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 titleLabel.BackgroundTransparency = 1
