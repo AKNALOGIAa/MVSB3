@@ -1267,9 +1267,10 @@ local function createPlayerProfile(playerName, index)
                         local legendEnchantValue = legendEnchantObject.Value
                         displayText = displayText .. "/" .. (legendEnchantValue == 1 and "MVP" or (legendEnchantValue == 2 and "ATK" or (legendEnchantValue == 3 and "HPR" or (legendEnchantValue == 4 and "MHP" or (legendEnchantValue == 5 and "CRI" or (legendEnchantValue == 6 and "SPR" or (legendEnchantValue == 7 and "CRDI" or (legendEnchantValue == 8 and "BUR" or "STA"))))))))
                     end
-                elseif filter == "OG Cosmetic" and table.find(ogCosmeticItems, itemInfo.name) then
-                    itemLabel.TextColor3 = Color3.fromRGB(255, 0, 255) -- Розовый цвет для OG Cosmetic
-                    displayItem = true
+                -- Предположим, что itemInfo имеет свойство "Children", которое содержит дочерние объекты
+                elseif filter == "OG Cosmetic" and table.find(ogCosmeticItems, itemInfo.name) and #itemInfo.Children == 0 then
+                     itemLabel.TextColor3 = Color3.fromRGB(255, 0, 255) -- Розовый цвет для OG Cosmetic
+                     displayItem = true
                 end
             end
     
