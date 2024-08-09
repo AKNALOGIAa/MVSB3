@@ -1483,7 +1483,7 @@ local function createTradeCard(trade)
                 itemLabel.TextColor3 = Color3.new(1, 1, 1)
     
                 -- Получаем значение и количество предмета
-                local itemValue = item:FindFirstChild("Value") and item.Value or "-"
+                local itemValue = item.Value or "-"
                 local itemCount = item:FindFirstChild("Count") and item.Count.Value or 1
                 itemLabel.Text = tostring(itemValue) .. ":" .. tostring(itemCount)
     
