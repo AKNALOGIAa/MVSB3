@@ -1268,10 +1268,10 @@ local function createPlayerProfile(playerName, index)
                         displayText = displayText .. "/" .. (legendEnchantValue == 1 and "MVP" or (legendEnchantValue == 2 and "ATK" or (legendEnchantValue == 3 and "HPR" or (legendEnchantValue == 4 and "MHP" or (legendEnchantValue == 5 and "CRI" or (legendEnchantValue == 6 and "SPR" or (legendEnchantValue == 7 and "CRDI" or (legendEnchantValue == 8 and "BUR" or "STA"))))))))
                     end
                 -- Предположим, что itemInfo имеет свойство "Children", которое содержит дочерние объекты
-            elseif filter == "OG Cosmetic" and table.find(ogCosmeticItems, itemInfo.name) then
-                itemLabel.TextColor3 = Color3.fromRGB(255, 0, 255) -- Розовый цвет для OG Cosmetic
-                displayItem = true
-            end
+ elseif filter == "OG Cosmetic" and table.find(ogCosmeticItems, itemInfo.name) then
+                    itemLabel.TextColor3 = Color3.fromRGB(255, 0, 255) -- Розовый цвет для OG Cosmetic
+                    displayItem = true
+                end
             end
     
             -- Если предмет соответствует условиям, выводим его
@@ -1461,17 +1461,18 @@ local function createTradeCard(trade)
     local function updateItems()
         itemsFrame:ClearAllChildren()
     
+        -- Определяем позиции для каждой колонки
         local positions = {
-            UDim2.new(0, 0, 0, 0),
-            UDim2.new(0.33, 0, 0, 0),
-            UDim2.new(0.66, 0, 0, 0)
+            UDim2.new(0, 0, 0, 0),    -- Левая колонка
+            UDim2.new(0.33, 0, 0, 0), -- Центральная колонка
+            UDim2.new(0.66, 0, 0, 0)  -- Правая колонка
         }
     
+        -- Проходим по предметам и размещаем их в нужной колонке
         for i = 1, 10 do
             local itemName = "Item" .. i
             local item = trade:FindFirstChild(itemName)
-            if item and item:IsA("ObjectValue") and item.Value then
-                local actualItem = item.Value
+            if item then
                 local itemLabel = Instance.new("TextLabel")
                 itemLabel.Size = UDim2.new(0.33, 0, 0, 20)
                 itemLabel.Position = positions[math.ceil(i / 4)]
@@ -1481,27 +1482,29 @@ local function createTradeCard(trade)
                 itemLabel.TextSize = 16
                 itemLabel.TextColor3 = Color3.new(1, 1, 1)
     
-                local itemValue = actualItem:FindFirstChild("Value") and actualItem.Value.Value or "-"
-                local itemCount = actualItem:FindFirstChild("Count") and actualItem.Count.Value or 1
+                -- Получаем значение и количество предмета
+                local itemValue = item:FindFirstChild("Value") and item.Value.Value or "-"
+                local itemCount = item:FindFirstChild("Count") and item.Count.Value or 1
                 itemLabel.Text = tostring(itemValue) .. ":" .. tostring(itemCount)
     
+                -- Размещение в нужной строке и колонке
                 itemLabel.Position = UDim2.new(itemLabel.Position.X.Scale, itemLabel.Position.X.Offset, 0, ((i - 1) % 4) * 20)
                 itemLabel.Parent = itemsFrame
-    
-                if actualItem:FindFirstChild("Value") then
-                    actualItem.Value:GetPropertyChangedSignal("Value"):Connect(function()
-                        itemLabel.Text = tostring(actualItem.Value.Value) .. ":" .. tostring(itemCount)
+
+                -- Обработчики для обновления значений предметов
+                if item:FindFirstChild("Value") then
+                    item.Value:GetPropertyChangedSignal("Value"):Connect(function()
+                        itemLabel.Text = tostring(item.Value.Value) .. ":" .. tostring(itemCount)
                     end)
                 end
-                if actualItem:FindFirstChild("Count") then
-                    actualItem.Count:GetPropertyChangedSignal("Value"):Connect(function()
-                        itemLabel.Text = tostring(itemValue) .. ":" .. tostring(actualItem.Count.Value)
+                if item:FindFirstChild("Count") then
+                    item.Count:GetPropertyChangedSignal("Value"):Connect(function()
+                        itemLabel.Text = tostring(itemValue) .. ":" .. tostring(item.Count.Value)
                     end)
                 end
             end
         end
     end
-    
 
     -- Ожидание появления Vel и OtherPlayer и обновление значений
     local function updateVelAndOtherPlayer()
