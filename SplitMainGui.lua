@@ -285,13 +285,23 @@ end
 ----------- Функция для создания кнопки покупки----------
 -----------Получаем основную категорию для вещей---------
 local players = game:GetService("Players")
-local replicatedStorage = game:GetService("ReplicatedStorage")
 local workspaceDrops = game:GetService("Workspace").Drops
 local itemsSection = content:FindFirstChild("Items")
 
 local ogCosmeticColor = Color3.new(1, 0, 1) -- Розовый цвет для OG косметики
 
 local categories = {"Все", "Маунты", "Оружие и Броня", "OG Косметика"}
+
+
+
+local function findMountColor(mountName)
+    for color, mountList in pairs(MountsColor) do
+        if table.find(mountList, mountName) then
+            return color == "Orange" and Color3.new(1, 0.5, 0) or Color3.new(0.5, 0, 1)
+        end
+    end
+    return nil
+end
 
 if itemsSection then
     -- Создаем ScrollingFrame для возможности прокрутки
@@ -368,10 +378,9 @@ if itemsSection then
                     itemDisplay.BackgroundTransparency = 1
 
                     -- Проверяем цвет для маунтов
-                    for color, mountNames in pairs(MountsColor) do
-                        if table.find(mountNames, item.Name) then
-                            itemDisplay.BackgroundColor3 = color == "Orange" and Color3.new(1, 0.5, 0) or Color3.new(0.5, 0, 1)
-                        end
+                    local mountColor = findMountColor(item.Name)
+                    if mountColor then
+                        itemDisplay.BackgroundColor3 = mountColor
                     end
 
                     -- Проверяем OG косметику
@@ -407,7 +416,7 @@ if itemsSection then
                                 -- После телепортации отправляем нажатие клавиши "E"
                                 local VirtualInputManager = game:GetService('VirtualInputManager')
                                 VirtualInputManager:SendKeyEvent(true, "E", false, game)
-                                wait(0.1)
+                                wait(0.3) -- Добавляем задержку 0.3 секунды
 
                                 -- Возвращаем предмет на его исходное место
                                 part.Position = originalPosition
