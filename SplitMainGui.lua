@@ -1285,7 +1285,6 @@ local function createPlayerProfile(playerName, index)
                 itemLabel.TextYAlignment = Enum.TextYAlignment.Top
                 itemLabel.Parent = itemsListFrame
                 yOffset = yOffset + 30
-                print(displayText)
             end
         end
     
