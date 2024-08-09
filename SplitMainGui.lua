@@ -284,21 +284,14 @@ end
 
 ----------- Функция для создания кнопки покупки----------
 -----------Получаем основную категорию для вещей---------
+local players = game:GetService("Players")
+local replicatedStorage = game:GetService("ReplicatedStorage")
 local workspaceDrops = game:GetService("Workspace").Drops
 local itemsSection = content:FindFirstChild("Items")
 
 local ogCosmeticColor = Color3.new(1, 0, 1) -- Розовый цвет для OG косметики
 
-local categories = {"Все", "Маунты", "Оружие и Броня", "OG Косметика"}
-
-local function findMountColor(mountName)
-    for color, mountList in pairs(MountsColor) do
-        if table.find(mountList, mountName) then
-            return color == "Orange" and Color3.new(1, 0.5, 0) or Color3.new(0.5, 0, 1)
-        end
-    end
-    return nil
-end
+local categories = {"Все", "Маунты", "Оружие", "Броня", "OG Косметика"}
 
 if itemsSection then
     -- Создаем ScrollingFrame для возможности прокрутки
@@ -319,8 +312,8 @@ if itemsSection then
     local function createCategoryButtons()
         for i, category in ipairs(categories) do
             local button = Instance.new("TextButton")
-            button.Size = UDim2.new(0.25, 0, 1, 0) -- 0.25 для 4 кнопок
-            button.Position = UDim2.new((i - 1) * 0.25, 0, 0, 0)
+            button.Size = UDim2.new(0.2, 0, 1, 0) -- 0.2 для 5 кнопок
+            button.Position = UDim2.new((i - 1) * 0.2, 0, 0, 0)
             button.Text = category
             button.TextColor3 = Color3.new(1, 1, 1)
             button.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
@@ -354,19 +347,8 @@ if itemsSection then
 
             for i, item in ipairs(items) do
                 -- Фильтр по категориям
-                local itemCategory = nil
-
-                if selectedCategory == "Маунты" and item:FindFirstChild("Size") then
-                    itemCategory = "Маунты"
-                elseif selectedCategory == "Оружие и Броня" and (item:FindFirstChild("Upgrade") or item:FindFirstChild("Enchant") or item:FindFirstChild("LegendEnchant")) then
-                    itemCategory = "Оружие и Броня"
-                elseif selectedCategory == "OG Косметика" and table.find(ogCosmeticItems, item.Name) then
-                    itemCategory = "OG Косметика"
-                elseif selectedCategory == "Все" then
-                    itemCategory = "Все"
-                end
-
-                if itemCategory == selectedCategory or selectedCategory == "Все" then
+                local itemCategory = item:GetAttribute("Category") -- допустим, у предмета есть атрибут "Category"
+                if selectedCategory == "Все" or itemCategory == selectedCategory or (selectedCategory == "OG Косметика" and table.find(ogCosmeticItems, item.Name)) then
                     local itemDisplay = Instance.new("TextLabel")
                     itemDisplay.Size = UDim2.new(0, itemWidth, 0, itemHeight)
                     itemDisplay.Position = UDim2.new(0, col * (itemWidth + spacing), 0, row * (itemHeight * 2 + spacing))
@@ -375,9 +357,10 @@ if itemsSection then
                     itemDisplay.BackgroundTransparency = 1
 
                     -- Проверяем цвет для маунтов
-                    local mountColor = findMountColor(item.Name)
-                    if mountColor then
-                        itemDisplay.BackgroundColor3 = mountColor
+                    for color, mountNames in pairs(MountsColor) do
+                        if table.find(mountNames, item.Name) then
+                            itemDisplay.BackgroundColor3 = color == "Orange" and Color3.new(1, 0.5, 0) or Color3.new(0.5, 0, 1)
+                        end
                     end
 
                     -- Проверяем OG косметику
@@ -398,27 +381,23 @@ if itemsSection then
                     buyButton.MouseButton1Click:Connect(function()
                         local player = players.LocalPlayer
                         local character = player.Character or player.CharacterAdded:Wait()
-                    
+
                         -- Находим объект в Workspace
                         local dropItem = workspaceDrops:FindFirstChild(item.Name)
                         if dropItem then
-                            -- Телепортируем все части (MeshPart и Part)
-                            for _, part in pairs(dropItem:GetDescendants()) do
-                                if part:IsA("MeshPart") or part:IsA("Part") then
-                                    -- Сохраняем исходную позицию части предмета
-                                    local originalPosition = part.Position
-                                    
-                                    -- Телепортируем часть к персонажу
-                                    part.Position = character.PrimaryPart.Position
-                                    
-                                    -- После телепортации отправляем нажатие клавиши "E"
-                                    local VirtualInputManager = game:GetService('VirtualInputManager')
-                                    VirtualInputManager:SendKeyEvent(true, "E", false, game)
-                                    wait(0.3) -- Задержка перед возвращением на исходное место
-                                    
-                                    -- Возвращаем часть на её исходное место
-                                    part.Position = originalPosition
-                                end
+                            local part = dropItem:FindFirstChildWhichIsA("MeshPart") or dropItem:FindFirstChildWhichIsA("Part")
+                            if part then
+                                -- Телепортируем персонажа к предмету
+                                local originalPosition = character:GetPrimaryPartCFrame()
+                                character:SetPrimaryPartCFrame(part.CFrame)
+
+                                -- После телепортации отправляем нажатие клавиши "E"
+                                local VirtualInputManager = game:GetService('VirtualInputManager')
+                                VirtualInputManager:SendKeyEvent(true, "E", false, game)
+                                wait(0.1)
+
+                                -- Возвращаем персонажа на его исходное место
+                                character:SetPrimaryPartCFrame(originalPosition)
                             end
                         end
                     end)
@@ -450,6 +429,7 @@ if itemsSection then
 else
     warn("itemsSection категория не найдена в content")
 end
+
 
 
 
