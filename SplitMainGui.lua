@@ -1182,6 +1182,29 @@ local function createPlayerProfile(playerName, index)
             table.insert(itemList, {name = name, count = count})
         end
     
+        -- Функция для получения цвета и приоритета Маунтов
+        local function getMountColor(itemName)
+            for color, mounts in pairs(MountsColor) do
+                for _, mount in ipairs(mounts) do
+                    if itemName == mount then
+                        local colorValue = Color3.fromRGB(255, 255, 255) -- По умолчанию белый цвет
+                        local priority = MountsPriority.Default
+                        
+                        if color == "Orange" then
+                            colorValue = Color3.fromRGB(255, 165, 0) -- Оранжевый
+                            priority = MountsPriority.Orange
+                        elseif color == "Purple" then
+                            colorValue = Color3.fromRGB(128, 0, 128) -- Фиолетовый
+                            priority = MountsPriority.Purple
+                        end
+    
+                        return colorValue, priority
+                    end
+                end
+            end
+            return Color3.fromRGB(255, 255, 255), MountsPriority.Default -- По умолчанию белый цвет и приоритет
+        end
+    
         -- Сортировка предметов
         table.sort(itemList, function(a, b)
             if filter == "Aura" then
@@ -1269,6 +1292,7 @@ local function createPlayerProfile(playerName, index)
         itemsListFrame.Size = UDim2.new(1, 0, 0, yOffset)
         inventoryScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, yOffset)
     end
+    
     
 
     allButton.MouseButton1Click:Connect(function() updateInventoryItems("All") end)
