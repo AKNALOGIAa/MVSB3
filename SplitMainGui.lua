@@ -289,12 +289,6 @@ local replicatedStorage = game:GetService("ReplicatedStorage")
 local workspaceDrops = game:GetService("Workspace").Drops
 local itemsSection = content:FindFirstChild("Items")
 
-local MountsColor = {
-    Orange = {"VoidErebusMount", "VoidGaliardMount", "DarkUnicornMount", "DarkCrab", "ShadowCrab"},
-    Purple = {"ErebusMount", "GaliardMount", "IcewhalMount", "OwlMount", "SandTerrorMount", "SeaSerpentMount"}
-}
-
-local ogCosmeticItems = {"NecromancerCloak", "ShadowTuxedo", "VoidArmor", "FlamingGarment", "CyberEnforcer", "GoldenKimono"}
 local ogCosmeticColor = Color3.new(1, 0, 1) -- Розовый цвет для OG косметики
 
 local categories = {"Все", "Маунты", "Оружие и Броня", "OG Косметика"}
