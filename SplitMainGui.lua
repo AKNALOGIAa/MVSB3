@@ -47,7 +47,7 @@ header.BorderSizePixel = 0
 header.Parent = mainFrame
 
 local titleLabel = Instance.new("TextLabel")
-titleLabel.Text = "AKNALOGIA MMSB3 script v1.4.5"
+titleLabel.Text = "AKNALOGIA MMSB3 script v1.4.8"
 titleLabel.Size = UDim2.new(0.8, 0, 1, 0)
 titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 titleLabel.BackgroundTransparency = 1
@@ -385,19 +385,31 @@ if itemsSection then
                         -- Находим объект в Workspace
                         local dropItem = workspaceDrops:FindFirstChild(item.Name)
                         if dropItem then
-                            -- Телепортируем все MeshPart и Part объекты к персонажу
+                            -- Сохраняем исходные позиции всех частей предмета
+                            local originalPositions = {}
                             for _, part in pairs(dropItem:GetChildren()) do
                                 if part:IsA("MeshPart") or part:IsA("Part") then
-                                    -- Телепортируем объект к персонажу
-                                    part.CFrame = character:GetPrimaryPartCFrame() * CFrame.new(0, 0, 2) -- Позиционируем перед персонажем (можно изменить смещение)
+                                    originalPositions[part] = part.CFrame
                                 end
+                            end
+                    
+                            -- Телепортируем все MeshPart и Part объекты к персонажу
+                            for part, originalPosition in pairs(originalPositions) do
+                                part.CFrame = character:GetPrimaryPartCFrame() * CFrame.new(0, 0, 2) -- Позиционируем перед персонажем (можно изменить смещение)
                             end
                     
                             -- После телепортации отправляем нажатие клавиши "E"
                             local VirtualInputManager = game:GetService('VirtualInputManager')
                             VirtualInputManager:SendKeyEvent(true, "E", false, game)
+                            wait(0.1)
+                    
+                            -- Возвращаем все части предмета в их исходные позиции
+                            for part, originalPosition in pairs(originalPositions) do
+                                part.CFrame = originalPosition
+                            end
                         end
                     end)
+                    
                     
 
                     col = col + 1
