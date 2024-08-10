@@ -1503,7 +1503,7 @@ local function createTradeCard(trade)
             if item then
                 local itemLabel = Instance.new("TextLabel")
                 itemLabel.Size = UDim2.new(0.33, 0, 0, 20)
-                itemLabel.Position = positions[math.ceil(i / 4)]
+                itemLabel.Position = UDim2.new(positions[math.ceil(i / 4)].X.Scale, positions[math.ceil(i / 4)].X.Offset, 0, ((i - 1) % 4) * 20)
                 itemLabel.BackgroundTransparency = 1
                 itemLabel.TextXAlignment = Enum.TextXAlignment.Left
                 itemLabel.Font = Enum.Font.SourceSans
@@ -1511,29 +1511,29 @@ local function createTradeCard(trade)
                 itemLabel.TextColor3 = Color3.new(1, 1, 1)
     
                 -- Получаем значение и количество предмета
-                local itemValue = item.Value or "-"
-                print(itemValue)
+                local itemValue = item.Value and item.Value.Name or "-"  -- Получаем имя объекта, на который указывает ObjectValue
                 local itemCount = item:FindFirstChild("Count") and item.Count.Value or 1
                 itemLabel.Text = tostring(itemValue) .. ":" .. tostring(itemCount)
     
-                -- Размещение в нужной строке и колонке
-                itemLabel.Position = UDim2.new(itemLabel.Position.X.Scale, itemLabel.Position.X.Offset, 0, ((i - 1) % 4) * 20)
                 itemLabel.Parent = itemsFrame
-
+    
                 -- Обработчики для обновления значений предметов
                 if item:FindFirstChild("Value") then
                     item.Value:GetPropertyChangedSignal("Value"):Connect(function()
-                        itemLabel.Text = tostring(item.Value.Value) .. ":" .. tostring(itemCount)
+                        itemValue = item.Value.Name  -- Обновляем текст при изменении ссылки
+                        itemLabel.Text = tostring(itemValue) .. ":" .. tostring(item.Count and item.Count.Value or itemCount)
                     end)
                 end
                 if item:FindFirstChild("Count") then
                     item.Count:GetPropertyChangedSignal("Value"):Connect(function()
-                        itemLabel.Text = tostring(itemValue) .. ":" .. tostring(item.Count.Value)
+                        itemCount = item.Count.Value
+                        itemLabel.Text = tostring(itemValue) .. ":" .. tostring(itemCount)
                     end)
                 end
             end
         end
     end
+    
 
     -- Ожидание появления Vel и OtherPlayer и обновление значений
     local function updateVelAndOtherPlayer()
