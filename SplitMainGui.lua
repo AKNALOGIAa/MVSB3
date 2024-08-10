@@ -60,7 +60,7 @@ titleLabel.Parent = header
 ------------- Кнопка свернуть/развернуть--------------
 local minimizeButton = Instance.new("TextButton")
 minimizeButton.Size = UDim2.new(0.1, 0, 0.5, 0)
-minimizeButton.Position = UDim2.new(0.9, -10, 0.25, 0)
+minimizeButton.Position = UDim2.new(0.9, -8, 0.25, 0)
 minimizeButton.Text = "-"
 minimizeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 minimizeButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
@@ -68,6 +68,17 @@ minimizeButton.BorderSizePixel = 0
 minimizeButton.Font = Enum.Font.SourceSansBold
 minimizeButton.TextSize = 24
 minimizeButton.Parent = header
+
+local CloseButton = Instance.new("TextButton")
+CloseButton.Size = UDim2.new(0.1, 0, 0.5, 0)
+CloseButton.Position = UDim2.new(0.9, -10, 0.25, 0)
+CloseButton.Text = "x"
+CloseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+CloseButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+CloseButton.BorderSizePixel = 0
+CloseButton.Font = Enum.Font.SourceSansBold
+CloseButton.TextSize = 24
+CloseButton.Parent = header
 
 local restoreButton = Instance.new("TextButton")
 restoreButton.Size = UDim2.new(0.1, 0, 0.1, 0)
