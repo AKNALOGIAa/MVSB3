@@ -1534,7 +1534,19 @@ local function createTradeCard(trade)
         end
     end
     
-
+    -- Следим за изменением значений внутри трейдов
+    for _, item in pairs(trade:GetChildren()) do
+        if item:IsA("ObjectValue") then
+            item:GetPropertyChangedSignal("Value"):Connect(function()
+                updateItems() -- обновляем предметы при изменении значения
+            end)
+        elseif item:FindFirstChild("Count") then
+            item.Count:GetPropertyChangedSignal("Value"):Connect(function()
+                updateItems() -- обновляем предметы при изменении количества
+            end)
+        end
+    end
+    
     -- Ожидание появления Vel и OtherPlayer и обновление значений
     local function updateVelAndOtherPlayer()
         -- Проверка на существование и изменение Vel
@@ -1557,7 +1569,7 @@ local function createTradeCard(trade)
             otherPlayerLabel.Text = "-"  -- если OtherPlayer отсутствует
         end
     end
-
+    
     -- Если значения Vel и OtherPlayer существуют, сразу обновляем их, иначе ждем появления
     if trade:FindFirstChild("Vel") and trade:FindFirstChild("OtherPlayer") then
         updateVelAndOtherPlayer()
@@ -1568,63 +1580,64 @@ local function createTradeCard(trade)
             end
         end)
     end
-
+    
     -- Динамическое обновление предметов
     updateItems()
     trade.ChildAdded:Connect(updateItems)
     trade.ChildRemoved:Connect(updateItems)
-
+    
+    -- Теперь добавляем код для обновления списка трейдов
+    
+    local function refreshTradeList()
+        -- Очистка списка перед обновлением
+        profileList:ClearAllChildren()
+        yPosition = 0
+    
+        local tradeItems = tradesFolder:GetChildren()
+        for _, trade in pairs(tradeItems) do
+            local tradeCard = createTradeCard(trade)
+            tradeCard.Position = UDim2.new(0, 0, 0, yPosition)
+            yPosition = yPosition + itemHeight
+        end
+    
+        -- Обновляем CanvasSize в зависимости от количества элементов
+        profileList.CanvasSize = UDim2.new(0, 0, 0, yPosition)
+    end
+    
+    -- Первоначальное создание списка
+    refreshTradeList()
+    
+    -- Динамическое обновление списка при изменении трейдов
+    tradesFolder.ChildAdded:Connect(function()
+        refreshTradeList()
+    end)
+    
+    tradesFolder.ChildRemoved:Connect(function()
+        refreshTradeList()
+    end)
+    
+    -- Основной цикл
+    local function update()
+        local currentTime = tick()
+        
+        -- Обработка трейдов каждые 2 секунды
+        if currentTime - lastTradeProcessTime >= tradeInterval then
+            -- processTrade()
+            lastTradeProcessTime = currentTime
+        end
+        
+        -- Обновление данных каждые 15 секунд
+        if currentTime - lastUpdateProfilesTime >= updateInterval then
+            -- updatePlayerProfiles()
+            -- updateTrades()
+            lastUpdateProfilesTime = currentTime
+        end
+    end
+    
+    -- Используем Heartbeat для запуска функции обновления
+    RunService.Heartbeat:Connect(update)
+    
     return tradeFrame
-end
-
-local function refreshTradeList()
-    -- Очистка списка перед обновлением
-    profileList:ClearAllChildren()
-    yPosition = 0
-
-    local tradeItems = tradesFolder:GetChildren()
-    for _, trade in pairs(tradeItems) do
-        local tradeCard = createTradeCard(trade)
-        tradeCard.Position = UDim2.new(0, 0, 0, yPosition)
-        yPosition = yPosition + itemHeight
-    end
-
-    -- Обновляем CanvasSize в зависимости от количества элементов
-    profileList.CanvasSize = UDim2.new(0, 0, 0, yPosition)
-end
-
--- Первоначальное создание списка
-refreshTradeList()
-
--- Динамическое обновление списка при изменении трейдов
-tradesFolder.ChildAdded:Connect(function()
-    refreshTradeList()
-end)
-
-tradesFolder.ChildRemoved:Connect(function()
-    refreshTradeList()
-end)
-
--- Основной цикл
-local function update()
-    local currentTime = tick()
-    
-    -- Обработка трейдов каждые 2 секунды
-    if currentTime - lastTradeProcessTime >= tradeInterval then
-      --  processTrade()
-        lastTradeProcessTime = currentTime
-    end
-    
-    -- Обновление данных каждые 15 секунд
-    if currentTime - lastUpdateProfilesTime >= updateInterval then
-      --  updatePlayerProfiles()
-     --   updateTrades()
-        lastUpdateProfilesTime = currentTime
-    end
-end
--- Используем Heartbeat для запуска функции обновления
-RunService.Heartbeat:Connect(update)
-
 
 
 ------------------------------------------anti afk kick
