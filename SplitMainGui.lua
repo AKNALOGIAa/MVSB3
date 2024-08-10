@@ -81,9 +81,6 @@ CloseButton.TextSize = 24
 CloseButton.Parent = header
 -- Назначаем функцию для кнопки "Закрыть"
 CloseButton.MouseButton1Click:Connect(function()
-    local player = game.Players.LocalPlayer
-    local playerGui = player:WaitForChild("PlayerGui")
-    
     if playerGui:FindFirstChild("CustomUI") then
         playerGui.CustomUI:Destroy()
     end
