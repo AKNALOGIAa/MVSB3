@@ -835,7 +835,7 @@ local tradeCoroutine -- Переменная для хранения корут�
 -- Функция для автоматического принятия и обработки трейдов
 local function autoAcceptAndProcessTrades()
     while autoTradeEnabled do
-        wait(5) -- Ждать 5 секунду
+        wait(5) -- Ждать 5 секунд
         print("testTrade")
 
         local players = game:GetService("Players")
@@ -855,27 +855,37 @@ local function autoAcceptAndProcessTrades()
                     local readyValue = tradeInstance:FindFirstChild("Ready")
                     
                     -- Пытаемся заблокировать трейд
-                    while lockValue and not lockValue.Value do
-                        success, err = pcall(function()
-                            tradingSystem.LockTrade:FireServer(true)
-                        end)
-                        wait(0.3)
+                    if lockValue then
+                        repeat
+                            success, err = pcall(function()
+                                tradingSystem.LockTrade:FireServer(true)
+                            end)
+                            wait(0.3)
+                        until lockValue.Value or not autoTradeEnabled
                     end
 
                     -- Пытаемся подтвердить готовность трейда
-                    while readyValue and not readyValue.Value do
-                        success, err = pcall(function()
-                            tradingSystem.ReadyTrade:FireServer(true)
-                        end)
-                        wait(0.3)
+                    if readyValue then
+                        repeat
+                            success, err = pcall(function()
+                                tradingSystem.ReadyTrade:FireServer(true)
+                            end)
+                            wait(0.3)
+                        until readyValue.Value or not autoTradeEnabled
                     end
                 end
             else
                 warn("Ошибка при принятии трейда от игрока " .. player.Name .. ": " .. tostring(err))
             end
+
+            -- Прерывание цикла, если трейды были отключены
+            if not autoTradeEnabled then
+                break
+            end
         end
     end
 end
+
 
 -- Обработчик нажатия на кнопку
 ToggleButton.MouseButton1Click:Connect(function()
