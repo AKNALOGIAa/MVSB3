@@ -1585,59 +1585,56 @@ local function createTradeCard(trade)
     updateItems()
     trade.ChildAdded:Connect(updateItems)
     trade.ChildRemoved:Connect(updateItems)
-    
-    -- Теперь добавляем код для обновления списка трейдов
-    
-    local function refreshTradeList()
-        -- Очистка списка перед обновлением
-        profileList:ClearAllChildren()
-        yPosition = 0
-    
-        local tradeItems = tradesFolder:GetChildren()
-        for _, trade in pairs(tradeItems) do
-            local tradeCard = createTradeCard(trade)
-            tradeCard.Position = UDim2.new(0, 0, 0, yPosition)
-            yPosition = yPosition + itemHeight
-        end
-    
-        -- Обновляем CanvasSize в зависимости от количества элементов
-        profileList.CanvasSize = UDim2.new(0, 0, 0, yPosition)
+end
+
+-- Функция для обновления списка трейдов
+local function refreshTradeList()
+    -- Очистка списка перед обновлением
+    profileList:ClearAllChildren()
+    yPosition = 0
+
+    local tradeItems = tradesFolder:GetChildren()
+    for _, trade in pairs(tradeItems) do
+        createTradeCard(trade)
+        yPosition = yPosition + itemHeight
     end
-    
-    -- Первоначальное создание списка
+
+    -- Обновляем CanvasSize в зависимости от количества элементов
+    profileList.CanvasSize = UDim2.new(0, 0, 0, yPosition)
+end
+
+-- Первоначальное создание списка
+refreshTradeList()
+
+-- Динамическое обновление списка при изменении трейдов
+tradesFolder.ChildAdded:Connect(function()
     refreshTradeList()
+end)
+
+tradesFolder.ChildRemoved:Connect(function()
+    refreshTradeList()
+end)
+
+-- Основной цикл
+local function update()
+    local currentTime = tick()
     
-    -- Динамическое обновление списка при изменении трейдов
-    tradesFolder.ChildAdded:Connect(function()
-        refreshTradeList()
-    end)
-    
-    tradesFolder.ChildRemoved:Connect(function()
-        refreshTradeList()
-    end)
-    
-    -- Основной цикл
-    local function update()
-        local currentTime = tick()
-        
-        -- Обработка трейдов каждые 2 секунды
-        if currentTime - lastTradeProcessTime >= tradeInterval then
-            -- processTrade()
-            lastTradeProcessTime = currentTime
-        end
-        
-        -- Обновление данных каждые 15 секунд
-        if currentTime - lastUpdateProfilesTime >= updateInterval then
-            -- updatePlayerProfiles()
-            -- updateTrades()
-            lastUpdateProfilesTime = currentTime
-        end
+    -- Обработка трейдов каждые 2 секунды
+    if currentTime - lastTradeProcessTime >= tradeInterval then
+        -- processTrade()
+        lastTradeProcessTime = currentTime
     end
     
-    -- Используем Heartbeat для запуска функции обновления
-    RunService.Heartbeat:Connect(update)
-    
-    return tradeFrame
+    -- Обновление данных каждые 15 секунд
+    if currentTime - lastUpdateProfilesTime >= updateInterval then
+        -- updatePlayerProfiles()
+        -- updateTrades()
+        lastUpdateProfilesTime = currentTime
+    end
+end
+
+-- Используем Heartbeat для запуска функции обновления
+RunService.Heartbeat:Connect(update)
 
 
 ------------------------------------------anti afk kick
