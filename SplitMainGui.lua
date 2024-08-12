@@ -853,7 +853,7 @@ local tradeCoroutine -- Переменная для хранения корут�
 -- Функция для автоматического принятия и обработки трейдов
 local function autoAcceptAndProcessTrades()
     while autoTradeEnabled do
-        wait(5) -- Ждать 5 секунд
+        wait(3) -- Ждать 3 секунд
         print("testTrade")
 
         local players = game:GetService("Players")
