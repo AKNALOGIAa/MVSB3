@@ -1486,88 +1486,101 @@ local function createTradeCard(trade)
     itemsFrame.BackgroundTransparency = 1
     itemsFrame.Parent = tradeFrame
 
+    local lastItemsState = {}
+
     local function updateItems()
+        local currentItemsState = {}
+
+        -- Собираем текущее состояние предметов
+        for i = 1, 10 do
+            local itemName = "Item" .. i
+            local item = trade:FindFirstChild(itemName)
+            if item then
+                local itemValue = item.Value and item.Value.Name or "-"
+                local itemCount = item:FindFirstChild("Count") and item.Count.Value or 1
+                table.insert(currentItemsState, { Name = itemValue, Count = itemCount })
+            end
+        end
+
+        -- Проверяем, изменилось ли состояние предметов
+        local hasChanged = #lastItemsState ~= #currentItemsState
+        if not hasChanged then
+            for i = 1, #lastItemsState do
+                if lastItemsState[i].Name ~= currentItemsState[i].Name or
+                   lastItemsState[i].Count ~= currentItemsState[i].Count then
+                    hasChanged = true
+                    break
+                end
+            end
+        end
+
+        -- Если состояние не изменилось, выходим
+        if not hasChanged then
+            return
+        end
+
+        -- Обновляем сохраненное состояние
+        lastItemsState = currentItemsState
+
+        -- Очищаем и перезаполняем itemsFrame
         itemsFrame:ClearAllChildren()
-    
-        -- Определяем позиции для каждой колонки
+
         local positions = {
             UDim2.new(0, 0, 0, 0),    -- Левая колонка
             UDim2.new(0.33, 0, 0, 0), -- Центральная колонка
             UDim2.new(0.66, 0, 0, 0)  -- Правая колонка
         }
-    
-        -- Проходим по предметам и размещаем их в нужной колонке
-        for i = 1, 10 do
-            local itemName = "Item" .. i
-            local item = trade:FindFirstChild(itemName)
-            if item then
-                local itemLabel = Instance.new("TextLabel")
-                itemLabel.Size = UDim2.new(0.33, 0, 0, 20)
-                itemLabel.Position = UDim2.new(positions[math.ceil(i / 4)].X.Scale, positions[math.ceil(i / 4)].X.Offset, 0, ((i - 1) % 4) * 20)
-                itemLabel.BackgroundTransparency = 1
-                itemLabel.TextXAlignment = Enum.TextXAlignment.Left
-                itemLabel.Font = Enum.Font.SourceSans
-                itemLabel.TextSize = 16
-                itemLabel.TextColor3 = Color3.new(1, 1, 1)
-    
-                -- Получаем значение и количество предмета
-                local itemValue = item.Value and item.Value.Name or "-"  -- Получаем имя объекта, на который указывает ObjectValue
-                local itemCount = item:FindFirstChild("Count") and item.Count.Value or 1
-                itemLabel.Text = tostring(itemValue) .. ":" .. tostring(itemCount)
-    
-                itemLabel.Parent = itemsFrame
-    
-                -- Обработчики для обновления значений предметов
-                if item:FindFirstChild("Value") then
-                    item.Value:GetPropertyChangedSignal("Value"):Connect(function()
-                        itemValue = item.Value.Name  -- Обновляем текст при изменении ссылки
-                        itemLabel.Text = tostring(itemValue) .. ":" .. tostring(item.Count and item.Count.Value or itemCount)
-                    end)
-                end
-                if item:FindFirstChild("Count") then
-                    item.Count:GetPropertyChangedSignal("Value"):Connect(function()
-                        itemCount = item.Count.Value
-                        itemLabel.Text = tostring(itemValue) .. ":" .. tostring(itemCount)
-                    end)
-                end
-            end
+
+        for i = 1, #currentItemsState do
+            local itemData = currentItemsState[i]
+
+            local itemLabel = Instance.new("TextLabel")
+            itemLabel.Size = UDim2.new(0.33, 0, 0, 20)
+            itemLabel.Position = UDim2.new(positions[math.ceil(i / 4)].X.Scale, positions[math.ceil(i / 4)].X.Offset, 0, ((i - 1) % 4) * 20)
+            itemLabel.BackgroundTransparency = 1
+            itemLabel.TextXAlignment = Enum.TextXAlignment.Left
+            itemLabel.Font = Enum.Font.SourceSans
+            itemLabel.TextSize = 16
+            itemLabel.TextColor3 = Color3.new(1, 1, 1)
+            itemLabel.Text = tostring(itemData.Name) .. ":" .. tostring(itemData.Count)
+
+            itemLabel.Parent = itemsFrame
         end
     end
-    
 
     -- Ожидание появления Vel и OtherPlayer и обновление значений
-local function updateVelAndOtherPlayer()
-    -- Проверка на существование и изменение Vel
-    if trade:FindFirstChild("Vel") then
-        velLabel.Text = tostring(trade.Vel.Value)
-        trade.Vel:GetPropertyChangedSignal("Value"):Connect(function()
+    local function updateVelAndOtherPlayer()
+        -- Проверка на существование и изменение Vel
+        if trade:FindFirstChild("Vel") then
             velLabel.Text = tostring(trade.Vel.Value)
-        end)
-    else
-        velLabel.Text = "-"  -- если Vel отсутствует
-    end
-    
-    -- Проверка на существование и изменение OtherPlayer
-    if trade:FindFirstChild("OtherPlayer") then
-        otherPlayerLabel.Text = tostring(trade.OtherPlayer.Value)
-        trade.OtherPlayer:GetPropertyChangedSignal("Value"):Connect(function()
-            otherPlayerLabel.Text = tostring(trade.OtherPlayer.Value)
-        end)
-    else
-        otherPlayerLabel.Text = "-"  -- если OtherPlayer отсутствует
-    end
-end
-
--- Если значения Vel и OtherPlayer существуют, сразу обновляем их, иначе ждем появления
-if trade:FindFirstChild("Vel") and trade:FindFirstChild("OtherPlayer") then
-    updateVelAndOtherPlayer()
-else
-    trade.ChildAdded:Connect(function(child)
-        if child.Name == "Vel" or child.Name == "OtherPlayer" then
-            updateVelAndOtherPlayer()
+            trade.Vel:GetPropertyChangedSignal("Value"):Connect(function()
+                velLabel.Text = tostring(trade.Vel.Value)
+            end)
+        else
+            velLabel.Text = "-"  -- если Vel отсутствует
         end
-    end)
-end
+
+        -- Проверка на существование и изменение OtherPlayer
+        if trade:FindFirstChild("OtherPlayer") then
+            otherPlayerLabel.Text = tostring(trade.OtherPlayer.Value)
+            trade.OtherPlayer:GetPropertyChangedSignal("Value"):Connect(function()
+                otherPlayerLabel.Text = tostring(trade.OtherPlayer.Value)
+            end)
+        else
+            otherPlayerLabel.Text = "-"  -- если OtherPlayer отсутствует
+        end
+    end
+
+    -- Если значения Vel и OtherPlayer существуют, сразу обновляем их, иначе ждем появления
+    if trade:FindFirstChild("Vel") and trade:FindFirstChild("OtherPlayer") then
+        updateVelAndOtherPlayer()
+    else
+        trade.ChildAdded:Connect(function(child)
+            if child.Name == "Vel" or child.Name == "OtherPlayer" then
+                updateVelAndOtherPlayer()
+            end
+        end)
+    end
 
     -- Динамическое обновление предметов
     updateItems()
@@ -1576,7 +1589,6 @@ end
 
     return tradeFrame
 end
-
 
 
 local function refreshTradeList()
@@ -1606,6 +1618,7 @@ end)
 tradesFolder.ChildRemoved:Connect(function()
     refreshTradeList()
 end)
+
     
 -- Основной цикл
 local function update()
