@@ -37,6 +37,7 @@ mainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 mainFrame.BackgroundTransparency = 0.2
 mainFrame.BorderSizePixel = 0
 mainFrame.Parent = screenGui
+mainFrame.ZIndex = 1
 
 -- Заголовок окна
 local header = Instance.new("Frame")
