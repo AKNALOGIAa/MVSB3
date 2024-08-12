@@ -1515,7 +1515,7 @@ local function createTradeCard(trade)
                 itemLabel.Parent = itemsFrame
 
                 -- Обновление текста при изменении значений
-                if item:FindFirstChild("Value") then
+                if item.Value("Value") then
                     item.Value:GetPropertyChangedSignal("Value"):Connect(function()
                         itemLabel.Text = tostring(item.Value.Name) .. ":" .. tostring(itemCount)
                     end)
