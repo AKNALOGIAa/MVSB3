@@ -1519,7 +1519,7 @@ local function createTradeCard(trade)
                 itemLabel.Parent = itemsFrame
     
                 -- Обработчики для обновления значений предметов
-                if item:FindFirstChild("Value") then
+                if item.Value then
                     item.Value:GetPropertyChangedSignal("Value"):Connect(function()
                         itemValue = item.Value.Name  -- Обновляем текст при изменении ссылки
                         itemLabel.Text = tostring(itemValue) .. ":" .. tostring(item.Count and item.Count.Value or itemCount)
