@@ -853,7 +853,7 @@ local tradeCoroutine -- Переменная для хранения корут�
 -- Функция для автоматического принятия и обработки трейдов
 local function autoAcceptAndProcessTrades()
     while autoTradeEnabled do
-        wait(3) -- Ждать 3 секунд
+        wait(5) -- Ждать 5 секунд
         print("testTrade")
 
         local players = game:GetService("Players")
@@ -1534,92 +1534,78 @@ local function createTradeCard(trade)
         end
     end
     
+
     -- Ожидание появления Vel и OtherPlayer и обновление значений
-    local function updateVelAndOtherPlayer()
-        -- Проверка на существование и изменение Vel
-        if trade:FindFirstChild("Vel") then
+local function updateVelAndOtherPlayer()
+    -- Проверка на существование и изменение Vel
+    if trade:FindFirstChild("Vel") then
+        velLabel.Text = tostring(trade.Vel.Value)
+        trade.Vel:GetPropertyChangedSignal("Value"):Connect(function()
             velLabel.Text = tostring(trade.Vel.Value)
-            trade.Vel:GetPropertyChangedSignal("Value"):Connect(function()
-                velLabel.Text = tostring(trade.Vel.Value)
-            end)
-        else
-            velLabel.Text = "-"  -- если Vel отсутствует
-        end
-    
-        -- Проверка на существование и изменение OtherPlayer
-        if trade:FindFirstChild("OtherPlayer") then
-            otherPlayerLabel.Text = tostring(trade.OtherPlayer.Value)
-            trade.OtherPlayer:GetPropertyChangedSignal("Value"):Connect(function()
-                otherPlayerLabel.Text = tostring(trade.OtherPlayer.Value)
-            end)
-        else
-            otherPlayerLabel.Text = "-"  -- если OtherPlayer отсутствует
-        end
-    end
-    
-    -- Если значения Vel и OtherPlayer существуют, сразу обновляем их, иначе ждем появления
-    if trade:FindFirstChild("Vel") and trade:FindFirstChild("OtherPlayer") then
-        updateVelAndOtherPlayer()
-    else
-        trade.ChildAdded:Connect(function(child)
-            if child.Name == "Vel" or child.Name == "OtherPlayer" then
-                updateVelAndOtherPlayer()
-            end
         end)
+    else
+        velLabel.Text = "-"  -- если Vel отсутствует
     end
     
+    -- Проверка на существование и изменение OtherPlayer
+    if trade:FindFirstChild("OtherPlayer") then
+        otherPlayerLabel.Text = tostring(trade.OtherPlayer.Value)
+        trade.OtherPlayer:GetPropertyChangedSignal("Value"):Connect(function()
+            otherPlayerLabel.Text = tostring(trade.OtherPlayer.Value)
+        end)
+    else
+        otherPlayerLabel.Text = "-"  -- если OtherPlayer отсутствует
+    end
+end
+
+-- Если значения Vel и OtherPlayer существуют, сразу обновляем их, иначе ждем появления
+if trade:FindFirstChild("Vel") and trade:FindFirstChild("OtherPlayer") then
+    updateVelAndOtherPlayer()
+else
+    trade.ChildAdded:Connect(function(child)
+        if child.Name == "Vel" or child.Name == "OtherPlayer" then
+            updateVelAndOtherPlayer()
+        end
+    end)
+end
+
     -- Динамическое обновление предметов
     updateItems()
     trade.ChildAdded:Connect(updateItems)
     trade.ChildRemoved:Connect(updateItems)
-    
+
     return tradeFrame
 end
-    -- Обработчики для изменения значений в предметах
-    for i = 1, 10 do
-        local itemName = "Item" .. i
-        local item = trade:FindFirstChild(itemName)
-        if item then
-            if item:FindFirstChild("Value") then
-                item.Value:GetPropertyChangedSignal("Value"):Connect(function()
-                    updateItems()
-                end)
-            end
-            if item:FindFirstChild("Count") then
-                item.Count:GetPropertyChangedSignal("Value"):Connect(function()
-                    updateItems()
-                end)
-            end
-        end
+
+
+
+local function refreshTradeList()
+    -- Очистка списка перед обновлением
+    profileList:ClearAllChildren()
+    yPosition = 0
+
+    local tradeItems = tradesFolder:GetChildren()
+    for _, trade in pairs(tradeItems) do
+        local tradeCard = createTradeCard(trade)
+        tradeCard.Position = UDim2.new(0, 0, 0, yPosition)
+        yPosition = yPosition + itemHeight
     end
-    
-    local function refreshTradeList()
-        -- Очистка списка перед обновлением
-        profileList:ClearAllChildren()
-        local yPosition = 0
-    
-        local tradeItems = tradesFolder:GetChildren()
-        for _, trade in pairs(tradeItems) do
-            local tradeCard = createTradeCard(trade)
-            tradeCard.Position = UDim2.new(0, 0, 0, yPosition)
-            yPosition = yPosition + itemHeight
-        end
-    
-        -- Обновляем CanvasSize в зависимости от количества элементов
-        profileList.CanvasSize = UDim2.new(0, 0, 0, yPosition)
-    end
-    
-    -- Первоначальное создание списка
+
+    -- Обновляем CanvasSize в зависимости от количества элементов
+    profileList.CanvasSize = UDim2.new(0, 0, 0, yPosition)
+end
+
+-- Первоначальное создание списка
+refreshTradeList()
+
+-- Динамическое обновление списка при изменении трейдов
+tradesFolder.ChildAdded:Connect(function()
     refreshTradeList()
-    
-    -- Динамическое обновление списка при изменении трейдов
-    tradesFolder.ChildAdded:Connect(function()
-        refreshTradeList()
-    end)
-    
-    tradesFolder.ChildRemoved:Connect(function()
-        refreshTradeList()
-    end)
+end)
+
+tradesFolder.ChildRemoved:Connect(function()
+    refreshTradeList()
+end)
     
 -- Основной цикл
 local function update()
