@@ -1486,43 +1486,7 @@ local function createTradeCard(trade)
     itemsFrame.BackgroundTransparency = 1
     itemsFrame.Parent = tradeFrame
 
-    local lastItemsState = {}
-
     local function updateItems()
-        local currentItemsState = {}
-
-        -- Собираем текущее состояние предметов
-        for i = 1, 10 do
-            local itemName = "Item" .. i
-            local item = trade:FindFirstChild(itemName)
-            if item then
-                local itemValue = item.Value and item.Value.Name or "-"
-                local itemCount = item:FindFirstChild("Count") and item.Count.Value or 1
-                table.insert(currentItemsState, { Name = itemValue, Count = itemCount })
-            end
-        end
-
-        -- Проверяем, изменилось ли состояние предметов
-        local hasChanged = #lastItemsState ~= #currentItemsState
-        if not hasChanged then
-            for i = 1, #lastItemsState do
-                if lastItemsState[i].Name ~= currentItemsState[i].Name or
-                   lastItemsState[i].Count ~= currentItemsState[i].Count then
-                    hasChanged = true
-                    break
-                end
-            end
-        end
-
-        -- Если состояние не изменилось, выходим
-        if not hasChanged then
-            return
-        end
-
-        -- Обновляем сохраненное состояние
-        lastItemsState = currentItemsState
-
-        -- Очищаем и перезаполняем itemsFrame
         itemsFrame:ClearAllChildren()
 
         local positions = {
@@ -1531,20 +1495,37 @@ local function createTradeCard(trade)
             UDim2.new(0.66, 0, 0, 0)  -- Правая колонка
         }
 
-        for i = 1, #currentItemsState do
-            local itemData = currentItemsState[i]
+        for i = 1, 10 do
+            local itemName = "Item" .. i
+            local item = trade:FindFirstChild(itemName)
+            if item then
+                local itemLabel = Instance.new("TextLabel")
+                itemLabel.Size = UDim2.new(0.33, 0, 0, 20)
+                itemLabel.Position = UDim2.new(positions[math.ceil(i / 4)].X.Scale, positions[math.ceil(i / 4)].X.Offset, 0, ((i - 1) % 4) * 20)
+                itemLabel.BackgroundTransparency = 1
+                itemLabel.TextXAlignment = Enum.TextXAlignment.Left
+                itemLabel.Font = Enum.Font.SourceSans
+                itemLabel.TextSize = 16
+                itemLabel.TextColor3 = Color3.new(1, 1, 1)
 
-            local itemLabel = Instance.new("TextLabel")
-            itemLabel.Size = UDim2.new(0.33, 0, 0, 20)
-            itemLabel.Position = UDim2.new(positions[math.ceil(i / 4)].X.Scale, positions[math.ceil(i / 4)].X.Offset, 0, ((i - 1) % 4) * 20)
-            itemLabel.BackgroundTransparency = 1
-            itemLabel.TextXAlignment = Enum.TextXAlignment.Left
-            itemLabel.Font = Enum.Font.SourceSans
-            itemLabel.TextSize = 16
-            itemLabel.TextColor3 = Color3.new(1, 1, 1)
-            itemLabel.Text = tostring(itemData.Name) .. ":" .. tostring(itemData.Count)
+                local itemValue = item.Value and item.Value.Name or "-"
+                local itemCount = item:FindFirstChild("Count") and item.Count.Value or 1
+                itemLabel.Text = tostring(itemValue) .. ":" .. tostring(itemCount)
 
-            itemLabel.Parent = itemsFrame
+                itemLabel.Parent = itemsFrame
+
+                -- Обновление текста при изменении значений
+                if item:FindFirstChild("Value") then
+                    item.Value:GetPropertyChangedSignal("Value"):Connect(function()
+                        itemLabel.Text = tostring(item.Value.Name) .. ":" .. tostring(itemCount)
+                    end)
+                end
+                if item:FindFirstChild("Count") then
+                    item.Count:GetPropertyChangedSignal("Value"):Connect(function()
+                        itemLabel.Text = tostring(itemValue) .. ":" .. tostring(item.Count.Value)
+                    end)
+                end
+            end
         end
     end
 
@@ -1584,8 +1565,16 @@ local function createTradeCard(trade)
 
     -- Динамическое обновление предметов
     updateItems()
-    trade.ChildAdded:Connect(updateItems)
-    trade.ChildRemoved:Connect(updateItems)
+    trade.ChildAdded:Connect(function(child)
+        if string.match(child.Name, "Item%d") then
+            updateItems()
+        end
+    end)
+    trade.ChildRemoved:Connect(function(child)
+        if string.match(child.Name, "Item%d") then
+            updateItems()
+        end
+    end)
 
     return tradeFrame
 end
@@ -1618,6 +1607,7 @@ end)
 tradesFolder.ChildRemoved:Connect(function()
     refreshTradeList()
 end)
+
 
     
 -- Основной цикл
