@@ -1496,13 +1496,12 @@ local function createTradeCard(trade)
             UDim2.new(0.66, 0, 0, 0)  -- Правая колонка
         }
 
-        for i = 1, 10 do
-            local itemName = "Item" .. i
-            local item = trade:FindFirstChild(itemName)
-            if item then
+        local itemIndex = 1
+        for _, item in pairs(trade:GetChildren()) do
+            if item:IsA("Model") and item.Name:match("^Item%d+$") then
                 local itemLabel = Instance.new("TextLabel")
                 itemLabel.Size = UDim2.new(0.33, 0, 0, 20)
-                itemLabel.Position = UDim2.new(positions[math.ceil(i / 4)].X.Scale, positions[math.ceil(i / 4)].X.Offset, 0, ((i - 1) % 4) * 20)
+                itemLabel.Position = UDim2.new(positions[math.ceil(itemIndex / 4)].X.Scale, positions[math.ceil(itemIndex / 4)].X.Offset, 0, ((itemIndex - 1) % 4) * 20)
                 itemLabel.BackgroundTransparency = 1
                 itemLabel.TextXAlignment = Enum.TextXAlignment.Left
                 itemLabel.Font = Enum.Font.SourceSans
@@ -1526,6 +1525,8 @@ local function createTradeCard(trade)
                         itemLabel.Text = tostring(itemValue) .. ":" .. tostring(item.Count.Value)
                     end)
                 end
+
+                itemIndex = itemIndex + 1
             end
         end
     end
@@ -1566,13 +1567,14 @@ local function createTradeCard(trade)
 
     -- Динамическое обновление предметов
     updateItems()
+
     trade.ChildAdded:Connect(function(child)
-        if string.match(child.Name, "Item%d") then
+        if child.Name:match("^Item%d+$") then
             updateItems()
         end
     end)
     trade.ChildRemoved:Connect(function(child)
-        if string.match(child.Name, "Item%d") then
+        if child.Name:match("^Item%d+$") then
             updateItems()
         end
     end)
@@ -1608,6 +1610,7 @@ end)
 tradesFolder.ChildRemoved:Connect(function()
     refreshTradeList()
 end)
+
 
 
     
