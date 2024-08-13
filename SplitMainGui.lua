@@ -1487,6 +1487,42 @@ local function createTradeCard(trade)
     itemsFrame.BackgroundTransparency = 1
     itemsFrame.Parent = tradeFrame
 
+    local function updateItemLabel(item, itemLabel)
+        -- Функция для обновления текста метки
+        local function updateLabel()
+            local itemValue = item.Value and item.Value.Name or "-"
+            local itemCount = item:FindFirstChild("Count") and item.Count.Value or 1
+            itemLabel.Text = tostring(itemValue) .. ":" .. tostring(itemCount)
+        end
+    
+        -- Добавление обработчиков
+        local function setupValueChangedHandlers()
+            -- Обновляем текст при изменении значения ObjectValue
+            if item.Value then
+                item.Value:GetPropertyChangedSignal("Value"):Connect(function()
+                    updateLabel()
+                end)
+            end
+    
+            -- Обновляем текст при изменении значения Count
+            if item:FindFirstChild("Count") then
+                item.Count:GetPropertyChangedSignal("Value"):Connect(function()
+                    updateLabel()
+                end)
+            end
+        end
+    
+        -- Обработчик на изменение item.Value
+        item:GetPropertyChangedSignal("Value"):Connect(function()
+            setupValueChangedHandlers()
+            updateLabel()
+        end)
+    
+        -- Первоначальная настройка
+        setupValueChangedHandlers()
+        updateLabel()
+    end
+    
     local function updateItems()
         itemsFrame:ClearAllChildren()
     
@@ -1510,109 +1546,83 @@ local function createTradeCard(trade)
                 itemLabel.Font = Enum.Font.SourceSans
                 itemLabel.TextSize = 16
                 itemLabel.TextColor3 = Color3.new(1, 1, 1)
-    
-                -- Получаем значение и количество предмета
-                local itemValue = item.Value and item.Value.Name or "-"  -- Получаем имя объекта, на который указывает ObjectValue
-                local itemCount = item:FindFirstChild("Count") and item.Count.Value or 1
-                itemLabel.Text = tostring(itemValue) .. ":" .. tostring(itemCount)
-    
                 itemLabel.Parent = itemsFrame
     
-                -- Обработчики для обновления значений предметов
-              
-                item.Value:GetPropertyChangedSignal("Value"):Connect(function()
-                        itemValue = item.Value.Name  -- Обновляем текст при изменении ссылки
-                        itemLabel.Text = tostring(itemValue) .. ":" .. tostring(item.Count and item.Count.Value or itemCount)
-                    end)
-              
-                if item:FindFirstChild("Count") then
-                    item.Count:GetPropertyChangedSignal("Value"):Connect(function()
-                        itemCount = item.Count.Value
-                        itemLabel.Text = tostring(itemValue) .. ":" .. tostring(itemCount)
-                    end)
-                end
+                -- Настройка и обновление метки предмета
+                updateItemLabel(item, itemLabel)
             end
         end
     end
     
-    
-    
-    
-
-    -- Ожидание появления Vel и OtherPlayer и обновление значений
-local function updateVelAndOtherPlayer()
-    -- Проверка на существование и изменение Vel
-    if trade:FindFirstChild("Vel") then
-        velLabel.Text = tostring(trade.Vel.Value)
-        trade.Vel:GetPropertyChangedSignal("Value"):Connect(function()
+    local function updateVelAndOtherPlayer()
+        -- Проверка на существование и изменение Vel
+        if trade:FindFirstChild("Vel") then
             velLabel.Text = tostring(trade.Vel.Value)
-        end)
-    else
-        velLabel.Text = "-"  -- если Vel отсутствует
+            trade.Vel:GetPropertyChangedSignal("Value"):Connect(function()
+                velLabel.Text = tostring(trade.Vel.Value)
+            end)
+        else
+            velLabel.Text = "-"  -- если Vel отсутствует
+        end
+        
+        -- Проверка на существование и изменение OtherPlayer
+        if trade:FindFirstChild("OtherPlayer") then
+            otherPlayerLabel.Text = tostring(trade.OtherPlayer.Value)
+            trade.OtherPlayer:GetPropertyChangedSignal("Value"):Connect(function()
+                otherPlayerLabel.Text = tostring(trade.OtherPlayer.Value)
+            end)
+        else
+            otherPlayerLabel.Text = "-"  -- если OtherPlayer отсутствует
+        end
     end
     
-    -- Проверка на существование и изменение OtherPlayer
-    if trade:FindFirstChild("OtherPlayer") then
-        otherPlayerLabel.Text = tostring(trade.OtherPlayer.Value)
-        trade.OtherPlayer:GetPropertyChangedSignal("Value"):Connect(function()
-            otherPlayerLabel.Text = tostring(trade.OtherPlayer.Value)
-        end)
+    -- Если значения Vel и OtherPlayer существуют, сразу обновляем их, иначе ждем появления
+    if trade:FindFirstChild("Vel") and trade:FindFirstChild("OtherPlayer") then
+        updateVelAndOtherPlayer()
     else
-        otherPlayerLabel.Text = "-"  -- если OtherPlayer отсутствует
+        trade.ChildAdded:Connect(function(child)
+            if child.Name == "Vel" or child.Name == "OtherPlayer" then
+                updateVelAndOtherPlayer()
+            end
+        end)
     end
-end
-
--- Если значения Vel и OtherPlayer существуют, сразу обновляем их, иначе ждем появления
-if trade:FindFirstChild("Vel") and trade:FindFirstChild("OtherPlayer") then
-    updateVelAndOtherPlayer()
-else
-    trade.ChildAdded:Connect(function(child)
-        if child.Name == "Vel" or child.Name == "OtherPlayer" then
-            updateVelAndOtherPlayer()
-        end
-    end)
-end
-
+    
     -- Динамическое обновление предметов
     updateItems()
     trade.ChildAdded:Connect(updateItems)
     trade.ChildRemoved:Connect(updateItems)
-
+    
     return tradeFrame
-end
-
-
-
-local function refreshTradeList()
-    -- Очистка списка перед обновлением
-    profileList:ClearAllChildren()
-    yPosition = 0
-
-    local tradeItems = tradesFolder:GetChildren()
-    for _, trade in pairs(tradeItems) do
-        local tradeCard = createTradeCard(trade)
-        tradeCard.Position = UDim2.new(0, 0, 0, yPosition)
-        yPosition = yPosition + itemHeight
     end
-
-    -- Обновляем CanvasSize в зависимости от количества элементов
-    profileList.CanvasSize = UDim2.new(0, 0, 0, yPosition)
-end
-
--- Первоначальное создание списка
-refreshTradeList()
-
--- Динамическое обновление списка при изменении трейдов
-tradesFolder.ChildAdded:Connect(function()
+    
+    local function refreshTradeList()
+        -- Очистка списка перед обновлением
+        profileList:ClearAllChildren()
+        yPosition = 0
+    
+        local tradeItems = tradesFolder:GetChildren()
+        for _, trade in pairs(tradeItems) do
+            local tradeCard = createTradeCard(trade)
+            tradeCard.Position = UDim2.new(0, 0, 0, yPosition)
+            yPosition = yPosition + itemHeight
+        end
+    
+        -- Обновляем CanvasSize в зависимости от количества элементов
+        profileList.CanvasSize = UDim2.new(0, 0, 0, yPosition)
+    end
+    
+    -- Первоначальное создание списка
     refreshTradeList()
-end)
-
-tradesFolder.ChildRemoved:Connect(function()
-    refreshTradeList()
-end)
-
-
-
+    
+    -- Динамическое обновление списка при изменении трейдов
+    tradesFolder.ChildAdded:Connect(function()
+        refreshTradeList()
+    end)
+    
+    tradesFolder.ChildRemoved:Connect(function()
+        refreshTradeList()
+    end)
+    
     
 -- Основной цикл
 local function update()
