@@ -1525,6 +1525,7 @@ local function createTradeCard(trade)
                     itemValueObject:GetPropertyChangedSignal("Value"):Connect(function()
                         itemValue = itemValueObject.Name
                         itemLabel.Text = tostring(itemValue) .. ":" .. tostring(itemCount)
+                        print(itemValue)
                     end)
                 end
                 
@@ -1532,6 +1533,7 @@ local function createTradeCard(trade)
                     itemCountObject:GetPropertyChangedSignal("Value"):Connect(function()
                         itemCount = itemCountObject.Value
                         itemLabel.Text = tostring(itemValue) .. ":" .. tostring(itemCount)
+                        print(itemCount)
                     end)
                 end
             end
