@@ -1487,53 +1487,54 @@ local function createTradeCard(trade)
     itemsFrame.BackgroundTransparency = 1
     itemsFrame.Parent = tradeFrame
 
-    local function updateItems()
-        itemsFrame:ClearAllChildren()
+-- Обновление предметов
+local function updateItems()
+    itemsFrame:ClearAllChildren()
     
-        -- Определяем позиции для каждой колонки
-        local positions = {
-            UDim2.new(0, 0, 0, 0),    -- Левая колонка
-            UDim2.new(0.45, 0, 0, 0), -- Центральная колонка
-            UDim2.new(0.80, 0, 0, 0)  -- Правая колонка
-        }
+    -- Определяем позиции для каждой колонки
+    local positions = {
+        UDim2.new(0, 0, 0, 0),    -- Левая колонка
+        UDim2.new(0.33, 0, 0, 0), -- Центральная колонка
+        UDim2.new(0.66, 0, 0, 0)  -- Правая колонка
+    }
     
-        -- Проходим по предметам и размещаем их в нужной колонке
-        for i = 1, 10 do
-            local itemName = "Item" .. i
-            local item = trade:FindFirstChild(itemName)
-            if item then
-                local itemLabel = Instance.new("TextLabel")
-                itemLabel.Size = UDim2.new(0.33, 0, 0, 20)
-                itemLabel.Position = UDim2.new(positions[math.ceil(i / 4)].X.Scale, positions[math.ceil(i / 4)].X.Offset, 0, ((i - 1) % 4) * 20)
-                itemLabel.BackgroundTransparency = 1
-                itemLabel.TextXAlignment = Enum.TextXAlignment.Left
-                itemLabel.Font = Enum.Font.SourceSans
-                itemLabel.TextSize = 16
-                itemLabel.TextColor3 = Color3.new(1, 1, 1)
-    
-                -- Получаем значение и количество предмета
-                local itemValue = item.Value and item.Value.Name or "-"  -- Получаем имя объекта, на который указывает ObjectValue
-                local itemCount = item:FindFirstChild("Count") and item.Count.Value or 1
-                itemLabel.Text = tostring(itemValue) .. ":" .. tostring(itemCount)
-    
-                itemLabel.Parent = itemsFrame
-    
-                -- Обработчики для обновления значений предметов
-                if item.Value then
-                    item.Value:GetPropertyChangedSignal("Value"):Connect(function()
-                        itemValue = item.Value.Name  -- Обновляем текст при изменении ссылки
-                        itemLabel.Text = tostring(itemValue) .. ":" .. tostring(item.Count and item.Count.Value or itemCount)
-                    end)
-                end
-                if item:FindFirstChild("Count") then
-                    item.Count:GetPropertyChangedSignal("Value"):Connect(function()
-                        itemCount = item.Count.Value
-                        itemLabel.Text = tostring(itemValue) .. ":" .. tostring(itemCount)
-                    end)
-                end
+    -- Проходим по предметам и размещаем их в нужной колонке
+    for i = 1, 10 do
+        local itemName = "Item" .. i
+        local item = trade:FindFirstChild(itemName)
+        if item then
+            local itemLabel = Instance.new("TextLabel")
+            itemLabel.Size = UDim2.new(0.33, 0, 0, 20)
+            itemLabel.Position = UDim2.new(positions[math.ceil(i / 4)].X.Scale, positions[math.ceil(i / 4)].X.Offset, 0, ((i - 1) % 4) * 20)
+            itemLabel.BackgroundTransparency = 1
+            itemLabel.TextXAlignment = Enum.TextXAlignment.Left
+            itemLabel.Font = Enum.Font.SourceSans
+            itemLabel.TextSize = 16
+            itemLabel.TextColor3 = Color3.new(1, 1, 1)
+
+            -- Получаем значение и количество предмета
+            local itemValue = item.Value and item.Value.Name or "-"  -- Получаем имя объекта, на который указывает ObjectValue
+            local itemCount = item:FindFirstChild("Count") and item.Count.Value or 1
+            itemLabel.Text = tostring(itemValue) .. ":" .. tostring(itemCount)
+
+            itemLabel.Parent = itemsFrame
+
+            -- Обработчики для обновления значений предметов
+            if item.Value then
+                item.Value:GetPropertyChangedSignal("Value"):Connect(function()
+                    itemValue = item.Value.Name  -- Обновляем текст при изменении ссылки
+                    itemLabel.Text = tostring(itemValue) .. ":" .. tostring(item.Count and item.Count.Value or itemCount)
+                end)
+            end
+            if item:FindFirstChild("Count") then
+                item.Count:GetPropertyChangedSignal("Value"):Connect(function()
+                    itemCount = item.Count.Value
+                    itemLabel.Text = tostring(itemValue) .. ":" .. tostring(itemCount)
+                end)
             end
         end
     end
+end
     
 
     -- Ожидание появления Vel и OtherPlayer и обновление значений
@@ -1570,12 +1571,18 @@ else
     end)
 end
 
-    -- Динамическое обновление предметов
-    updateItems()
-    trade.ChildAdded:Connect(updateItems)
-    trade.ChildRemoved:Connect(updateItems)
+local function setupValueChangeListeners()
+    for _, item in ipairs(trade:GetChildren()) do
+        if item.Value then
+            item.Value:GetPropertyChangedSignal("Value"):Connect(updateItems)
+        end
+        if item:FindFirstChild("Count") then
+            item.Count:GetPropertyChangedSignal("Value"):Connect(updateItems)
+        end
+    end
+end
 
-    return tradeFrame
+setupValueChangeListeners()
 end
 
 
