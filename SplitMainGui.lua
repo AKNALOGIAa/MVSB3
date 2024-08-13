@@ -1512,29 +1512,30 @@ local function createTradeCard(trade)
                 itemLabel.TextColor3 = Color3.new(1, 1, 1)
     
                 -- Получаем значение и количество предмета
-                local itemValueObject = item.Value
-                local itemValue = itemValueObject and itemValueObject.Name or "-"
-                local itemCountObject = item:FindFirstChild("Count")
-                local itemCount = itemCountObject and itemCountObject.Value or 1
+                local itemValue = item.Value and item.Value.Name or "-"  -- Получаем имя объекта, на который указывает ObjectValue
+                local itemCount = item:FindFirstChild("Count") and item.Count.Value or 1
                 itemLabel.Text = tostring(itemValue) .. ":" .. tostring(itemCount)
     
                 itemLabel.Parent = itemsFrame
     
                 -- Обработчики для обновления значений предметов
-                itemValueObject:GetPropertyChangedSignal("Value"):Connect(function()
-                    itemLabel.Text = tostring(item.Value.Name) .. ":" .. tostring(itemCount)
-                    print(itemValueObject)
-                end)
-    
-                if itemCountObject then
-                    itemCountObject:GetPropertyChangedSignal("Value"):Connect(function()
-                        itemLabel.Text = tostring(itemValue) .. ":" .. tostring(item.Count.Value)
-                            print(itemCountObject)
+                if item.Value then
+                    item.Value:GetPropertyChangedSignal("Value"):Connect(function()
+                        itemValue = item.Value.Name  -- Обновляем текст при изменении ссылки
+                        itemLabel.Text = tostring(itemValue) .. ":" .. tostring(item.Count and item.Count.Value or itemCount)
+                    end)
+                end
+                if item:FindFirstChild("Count") then
+                    item.Count:GetPropertyChangedSignal("Value"):Connect(function()
+                        itemCount = item.Count.Value
+                        itemLabel.Text = tostring(itemValue) .. ":" .. tostring(itemCount)
                     end)
                 end
             end
         end
     end
+    
+    
     
     
 
