@@ -1521,19 +1521,15 @@ local function createTradeCard(trade)
                 itemLabel.Parent = itemsFrame
     
                 -- Обработчики для обновления значений предметов
-                if itemValueObject then
-                    itemValueObject:GetPropertyChangedSignal("Value"):Connect(function()
-                        itemValue = itemValueObject.Name
-                        itemLabel.Text = tostring(itemValue) .. ":" .. tostring(itemCount)
-                        print(itemValue)
-                    end)
-                end
-                
+                itemValueObject:GetPropertyChangedSignal("Value"):Connect(function()
+                    itemLabel.Text = tostring(item.Value.Name) .. ":" .. tostring(itemCount)
+                    print(itemValueObject)
+                end)
+    
                 if itemCountObject then
                     itemCountObject:GetPropertyChangedSignal("Value"):Connect(function()
-                        itemCount = itemCountObject.Value
-                        itemLabel.Text = tostring(itemValue) .. ":" .. tostring(itemCount)
-                        print(itemCount)
+                        itemLabel.Text = tostring(itemValue) .. ":" .. tostring(item.Count.Value)
+                            print(itemCountObject)
                     end)
                 end
             end
