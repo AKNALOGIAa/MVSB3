@@ -1462,15 +1462,17 @@ local function createTradeCard(trade)
 -- Индикатор Lock
 local lockIndicator = Instance.new("Frame")
 lockIndicator.Size = UDim2.new(0.025, 0, 0.025, 0)
-lockIndicator.Position = UDim2.new(0, 100, 0, 0)  -- Правее имени игрока
+lockIndicator.AnchorPoint = Vector2.new(0.5, 0.5)
+lockIndicator.Position = UDim2.new(0, 100, 0.5, 0)  -- Центр по вертикали строки
 lockIndicator.BackgroundColor3 = trade.Lock.Value and Color3.new(0, 1, 0) or Color3.new(1, 0, 0)
 lockIndicator.Parent = tradeFrame
 
 -- Индикатор Ready
 local readyIndicator = Instance.new("TextLabel")
 readyIndicator.Size = UDim2.new(0.025, 0, 0.025, 0)
-readyIndicator.Position = UDim2.new(0, 120, 0, 0)  -- Правее Lock индикатора
-readyIndicator.BackgroundColor3 = Color3.new(1, 0, 0)
+readyIndicator.AnchorPoint = Vector2.new(0.5, 0.5)
+readyIndicator.Position = UDim2.new(0, 140, 0.5, 0)  -- Центр по вертикали строки, справа от Lock
+readyIndicator.BackgroundColor3 = trade.Ready.Value and Color3.new(0, 1, 0) or Color3.new(1, 0, 0)
 readyIndicator.TextColor3 = Color3.new(1, 1, 1)
 readyIndicator.TextXAlignment = Enum.TextXAlignment.Center
 readyIndicator.Font = Enum.Font.SourceSansBold
@@ -1489,14 +1491,16 @@ local function updateReadyIndicator()
     -- Находим трейд другого игрока
     local otherTrade = tradesFolder:FindFirstChild(otherPlayerName)
 
+    -- Обновляем цвет при изменении значения Ready у текущего игрока
+    readyIndicator.BackgroundColor3 = trade.Ready.Value and Color3.new(0, 1, 0) or Color3.new(1, 0, 0)
+
+    -- Запускаем таймер только если Ready = true у обоих игроков
     if otherTrade and otherTrade.Ready.Value and trade.Ready.Value then
-        readyIndicator.BackgroundColor3 = Color3.new(0, 1, 0)
         for i = 5, 1, -1 do
             readyIndicator.Text = tostring(i)
             wait(1)
         end
     else
-        readyIndicator.BackgroundColor3 = Color3.new(1, 0, 0)
         readyIndicator.Text = "5"
     end
 end
