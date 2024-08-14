@@ -419,9 +419,9 @@ if itemsSection then
                             end
                         end
                         
-                        -- Проверяем, существует ли предмет с нужным порядковым номером
-                        if matchingItems[i] then
-                            local dropItem = matchingItems[i]
+                        -- Проверяем, существует ли предмет с нужным порядковым номером или он единственный
+                        if #matchingItems == 1 or matchingItems[i] then
+                            local dropItem = #matchingItems == 1 and matchingItems[1] or matchingItems[i]
                             
                             -- Сохраняем исходные позиции всех частей предмета
                             local originalPositions = {}
