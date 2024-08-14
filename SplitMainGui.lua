@@ -5,9 +5,7 @@ local userInputService = game:GetService("UserInputService")
 local savedPlayerName = "AKNALOGIAaura"
 ---Циклы
 local RunService = game:GetService("RunService")
-local tradeInterval = 2
 local updateInterval = 15
-local lastTradeProcessTime = tick()
 local lastUpdateProfilesTime = tick()
 ---
 
@@ -1425,7 +1423,7 @@ local profileList = Instance.new("ScrollingFrame")
 profileList.Name = "Trades"
 profileList.Size = UDim2.new(1, 0, 1, -50)
 profileList.Position = UDim2.new(0, 0, 0, 50)
-profileList.CanvasSize = UDim2.new(0, 0, 0, 0)  -- CanvasSize обновляется динамически
+profileList.CanvasSize = UDim2.new(0, 0, 0, 0)
 profileList.ScrollBarThickness = 8
 profileList.BackgroundTransparency = 1
 profileList.Parent = content:FindFirstChild("Trades")
@@ -1449,12 +1447,58 @@ local function createTradeCard(trade)
     playerNameLabel.Size = UDim2.new(0.4, 0, 0.3, 0)
     playerNameLabel.Position = UDim2.new(0, 10, 0, 0)
     playerNameLabel.BackgroundTransparency = 1
-    playerNameLabel.Text = trade.Name
+    playerNameLabel.Text = trade.Name  -- Отображение имени игрока
     playerNameLabel.TextColor3 = Color3.new(1, 1, 1)
     playerNameLabel.TextXAlignment = Enum.TextXAlignment.Left
     playerNameLabel.Font = Enum.Font.SourceSansBold
     playerNameLabel.TextSize = 18
     playerNameLabel.Parent = tradeFrame
+
+    -- Индикатор Lock
+    local lockIndicator = Instance.new("Frame")
+    lockIndicator.Size = UDim2.new(0.05, 0, 0.3, 0)
+    lockIndicator.Position = UDim2.new(0, -60, 0, 0)  -- Левее имени игрока
+    lockIndicator.BackgroundColor3 = trade.Lock.Value and Color3.new(0, 1, 0) or Color3.new(1, 0, 0)
+    lockIndicator.Parent = tradeFrame
+
+    -- Индикатор Ready
+    local readyIndicator = Instance.new("TextLabel")
+    readyIndicator.Size = UDim2.new(0.1, 0, 0.3, 0)
+    readyIndicator.Position = UDim2.new(0, -120, 0, 0)  -- Левее первого индикатора
+    readyIndicator.BackgroundColor3 = Color3.new(1, 0, 0)
+    readyIndicator.TextColor3 = Color3.new(1, 1, 1)
+    readyIndicator.TextXAlignment = Enum.TextXAlignment.Center
+    readyIndicator.Font = Enum.Font.SourceSansBold
+    readyIndicator.TextSize = 18
+    readyIndicator.Text = "5"
+    readyIndicator.Parent = tradeFrame
+
+    -- Функции для обновления индикаторов
+    local function updateLockIndicator()
+        lockIndicator.BackgroundColor3 = trade.Lock.Value and Color3.new(0, 1, 0) or Color3.new(1, 0, 0)
+    end
+
+    local function updateReadyIndicator()
+        if trade.Ready.Value then
+            readyIndicator.BackgroundColor3 = Color3.new(0, 1, 0)
+            for i = 5, 1, -1 do
+                readyIndicator.Text = tostring(i)
+                wait(1)
+            end
+        else
+            readyIndicator.BackgroundColor3 = Color3.new(1, 0, 0)
+            readyIndicator.Text = "5"
+        end
+    end
+
+    -- Подписываемся на изменения значений
+    trade.Lock:GetPropertyChangedSignal("Value"):Connect(updateLockIndicator)
+    trade.Ready:GetPropertyChangedSignal("Value"):Connect(updateReadyIndicator)
+
+    -- Инициализация индикаторов
+    updateLockIndicator()
+    updateReadyIndicator()
+
 
     -- Значение Vel
     local velLabel = Instance.new("TextLabel")
@@ -1627,17 +1671,7 @@ local function createTradeCard(trade)
 -- Основной цикл
 local function update()
     local currentTime = tick()
-    
-    -- Обработка трейдов каждые 2 секунды
-    if currentTime - lastTradeProcessTime >= tradeInterval then
-      --  processTrade()
-        lastTradeProcessTime = currentTime
-    end
-    
-    -- Обновление данных каждые 15 секунд
     if currentTime - lastUpdateProfilesTime >= updateInterval then
-      --  updatePlayerProfiles()
-     --   updateTrades()
         lastUpdateProfilesTime = currentTime
     end
 end
