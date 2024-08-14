@@ -1461,17 +1461,17 @@ local function createTradeCard(trade)
 
 -- Индикатор Lock
 local lockIndicator = Instance.new("Frame")
-lockIndicator.Size = UDim2.new(0.025, 0, 0.025, 0)
+lockIndicator.Size = UDim2.new(0.05, 0, 0.025, 0)
 lockIndicator.AnchorPoint = Vector2.new(0.5, 0.5)
-lockIndicator.Position = UDim2.new(0, 100, 0.5, 0)  -- Центр по вертикали строки
+lockIndicator.Position = UDim2.new(0, 130, 0.1, 0)  -- Центр по вертикали строки
 lockIndicator.BackgroundColor3 = trade.Lock.Value and Color3.new(0, 1, 0) or Color3.new(1, 0, 0)
 lockIndicator.Parent = tradeFrame
 
 -- Индикатор Ready
 local readyIndicator = Instance.new("TextLabel")
-readyIndicator.Size = UDim2.new(0.025, 0, 0.025, 0)
+readyIndicator.Size = UDim2.new(0.05, 0, 0.025, 0)
 readyIndicator.AnchorPoint = Vector2.new(0.5, 0.5)
-readyIndicator.Position = UDim2.new(0, 140, 0.5, 0)  -- Центр по вертикали строки, справа от Lock
+readyIndicator.Position = UDim2.new(0, 140, 0.1, 0)  -- Центр по вертикали строки, справа от Lock
 readyIndicator.BackgroundColor3 = trade.Ready.Value and Color3.new(0, 1, 0) or Color3.new(1, 0, 0)
 readyIndicator.TextColor3 = Color3.new(1, 1, 1)
 readyIndicator.TextXAlignment = Enum.TextXAlignment.Center
