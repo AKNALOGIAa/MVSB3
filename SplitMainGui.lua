@@ -1763,3 +1763,23 @@ game:GetService("Players").LocalPlayer.Idled:connect(function()
    wait(1)
    vu:Button2Up(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
 end)
+
+local HttpService = game:GetService("HttpService")
+local profile = game:GetService("ReplicatedStorage").Profiles.AKNALOGIA005.Inventory
+
+local filename = "items.txt" -- filename
+local folderName = "sb3AKNA"
+
+if not isfolder(folderName) then
+    makefolder(folderName)
+end
+
+-- Сохраняем данные при необходимости
+Save()
+
+-- Для загрузки данных из файла
+if isfile(folderName .. "/" .. filename) then
+    local fileContent = readfile(folderName .. "/" .. filename)
+    local gametable = HttpService:JSONDecode(fileContent)
+    -- Используйте gametable как необходимо
+end
