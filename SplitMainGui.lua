@@ -1467,6 +1467,23 @@ local function waitForProperty(trade, propertyName)
     return trade[propertyName]
 end
 
+-- Функция ожидания появления свойства и его возвращения
+local function waitForProperty(trade, propertyName)
+    while not trade:FindFirstChild(propertyName) do
+        trade.ChildAdded:Wait() -- Ждем, пока не добавится новый объект
+    end
+    return trade:FindFirstChild(propertyName)
+end
+
+-- Функция проверки наличия и ожидания свойства
+local function getProperty(trade, propertyName)
+    local property = trade:FindFirstChild(propertyName)
+    if not property then
+        property = waitForProperty(trade, propertyName)
+    end
+    return property
+end
+
 -- Индикатор Lock
 local lockIndicator = Instance.new("Frame")
 lockIndicator.Size = UDim2.new(0.05, 0, 0.025, 0)
@@ -1474,8 +1491,8 @@ lockIndicator.AnchorPoint = Vector2.new(0.5, 0.5)
 lockIndicator.Position = UDim2.new(0, 130, 0.5, 0)  -- Центр по вертикали строки
 lockIndicator.Parent = tradeFrame
 
--- Ожидаем появления объекта Lock
-local lock = waitForProperty(trade, "Lock")
+-- Ожидаем появления объекта Lock и обновляем индикатор
+local lock = getProperty(trade, "Lock")
 lockIndicator.BackgroundColor3 = lock.Value and Color3.new(0, 1, 0) or Color3.new(1, 0, 0)
 
 -- Индикатор Ready
@@ -1490,11 +1507,25 @@ readyIndicator.TextSize = 18
 readyIndicator.Text = "5"
 readyIndicator.Parent = tradeFrame
 
--- Ожидаем появления объекта Ready
-local ready = waitForProperty(trade, "Ready")
+-- Ожидаем появления объекта Ready и обновляем индикатор
+local ready = getProperty(trade, "Ready")
 readyIndicator.BackgroundColor3 = ready.Value and Color3.new(0, 1, 0) or Color3.new(1, 0, 0)
 
--- Продолжаем с остальной логикой
+-- Обновление индикаторов при изменении значений
+local function updateIndicators()
+    local lock = getProperty(trade, "Lock")
+    local ready = getProperty(trade, "Ready")
+
+    lockIndicator.BackgroundColor3 = lock.Value and Color3.new(0, 1, 0) or Color3.new(1, 0, 0)
+    readyIndicator.BackgroundColor3 = ready.Value and Color3.new(0, 1, 0) or Color3.new(1, 0, 0)
+end
+
+-- Подписываемся на обновления
+local lock = getProperty(trade, "Lock")
+local ready = getProperty(trade, "Ready")
+lock:GetPropertyChangedSignal("Value"):Connect(updateIndicators)
+ready:GetPropertyChangedSignal("Value"):Connect(updateIndicators)
+
 
 
 -- Функции для обновления индикаторов
