@@ -15,6 +15,18 @@ local MountsColor = {
 }
 local ogCosmeticItems = {"NecromancerCloak", "ShadowTuxedo", "VoidArmor", "FlamingGarment", "CyberEnforcer", "GoldenKimono"} -- Список предметов для категории OG Cosmetic
 
+-- Цвета аур
+local auraColors = {
+    Orange = {"InfernoAura", "GalaxyAura","CloudBurstAura", "LightningAura", "SynthwaveAura", "CursedAura", "ElectricAura", "PrismaticAura", }, 
+    Purple = {"SeaBubblesAura", "PixelAura", "UnicornSwirlAura", "BurstAura", "ToxicAura", "StarstreamAura", "EnchantedAura", "SandstormAura", "SunrayAura", "DataStreamAura", "StardustAura", "CyberAura","BubbleAura", "NanoSwarmAura", "RainbowAura", "WhirlwindAura", "OasisAura", "ErrorAura"},
+    LightBlue = {"FishyAura", "LeafAura", "PinkButterflyAura", "SparkleAura", "PoisonAura", "CactusAura", "FlowerAura", "BlueButterflyAura", "SnowAura", "EmberAura", "StarAura", "TreasureAura",}
+}
+
+local CrystaRarity = {
+Legendary = {"UpgradeCrystalLegendary"},
+Epic = {"UpgradeCrystalEpic"},
+Rare = {"UpgradeCrystal"}
+}
 
 -- Удаление старого GUI, если существует
 if playerGui:FindFirstChild("CustomUI") then
@@ -1038,13 +1050,6 @@ local function formatNumber(num)
     return formatted
 end
 
--- Цвета аур
-local auraColors = {
-    Orange = {"InfernoAura", "GalaxyAura","CloudBurstAura", "LightningAura", "SynthwaveAura", "CursedAura", "ElectricAura", "PrismaticAura", }, 
-    Purple = {"SeaBubblesAura", "PixelAura", "UnicornSwirlAura", "BurstAura", "ToxicAura", "StarstreamAura", "EnchantedAura", "SandstormAura", "SunrayAura", "DataStreamAura", "StardustAura", "CyberAura","BubbleAura", "NanoSwarmAura", "RainbowAura", "WhirlwindAura", "OasisAura", "ErrorAura"},
-    LightBlue = {"FishyAura", "LeafAura", "PinkButterflyAura", "SparkleAura", "PoisonAura", "CactusAura", "FlowerAura", "BlueButterflyAura", "SnowAura", "EmberAura", "StarAura", "TreasureAura",}
-}
-
 local MountsPriority = {
     Orange = 1,
     Purple = 2,
@@ -1454,51 +1459,62 @@ local function createTradeCard(trade)
     playerNameLabel.TextSize = 18
     playerNameLabel.Parent = tradeFrame
 
-    -- Индикатор Lock
-    local lockIndicator = Instance.new("Frame")
-    lockIndicator.Size = UDim2.new(0.05, 0, 0.3, 0)
-    lockIndicator.Position = UDim2.new(0, 60, 0, 0)  -- Левее имени игрока
+-- Индикатор Lock
+local lockIndicator = Instance.new("Frame")
+lockIndicator.Size = UDim2.new(0.025, 0, 0.025, 0)
+lockIndicator.Position = UDim2.new(0, 100, 0, 0)  -- Правее имени игрока
+lockIndicator.BackgroundColor3 = trade.Lock.Value and Color3.new(0, 1, 0) or Color3.new(1, 0, 0)
+lockIndicator.Parent = tradeFrame
+
+-- Индикатор Ready
+local readyIndicator = Instance.new("TextLabel")
+readyIndicator.Size = UDim2.new(0.025, 0, 0.025, 0)
+readyIndicator.Position = UDim2.new(0, 120, 0, 0)  -- Правее Lock индикатора
+readyIndicator.BackgroundColor3 = Color3.new(1, 0, 0)
+readyIndicator.TextColor3 = Color3.new(1, 1, 1)
+readyIndicator.TextXAlignment = Enum.TextXAlignment.Center
+readyIndicator.Font = Enum.Font.SourceSansBold
+readyIndicator.TextSize = 18
+readyIndicator.Text = "5"
+readyIndicator.Parent = tradeFrame
+
+-- Функции для обновления индикаторов
+local function updateLockIndicator()
     lockIndicator.BackgroundColor3 = trade.Lock.Value and Color3.new(0, 1, 0) or Color3.new(1, 0, 0)
-    lockIndicator.Parent = tradeFrame
+end
 
-    -- Индикатор Ready
-    local readyIndicator = Instance.new("TextLabel")
-    readyIndicator.Size = UDim2.new(0.1, 0, 0.3, 0)
-    readyIndicator.Position = UDim2.new(0, 120, 0, 0)  -- Левее первого индикатора
-    readyIndicator.BackgroundColor3 = Color3.new(1, 0, 0)
-    readyIndicator.TextColor3 = Color3.new(1, 1, 1)
-    readyIndicator.TextXAlignment = Enum.TextXAlignment.Center
-    readyIndicator.Font = Enum.Font.SourceSansBold
-    readyIndicator.TextSize = 18
-    readyIndicator.Text = "5"
-    readyIndicator.Parent = tradeFrame
+local function updateReadyIndicator()
+    -- Получаем имя другого игрока
+    local otherPlayerName = trade.OtherPlayer.Value
+    -- Находим трейд другого игрока
+    local otherTrade = tradesFolder:FindFirstChild(otherPlayerName)
 
-    -- Функции для обновления индикаторов
-    local function updateLockIndicator()
-        lockIndicator.BackgroundColor3 = trade.Lock.Value and Color3.new(0, 1, 0) or Color3.new(1, 0, 0)
-    end
-
-    local function updateReadyIndicator()
-        if trade.Ready.Value then
-            readyIndicator.BackgroundColor3 = Color3.new(0, 1, 0)
-            for i = 5, 1, -1 do
-                readyIndicator.Text = tostring(i)
-                wait(1)
-            end
-        else
-            readyIndicator.BackgroundColor3 = Color3.new(1, 0, 0)
-            readyIndicator.Text = "5"
+    if otherTrade and otherTrade.Ready.Value and trade.Ready.Value then
+        readyIndicator.BackgroundColor3 = Color3.new(0, 1, 0)
+        for i = 5, 1, -1 do
+            readyIndicator.Text = tostring(i)
+            wait(1)
         end
+    else
+        readyIndicator.BackgroundColor3 = Color3.new(1, 0, 0)
+        readyIndicator.Text = "5"
     end
+end
 
-    -- Подписываемся на изменения значений
-    trade.Lock:GetPropertyChangedSignal("Value"):Connect(updateLockIndicator)
-    trade.Ready:GetPropertyChangedSignal("Value"):Connect(updateReadyIndicator)
+-- Подписываемся на изменения значений
+trade.Lock:GetPropertyChangedSignal("Value"):Connect(updateLockIndicator)
+trade.Ready:GetPropertyChangedSignal("Value"):Connect(updateReadyIndicator)
 
-    -- Инициализация индикаторов
-    updateLockIndicator()
-    updateReadyIndicator()
+-- Также подписываемся на изменения Ready для другого игрока
+local otherPlayerName = trade.OtherPlayer.Value
+local otherTrade = tradesFolder:FindFirstChild(otherPlayerName)
+if otherTrade then
+    otherTrade.Ready:GetPropertyChangedSignal("Value"):Connect(updateReadyIndicator)
+end
 
+-- Инициализация индикаторов
+updateLockIndicator()
+updateReadyIndicator()
 
     -- Значение Vel
     local velLabel = Instance.new("TextLabel")
