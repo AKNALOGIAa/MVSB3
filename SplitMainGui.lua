@@ -13,7 +13,7 @@ local MountsColor = {
     Orange = {"VoidErebusMount", "VoidGaliardMount", "DarkUnicornMount", "DarkCrab", "ShadowCrab",},
     Purple = {"ErebusMount", "GaliardMount", "IcewhalMount", "OwlMount", "SandTerrorMount", "SeaSerpentMount"}
 }
-local ogCosmeticItems = {"NecromancerCloak", "ShadowTuxedo", "VoidArmor", "FlamingGarment", "CyberEnforcer", "GoldenKimono"} -- Список предметов для категории OG Cosmetic
+local ogCosmeticItems = {"NecromancerCloak", "ShadowTuxedo", "VoidArmor", "FlamingGarment", "CyberEnforcer", "GoldenKimono", "VoidPickaxe", "CrystalFishingRod", "GoldPickaxe" ,"ToyPickaxe", "ToyFishingRod", "CoralFishingRod"} -- Список предметов для категории OG Cosmetic
 
 -- Цвета аур
 local auraColors = {
@@ -1459,26 +1459,32 @@ local function createTradeCard(trade)
     playerNameLabel.TextSize = 18
     playerNameLabel.Parent = tradeFrame
 
--- Индикатор Lock
-local lockIndicator = Instance.new("Frame")
-lockIndicator.Size = UDim2.new(0.05, 0, 0.025, 0)
-lockIndicator.AnchorPoint = Vector2.new(0.5, 0.5)
-lockIndicator.Position = UDim2.new(0, 130, 0.1, 0)  -- Центр по вертикали строки
-lockIndicator.BackgroundColor3 = trade.Lock.Value and Color3.new(0, 1, 0) or Color3.new(1, 0, 0)
-lockIndicator.Parent = tradeFrame
-
--- Индикатор Ready
-local readyIndicator = Instance.new("TextLabel")
-readyIndicator.Size = UDim2.new(0.05, 0, 0.025, 0)
-readyIndicator.AnchorPoint = Vector2.new(0.5, 0.5)
-readyIndicator.Position = UDim2.new(0, 140, 0.1, 0)  -- Центр по вертикали строки, справа от Lock
-readyIndicator.BackgroundColor3 = trade.Ready.Value and Color3.new(0, 1, 0) or Color3.new(1, 0, 0)
-readyIndicator.TextColor3 = Color3.new(1, 1, 1)
-readyIndicator.TextXAlignment = Enum.TextXAlignment.Center
-readyIndicator.Font = Enum.Font.SourceSansBold
-readyIndicator.TextSize = 18
-readyIndicator.Text = "5"
-readyIndicator.Parent = tradeFrame
+    local lock = trade:WaitForChild("Lock", 10)  -- Ждем до 10 секунд появления объекта "Lock"
+    local ready = trade:WaitForChild("Ready", 10)  -- Ждем до 10 секунд появления объекта "Ready"
+    
+    -- Если объекты существуют, продолжаем работу с индикаторами
+    if lock and ready then
+        -- Индикатор Lock
+        local lockIndicator = Instance.new("Frame")
+        lockIndicator.Size = UDim2.new(0.05, 0, 0.025, 0)
+        lockIndicator.AnchorPoint = Vector2.new(0.5, 0.5)
+        lockIndicator.Position = UDim2.new(0, 130, 0.1, 0)  -- Центр по вертикали строки
+        lockIndicator.BackgroundColor3 = lock.Value and Color3.new(0, 1, 0) or Color3.new(1, 0, 0)
+        lockIndicator.Parent = tradeFrame
+    
+        -- Индикатор Ready
+        local readyIndicator = Instance.new("TextLabel")
+        readyIndicator.Size = UDim2.new(0.05, 0, 0.025, 0)
+        readyIndicator.AnchorPoint = Vector2.new(0.5, 0.5)
+        readyIndicator.Position = UDim2.new(0, 140, 0.1, 0)  -- Центр по вертикали строки, справа от Lock
+        readyIndicator.BackgroundColor3 = ready.Value and Color3.new(0, 1, 0) or Color3.new(1, 0, 0)
+        readyIndicator.TextColor3 = Color3.new(1, 1, 1)
+        readyIndicator.TextXAlignment = Enum.TextXAlignment.Center
+        readyIndicator.Font = Enum.Font.SourceSansBold
+        readyIndicator.TextSize = 18
+        readyIndicator.Text = "5"
+        readyIndicator.Parent = tradeFrame
+    
 
 -- Функции для обновления индикаторов
 local function updateLockIndicator()
@@ -1519,7 +1525,7 @@ end
 -- Инициализация индикаторов
 updateLockIndicator()
 updateReadyIndicator()
-
+end
     -- Значение Vel
     local velLabel = Instance.new("TextLabel")
     velLabel.Size = UDim2.new(0.3, -10, 0.3, 0)
