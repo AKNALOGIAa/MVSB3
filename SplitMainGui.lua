@@ -376,7 +376,7 @@ if itemsSection then
     
             for i, item in ipairs(items) do
                 -- Фильтр по категориям
-                local itemCategory = item:GetAttribute("Category")
+                local itemCategory = item:GetAttribute("Category") -- допустим, у предмета есть атрибут "Category"
                 if selectedCategory == "Все" or itemCategory == selectedCategory or (selectedCategory == "OG Косметика" and table.find(ogCosmeticItems, item.Name)) then
                     local itemDisplay = Instance.new("TextLabel")
                     itemDisplay.Size = UDim2.new(0, itemWidth, 0, itemHeight)
@@ -407,16 +407,22 @@ if itemsSection then
                     buyButton.BackgroundColor3 = Color3.new(0, 0.5, 0)
                     buyButton.Parent = scrollingFrame
     
-                    -- Привязываем конкретный экземпляр предмета к кнопке
-                    buyButton:SetAttribute("ItemInstance", item)
-    
                     buyButton.MouseButton1Click:Connect(function()
                         local player = players.LocalPlayer
                         local character = player.Character or player.CharacterAdded:Wait()
                         
-                        -- Получаем конкретный экземпляр предмета
-                        local dropItem = buyButton:GetAttribute("ItemInstance")
-                        if dropItem then
+                        -- Находим все объекты с таким же именем в WorkspaceDrops
+                        local matchingItems = {}
+                        for _, dropItem in ipairs(workspaceDrops:GetChildren()) do
+                            if dropItem.Name == item.Name then
+                                table.insert(matchingItems, dropItem)
+                            end
+                        end
+                        
+                        -- Проверяем, существует ли предмет с нужным порядковым номером
+                        if matchingItems[i] then
+                            local dropItem = matchingItems[i]
+                            
                             -- Сохраняем исходные позиции всех частей предмета
                             local originalPositions = {}
                             for _, part in pairs(dropItem:GetChildren()) do
@@ -424,10 +430,10 @@ if itemsSection then
                                     originalPositions[part] = part.CFrame
                                 end
                             end
-                    
+    
                             -- Телепортируем все MeshPart и Part объекты к персонажу
                             for part, originalPosition in pairs(originalPositions) do
-                                part.CFrame = character:GetPrimaryPartCFrame() * CFrame.new(0, 0, 2)
+                                part.CFrame = character:GetPrimaryPartCFrame() * CFrame.new(0, 0, 2) -- Позиционируем перед персонажем
                             end
                             wait(0.1)
     
@@ -435,11 +441,13 @@ if itemsSection then
                             local VirtualInputManager = game:GetService('VirtualInputManager')
                             VirtualInputManager:SendKeyEvent(true, "E", false, game)
                             wait(0.1)
-                    
+    
                             -- Возвращаем все части предмета в их исходные позиции
                             for part, originalPosition in pairs(originalPositions) do
                                 part.CFrame = originalPosition
                             end
+                        else
+                            warn("Предмет с порядковым номером " .. tostring(i) .. " не найден.")
                         end
                     end)
                     
