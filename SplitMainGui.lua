@@ -1551,24 +1551,64 @@ updateReadyIndicator()
     itemsFrame.BackgroundTransparency = 1
     itemsFrame.Parent = tradeFrame
 
+    local function getItemColor(itemName)
+        for color, items in pairs(MountsColor) do
+            if table.find(items, itemName) then
+                return color == "Orange" and Color3.fromRGB(255, 165, 0) or Color3.fromRGB(128, 0, 128) -- Оранжевый или Фиолетовый
+            end
+        end
+        
+        for color, items in pairs(auraColors) do
+            if table.find(items, itemName) then
+                return color == "Orange" and Color3.fromRGB(255, 165, 0) or 
+                       color == "Purple" and Color3.fromRGB(128, 0, 128) or 
+                       Color3.fromRGB(173, 216, 230) -- Голубой для LightBlue
+            end
+        end
+        
+        if table.find(ogCosmeticItems, itemName) then
+            return Color3.fromRGB(255, 20, 147) -- Розовый цвет для OG Cosmetic
+        end
+        
+        if itemName == "UpgradeCrystalLegendary" then
+            return Color3.fromRGB(255, 165, 0) -- Оранжевый цвет для Legendary
+        elseif itemName == "UpgradeCrystalEpic" then
+            return Color3.fromRGB(128, 0, 128) -- Фиолетовый цвет для Epic
+        elseif itemName == "UpgradeCrystal" then
+            return Color3.fromRGB(173, 216, 230) -- Голубой цвет для Rare
+        end
+    
+        return Color3.new(1, 1, 1) -- Белый по умолчанию
+    end
+    
+    local function getItemDisplayName(itemName)
+        if itemName == "UpgradeCrystalLegendary" then
+            return "Leg Crystal"
+        elseif itemName == "UpgradeCrystalEpic" then
+            return "Epic Crystal"
+        elseif itemName == "UpgradeCrystal" then
+            return "Crystal"
+        end
+        return itemName
+    end
+    
     local function updateItemLabel(item, itemLabel)
-        -- Функция для обновления текста метки
         local function updateLabel()
             local itemValue = item.Value and item.Value.Name or "-"
             local itemCount = item:FindFirstChild("Count") and item.Count.Value or 1
-            itemLabel.Text = tostring(itemValue) .. ":" .. tostring(itemCount)
+    
+            -- Обновляем текст и цвет метки
+            itemLabel.Text = tostring(getItemDisplayName(itemValue)) .. ": " .. tostring(itemCount)
+            itemLabel.TextColor3 = getItemColor(itemValue)
         end
     
-        -- Добавление обработчиков
         local function setupValueChangedHandlers()
-            -- Обновляем текст при изменении значения ObjectValue
             if item.Value then
                 item.Value:GetPropertyChangedSignal("Value"):Connect(function()
                     updateLabel()
                 end)
             end
     
-            -- Обновляем текст при изменении значения Count
             if item:FindFirstChild("Count") then
                 item.Count:GetPropertyChangedSignal("Value"):Connect(function()
                     updateLabel()
@@ -1576,13 +1616,11 @@ updateReadyIndicator()
             end
         end
     
-        -- Обработчик на изменение item.Value
         item:GetPropertyChangedSignal("Value"):Connect(function()
             setupValueChangedHandlers()
             updateLabel()
         end)
     
-        -- Первоначальная настройка
         setupValueChangedHandlers()
         updateLabel()
     end
@@ -1590,14 +1628,12 @@ updateReadyIndicator()
     local function updateItems()
         itemsFrame:ClearAllChildren()
     
-        -- Определяем позиции для каждой колонки
         local positions = {
-            UDim2.new(0, 0, 0, 0),    -- Левая колонка
-            UDim2.new(0.33, 0, 0, 0), -- Центральная колонка
-            UDim2.new(0.66, 0, 0, 0)  -- Правая колонка
+            UDim2.new(0, 0, 0, 0),
+            UDim2.new(0.33, 0, 0, 0),
+            UDim2.new(0.66, 0, 0, 0)
         }
     
-        -- Проходим по предметам и размещаем их в нужной колонке
         for i = 1, 10 do
             local itemName = "Item" .. i
             local item = trade:FindFirstChild(itemName)
@@ -1612,11 +1648,11 @@ updateReadyIndicator()
                 itemLabel.TextColor3 = Color3.new(1, 1, 1)
                 itemLabel.Parent = itemsFrame
     
-                -- Настройка и обновление метки предмета
                 updateItemLabel(item, itemLabel)
             end
         end
     end
+    
     
     local function updateVelAndOtherPlayer()
         -- Проверка на существование и изменение Vel
