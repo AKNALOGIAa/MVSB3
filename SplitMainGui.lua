@@ -1459,22 +1459,30 @@ local function createTradeCard(trade)
     playerNameLabel.TextSize = 18
     playerNameLabel.Parent = tradeFrame
 
+-- Функция ожидания появления объекта
+local function waitForProperty(trade, propertyName)
+    while not trade:FindFirstChild(propertyName) do
+        trade.ChildAdded:Wait() -- Ждем, пока не добавится новый объект
+    end
+    return trade[propertyName]
+end
+
 -- Индикатор Lock
 local lockIndicator = Instance.new("Frame")
-lockIndicator.Size = UDim2.new(0.025, 0, 0.05, 0)
+lockIndicator.Size = UDim2.new(0.05, 0, 0.025, 0)
 lockIndicator.AnchorPoint = Vector2.new(0.5, 0.5)
-lockIndicator.Position = UDim2.new(0, 130, 0.1, 0)  -- Центр по вертикали строки
+lockIndicator.Position = UDim2.new(0, 130, 0.5, 0)  -- Центр по вертикали строки
 lockIndicator.Parent = tradeFrame
 
--- Ждем появления объекта Lock
-local lock = trade:WaitForChild("Lock")
+-- Ожидаем появления объекта Lock
+local lock = waitForProperty(trade, "Lock")
 lockIndicator.BackgroundColor3 = lock.Value and Color3.new(0, 1, 0) or Color3.new(1, 0, 0)
 
 -- Индикатор Ready
 local readyIndicator = Instance.new("TextLabel")
-readyIndicator.Size = UDim2.new(0.025, 0, 0.05, 0)
+readyIndicator.Size = UDim2.new(0.05, 0, 0.025, 0)
 readyIndicator.AnchorPoint = Vector2.new(0.5, 0.5)
-readyIndicator.Position = UDim2.new(0, 140, 0.1, 0)  -- Центр по вертикали строки, справа от Lock
+readyIndicator.Position = UDim2.new(0, 140, 0.5, 0)  -- Центр по вертикали строки, справа от Lock
 readyIndicator.TextColor3 = Color3.new(1, 1, 1)
 readyIndicator.TextXAlignment = Enum.TextXAlignment.Center
 readyIndicator.Font = Enum.Font.SourceSansBold
@@ -1482,9 +1490,11 @@ readyIndicator.TextSize = 18
 readyIndicator.Text = "5"
 readyIndicator.Parent = tradeFrame
 
--- Ждем появления объекта Ready
-local ready = trade:WaitForChild("Ready")
+-- Ожидаем появления объекта Ready
+local ready = waitForProperty(trade, "Ready")
 readyIndicator.BackgroundColor3 = ready.Value and Color3.new(0, 1, 0) or Color3.new(1, 0, 0)
+
+-- Продолжаем с остальной логикой
 
 
 -- Функции для обновления индикаторов
