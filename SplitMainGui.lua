@@ -1459,14 +1459,13 @@ local function createTradeCard(trade)
     playerNameLabel.TextSize = 18
     playerNameLabel.Parent = tradeFrame
 
--- Индикатор Lock
+-- Создание индикаторов заранее
 local lockIndicator = Instance.new("Frame")
 lockIndicator.Size = UDim2.new(0.05, 0, 0.025, 0)
 lockIndicator.AnchorPoint = Vector2.new(0.5, 0.5)
 lockIndicator.Position = UDim2.new(0, 130, 0.1, 0)  -- Центр по вертикали строки
 lockIndicator.Parent = tradeFrame
 
--- Индикатор Ready
 local readyIndicator = Instance.new("TextLabel")
 readyIndicator.Size = UDim2.new(0.05, 0, 0.025, 0)
 readyIndicator.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -1478,12 +1477,16 @@ readyIndicator.TextSize = 18
 readyIndicator.Text = "5"
 readyIndicator.Parent = tradeFrame
 
--- Ожидание и обновление значений
-wait(1)
-local lockValue = trade.Lock and trade.Lock.Value and Color3.new(0, 1, 0) or Color3.new(1, 0, 0)
-local readyValue = trade.Ready and trade.Ready.Value and Color3.new(0, 1, 0) or Color3.new(1, 0, 0)
+-- Ожидание появления trade.Lock и trade.Ready
+repeat
+    wait(0.1)  -- небольшая задержка для предотвращения чрезмерного использования ресурсов
+until trade:FindFirstChild("Lock") and trade:FindFirstChild("Ready")
 
--- Обновляем цвета индикаторов после задержки
+-- Теперь, когда Lock и Ready существуют, можно получить их значения
+local lockValue = trade.Lock.Value and Color3.new(0, 1, 0) or Color3.new(1, 0, 0)
+local readyValue = trade.Ready.Value and Color3.new(0, 1, 0) or Color3.new(1, 0, 0)
+
+-- Обновляем цвета индикаторов
 lockIndicator.BackgroundColor3 = lockValue
 readyIndicator.BackgroundColor3 = readyValue
 
