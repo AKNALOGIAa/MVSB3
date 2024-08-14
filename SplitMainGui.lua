@@ -376,7 +376,7 @@ if itemsSection then
     
             for i, item in ipairs(items) do
                 -- Фильтр по категориям
-                local itemCategory = item:GetAttribute("Category") --НАДО ФИКС ЭТОГО 
+                local itemCategory = item:GetAttribute("Category")
                 if selectedCategory == "Все" or itemCategory == selectedCategory or (selectedCategory == "OG Косметика" and table.find(ogCosmeticItems, item.Name)) then
                     local itemDisplay = Instance.new("TextLabel")
                     itemDisplay.Size = UDim2.new(0, itemWidth, 0, itemHeight)
@@ -407,15 +407,15 @@ if itemsSection then
                     buyButton.BackgroundColor3 = Color3.new(0, 0.5, 0)
                     buyButton.Parent = scrollingFrame
     
-                    -- Привязываем конкретный предмет к кнопке
-                    buyButton:SetAttribute("ItemName", item.Name)
+                    -- Привязываем конкретный экземпляр предмета к кнопке
+                    buyButton:SetAttribute("ItemInstance", item)
     
                     buyButton.MouseButton1Click:Connect(function()
                         local player = players.LocalPlayer
                         local character = player.Character or player.CharacterAdded:Wait()
-                    
-                        -- Находим конкретный объект в Workspace, используя уникальное имя
-                        local dropItem = workspaceDrops:FindFirstChild(buyButton:GetAttribute("ItemName"))
+                        
+                        -- Получаем конкретный экземпляр предмета
+                        local dropItem = buyButton:GetAttribute("ItemInstance")
                         if dropItem then
                             -- Сохраняем исходные позиции всех частей предмета
                             local originalPositions = {}
@@ -427,7 +427,7 @@ if itemsSection then
                     
                             -- Телепортируем все MeshPart и Part объекты к персонажу
                             for part, originalPosition in pairs(originalPositions) do
-                                part.CFrame = character:GetPrimaryPartCFrame() * CFrame.new(0, 0, 2) -- Позиционируем перед персонажем (можно изменить смещение)
+                                part.CFrame = character:GetPrimaryPartCFrame() * CFrame.new(0, 0, 2)
                             end
                             wait(0.1)
     
@@ -457,6 +457,7 @@ if itemsSection then
         end
     end
     
+
     createCategoryButtons()
     updateItems("Все") -- Отображаем все предметы по умолчанию
 
