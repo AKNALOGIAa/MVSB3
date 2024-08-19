@@ -3,6 +3,8 @@ local playerGui = player:FindFirstChildOfClass("PlayerGui")
 local replicatedStorage = game:GetService("ReplicatedStorage")
 local userInputService = game:GetService("UserInputService")
 local savedPlayerName = "AKNALOGIAaura2"
+local ItemesFortrade = "2"
+local AuraPack = "1"
 ---Циклы
 local RunService = game:GetService("RunService")
 local updateInterval = 15
@@ -1807,23 +1809,33 @@ game:GetService("Players").LocalPlayer.Idled:connect(function()
    wait(1)
    vu:Button2Up(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
 end)
-
-local HttpService = game:GetService("HttpService")
-local profile = game:GetService("ReplicatedStorage").Profiles.AKNALOGIA005.Inventory
-
-local filename = "items.txt" -- filename
-local folderName = "sb3AKNA"
-
-if not isfolder(folderName) then
-    makefolder(folderName)
+------------------------Save---------------------
+local filename = "AknaMMSB3.txt" -- filename
+if not isfolder("MMSB3AKNA") then
+    makefolder("MMSB3AKNA")
 end
 
--- Сохраняем данные при необходимости
+if not isfile("MMSB3AKNA//" .. filename) then
+    gametable = {
+        savedPlayerName = "AKNALOGIAaura2",
+        TrueNick = {}
+    }
+    writefile("MMSB3AKNA//" .. filename, HttpService:JSONEncode(gametable))
+else
+    gametable = HttpService:JSONDecode(readfile("MMSB3AKNA//" .. filename))
+end
+
+local function Save()
+    writefile("MMSB3AKNA//" .. filename, HttpService:JSONEncode(gametable))
+end 
+
+-- Пример использования сохраненных данных
+local savedPlayerName = gametable.savedPlayerName
+local TrueNick = gametable.TrueNick
+
+-- Обновление значений
+gametable.savedPlayerName = "NewPlayerName"
+table.insert(gametable.TrueNick, "NewNick")
+
+-- Сохранение изменений
 Save()
-
--- Для загрузки данных из файла
-if isfile(folderName .. "/" .. filename) then
-    local fileContent = readfile(folderName .. "/" .. filename)
-    local gametable = HttpService:JSONDecode(fileContent)
-    -- Используйте gametable как необходимо
-end
