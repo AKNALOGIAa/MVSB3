@@ -719,7 +719,7 @@ local function handleTrade()
         addItem("UpgradeCrystalLegendary", 50)
         addItem("UpgradeCrystalEpic", 40)
         addItem("EnchantingStone", 10)
-        addItem("BasicTuxedo", 1)
+        addItem("StripedDress", 1)
 
         -- Функция добавления предметов с аурой
         local function findAndAddAuras()
