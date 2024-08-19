@@ -2,7 +2,7 @@ local player = game:GetService("Players").LocalPlayer
 local playerGui = player:FindFirstChildOfClass("PlayerGui")
 local replicatedStorage = game:GetService("ReplicatedStorage")
 local userInputService = game:GetService("UserInputService")
-local savedPlayerName = "AKNALOGIAaura"
+local savedPlayerName = "AKNALOGIAaura2"
 ---Циклы
 local RunService = game:GetService("RunService")
 local updateInterval = 15
