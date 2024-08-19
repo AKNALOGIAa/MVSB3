@@ -867,6 +867,29 @@ ToggleButton.TextSize = 18
 ToggleButton.BorderSizePixel = 0
 ToggleButton.Parent = AutoTradeContainer
 
+-- Создаем кнопку "Reset"
+local ResetButton = Instance.new("TextButton")
+ResetButton.Size = UDim2.new(0.3, 0, 1, 0)
+ResetButton.Position = UDim2.new(1, 0, 0, 0) -- Размещаем кнопку справа от переключателя
+ResetButton.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+ResetButton.Text = "Reset"
+ResetButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+ResetButton.Font = Enum.Font.SourceSans
+ResetButton.TextSize = 18
+ResetButton.BorderSizePixel = 0
+ResetButton.Parent = AutoTradeContainer
+
+-- Привязываем функцию к кнопке "Reset"
+ResetButton.MouseButton1Click:Connect(function()
+    local player = game.Players.LocalPlayer
+    local args = {
+        [1] = player
+    }
+
+    game:GetService("ReplicatedStorage").Systems.Trading.DeclineRequest:FireServer(unpack(args))
+end)
+
+
 -- Логика переключателя
 local autoTradeEnabled = false
 local tradeCoroutine -- Переменная для хранения корутины
