@@ -902,7 +902,7 @@ local function autoAcceptAndProcessTrades()
 
         local players = game:GetService("Players")
         local tradingSystem = game:GetService("ReplicatedStorage").Systems.Trading
-        
+
         -- Принятие трейда от каждого игрока на сервере
         for _, player in pairs(players:GetPlayers()) do
             local args = { [1] = player }
@@ -944,9 +944,30 @@ local function autoAcceptAndProcessTrades()
             if not autoTradeEnabled then
                 break
             end
+
+            -- Проверка наличия вашего имени в Trades после принятия трейда
+            local playerName = game:GetService("Players").LocalPlayer.Name
+            local trades = game:GetService("ReplicatedStorage").Trades
+
+            if trades:FindFirstChild(playerName) then
+                -- Если ваше имя обнаружено, прерываем текущий процесс трейдов
+                print("Ваше имя найдено в трейдах, ожидание...")
+                while trades:FindFirstChild(playerName) and autoTradeEnabled do
+                    wait(5) -- Ждем 1 секунду перед следующей проверкой
+                end
+
+                -- Если трейды были отключены во время ожидания, прерываем цикл
+                if not autoTradeEnabled then
+                    break
+                end
+
+                -- Продолжаем цикл с начала
+                break
+            end
         end
     end
 end
+
 
 
 -- Обработчик нажатия на кнопку
