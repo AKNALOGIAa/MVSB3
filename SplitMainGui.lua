@@ -1392,7 +1392,9 @@ local function createPlayerProfile(playerName, index)
         inventoryScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, yOffset)
     end
     
-    
+    searchBox:GetPropertyChangedSignal("Text"):Connect(function()
+        updateInventoryItems(searchBox.Text)
+    end)
 
     allButton.MouseButton1Click:Connect(function() updateInventoryItems("All") end)
     auraButton.MouseButton1Click:Connect(function() updateInventoryItems("Aura") end)
