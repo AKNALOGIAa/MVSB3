@@ -60,7 +60,7 @@ header.BorderSizePixel = 0
 header.Parent = mainFrame
 
 local titleLabel = Instance.new("TextLabel")
-titleLabel.Text = "AKNALOGIA MMSB3 script v1.5.2Beta"
+titleLabel.Text = "AKNALOGIA MMSB3 script v1.4.9Beta"
 titleLabel.Size = UDim2.new(0.8, 0, 1, 0)
 titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 titleLabel.BackgroundTransparency = 1
@@ -1211,16 +1211,6 @@ local function createPlayerProfile(playerName, index)
     inventoryLabel.TextYAlignment = Enum.TextYAlignment.Top
     inventoryLabel.Parent = expandedFrame
 
--- Создание текстового поля для поиска
-local searchBox = Instance.new("TextBox")
-searchBox.Size = UDim2.new(0, 200, 0, 30)
-searchBox.Position = UDim2.new(0, inventoryLabel.Size.X.Offset + 100, 0, 0)
-searchBox.PlaceholderText = "Search..."
-searchBox.Text = "" -- Изначально поле пустое
-searchBox.TextColor3 = Color3.fromRGB(0, 0, 0) -- Цвет текста
-searchBox.BackgroundColor3 = Color3.fromRGB(28, 28, 28) -- Серый фон
-searchBox.Parent = inventoryLabel.Parent
-
     local function createFilterButton(name, position, parent)
         local button = Instance.new("TextButton")
         button.Name = name .. "Button"
@@ -1277,10 +1267,7 @@ searchBox.Parent = inventoryLabel.Parent
     
         local itemList = {}
         for name, count in pairs(items) do
-            -- Если фильтр пустой или имя предмета содержит фильтр, добавляем его в список
-            if filter == "All" or filter == "" or string.find(name:lower(), filter:lower()) then
-                table.insert(itemList, {name = name, count = count})
-            end
+            table.insert(itemList, {name = name, count = count})
         end
     
         -- Функция для получения цвета и приоритета Маунтов
@@ -1376,7 +1363,7 @@ searchBox.Parent = inventoryLabel.Parent
             end
     
             -- Если предмет соответствует условиям, выводим его
-            if displayItem and (searchText == "" or string.find(itemInfo.name:lower(), searchText)) then
+            if displayItem then
                 itemLabel.Text = displayText
                 itemLabel.Size = UDim2.new(1, -10, 0, 30)
                 itemLabel.Position = UDim2.new(0, 5, 0, yOffset)
@@ -1394,40 +1381,34 @@ searchBox.Parent = inventoryLabel.Parent
         inventoryScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, yOffset)
     end
     
-    searchBox:GetPropertyChangedSignal("Text"):Connect(function()
-        updateInventoryItems(searchBox.Text)
+    
+
+    allButton.MouseButton1Click:Connect(function() updateInventoryItems("All") end)
+    auraButton.MouseButton1Click:Connect(function() updateInventoryItems("Aura") end)
+    mountButton.MouseButton1Click:Connect(function() updateInventoryItems("Mount") end)
+    weaponArmorButton.MouseButton1Click:Connect(function() updateInventoryItems("Weapon/Armor") end)
+    ogCosmeticButton.MouseButton1Click:Connect(function() updateInventoryItems("OG Cosmetic") end)
+
+    expandButton.MouseButton1Click:Connect(function()
+        expandedFrame.Visible = not expandedFrame.Visible
+        expandButton.Text = expandedFrame.Visible and "-" or "+"
+        if expandedFrame.Visible then
+            updateInventoryItems("All")
+            for _, frame in ipairs(profileList:GetChildren()) do
+                if frame:IsA("Frame") and frame ~= playerFrame then
+                    frame.Position = frame.Position + UDim2.new(0, 0, 0, expandedFrame.Size.Y.Offset)
+                end
+            end
+            profileList.CanvasSize = UDim2.new(0, 0, 0, profileList.CanvasSize.Y.Offset + expandedFrame.Size.Y.Offset)
+        else
+            for _, frame in ipairs(profileList:GetChildren()) do
+                if frame:IsA("Frame") and frame ~= playerFrame then
+                    frame.Position = frame.Position - UDim2.new(0, 0, 0, expandedFrame.Size.Y.Offset)
+                end
+            end
+            profileList.CanvasSize = UDim2.new(0, 0, 0, profileList.CanvasSize.Y.Offset - expandedFrame.Size.Y.Offset)
+        end
     end)
-
-
--- Добавление фильтра по категориям
-allButton.MouseButton1Click:Connect(function() updateInventoryItems("All") end)
-auraButton.MouseButton1Click:Connect(function() updateInventoryItems("Aura") end)
-mountButton.MouseButton1Click:Connect(function() updateInventoryItems("Mount") end)
-weaponArmorButton.MouseButton1Click:Connect(function() updateInventoryItems("Weapon/Armor") end)
-ogCosmeticButton.MouseButton1Click:Connect(function() updateInventoryItems("OG Cosmetic") end)
-
-expandButton.MouseButton1Click:Connect(function()
-    expandedFrame.Visible = not expandedFrame.Visible
-    expandButton.Text = expandedFrame.Visible and "-" or "+"
-    if expandedFrame.Visible then
-        updateInventoryItems(searchBox.Text)
-        for _, frame in ipairs(profileList:GetChildren()) do
-            if frame:IsA("Frame") and frame ~= playerFrame then
-                frame.Position = frame.Position + UDim2.new(0, 0, 0, expandedFrame.Size.Y.Offset)
-            end
-        end
-        profileList.CanvasSize = UDim2.new(0, 0, 0, profileList.CanvasSize.Y.Offset + expandedFrame.Size.Y.Offset)
-    else
-        for _, frame in ipairs(profileList:GetChildren()) do
-            if frame:IsA("Frame") and frame ~= playerFrame then
-                frame.Position = frame.Position - UDim2.new(0, 0, 0, expandedFrame.Size.Y.Offset)
-            end
-        end
-        profileList.CanvasSize = UDim2.new(0, 0, 0, profileList.CanvasSize.Y.Offset - expandedFrame.Size.Y.Offset)
-    end
-end)
--- Начальное обновление инвентаря
-updateInventoryItems("All")
 end
 
 -- Функция обновления профилей игроков
@@ -1493,6 +1474,7 @@ end
 
 game:GetService("Players").PlayerAdded:Connect(updatePlayerProfiles)
 game:GetService("Players").PlayerRemoving:Connect(updatePlayerProfiles)
+    
 ---------------------------------------------------------
 
 
