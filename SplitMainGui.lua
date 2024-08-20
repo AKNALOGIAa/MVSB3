@@ -1227,23 +1227,23 @@ local function createPlayerProfile(playerName, index)
     end
 
     local searchBox = Instance.new("TextBox")
-searchBox.Size = UDim2.new(0.4, 0, 0, 30)
-searchBox.Position = UDim2.new(0.6, 5, 0, 0)
-searchBox.PlaceholderText = "Search..."
-searchBox.Text = ""
-searchBox.TextColor3 = Color3.fromRGB(0, 0, 0)
-searchBox.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-searchBox.BorderSizePixel = 0
-searchBox.Font = Enum.Font.SourceSans
-searchBox.TextSize = 18
-searchBox.ClearTextOnFocus = false
-searchBox.Parent = expandedFrame
-
-searchBox.FocusLost:Connect(function(enterPressed)
-    if enterPressed then
-        updateInventoryItems("Search", searchBox.Text)
-    end
-end)
+    searchBox.Size = UDim2.new(0.4, 0, 0, 30)
+    searchBox.Position = UDim2.new(0.6, 5, 0, 0)
+    searchBox.PlaceholderText = "Search..."
+    searchBox.Text = ""
+    searchBox.TextColor3 = Color3.fromRGB(0, 0, 0)
+    searchBox.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    searchBox.BorderSizePixel = 0
+    searchBox.Font = Enum.Font.SourceSans
+    searchBox.TextSize = 18
+    searchBox.ClearTextOnFocus = false
+    searchBox.Parent = expandedFrame
+    
+    searchBox.Changed:Connect(function(property)
+        if property == "Text" then
+            updateInventoryItems("Search", searchBox.Text)
+        end
+    end)
 
     local allButton = createFilterButton("All", 0, expandedFrame)
     local auraButton = createFilterButton("Aura", 0.2, expandedFrame)
@@ -1359,11 +1359,11 @@ end)
                     displayItem = true
                     itemLabel.TextColor3 = getMountColor(itemInfo.name)
                 elseif filter == "Weapon/Armor" then
+                    -- Условие для отображения Weapon/Armor
                     local enchantObject = item:FindFirstChild("Enchant")
                     local legendEnchantObject = item:FindFirstChild("LegendEnchant")
                     local upgradeObject = item:FindFirstChild("Upgrade")
     
-                    -- Проверка и обновление текста, если объекты существуют
                     if upgradeObject then
                         displayText = displayText .. " +" .. upgradeObject.Value
                     end
@@ -1380,8 +1380,7 @@ end)
                         local legendEnchantValue = legendEnchantObject.Value
                         displayText = displayText .. "/" .. (legendEnchantValue == 1 and "MVP" or (legendEnchantValue == 2 and "ATK" or (legendEnchantValue == 3 and "HPR" or (legendEnchantValue == 4 and "MHP" or (legendEnchantValue == 5 and "CRI" or (legendEnchantValue == 6 and "SPR" or (legendEnchantValue == 7 and "CRDI" or (legendEnchantValue == 8 and "BUR" or "STA"))))))))
                     end
-                -- Предположим, что itemInfo имеет свойство "Children", которое содержит дочерние объекты
- elseif filter == "OG Cosmetic" and table.find(ogCosmeticItems, itemInfo.name) then
+                elseif filter == "OG Cosmetic" and table.find(ogCosmeticItems, itemInfo.name) then
                     itemLabel.TextColor3 = Color3.fromRGB(255, 0, 255) -- Розовый цвет для OG Cosmetic
                     displayItem = true
                 end
