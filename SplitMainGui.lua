@@ -1226,6 +1226,25 @@ local function createPlayerProfile(playerName, index)
         return button
     end
 
+    local searchBox = Instance.new("TextBox")
+searchBox.Size = UDim2.new(0.4, 0, 0, 30)
+searchBox.Position = UDim2.new(0.6, 5, 0, 0)
+searchBox.PlaceholderText = "Search..."
+searchBox.Text = ""
+searchBox.TextColor3 = Color3.fromRGB(0, 0, 0)
+searchBox.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+searchBox.BorderSizePixel = 0
+searchBox.Font = Enum.Font.SourceSans
+searchBox.TextSize = 18
+searchBox.ClearTextOnFocus = false
+searchBox.Parent = expandedFrame
+
+searchBox.FocusLost:Connect(function(enterPressed)
+    if enterPressed then
+        updateInventoryItems("Search", searchBox.Text)
+    end
+end)
+
     local allButton = createFilterButton("All", 0, expandedFrame)
     local auraButton = createFilterButton("Aura", 0.2, expandedFrame)
     local mountButton = createFilterButton("Mount", 0.4, expandedFrame)
@@ -1244,7 +1263,7 @@ local function createPlayerProfile(playerName, index)
     itemsListFrame.BackgroundTransparency = 1
     itemsListFrame.Parent = inventoryScrollingFrame
 
-    local function updateInventoryItems(filter)
+    local function updateInventoryItems(filter, searchText)
         local inventory = profile:WaitForChild("Inventory")
         local items = {}
     
@@ -1267,7 +1286,13 @@ local function createPlayerProfile(playerName, index)
     
         local itemList = {}
         for name, count in pairs(items) do
-            table.insert(itemList, {name = name, count = count})
+            if filter == "Search" then
+                if string.find(string.lower(name), string.lower(searchText)) then
+                    table.insert(itemList, {name = name, count = count})
+                end
+            else
+                table.insert(itemList, {name = name, count = count})
+            end
         end
     
         -- Функция для получения цвета и приоритета Маунтов
