@@ -1212,15 +1212,16 @@ local function createPlayerProfile(playerName, index)
     inventoryLabel.Parent = expandedFrame
 
     local searchBox = Instance.new("TextBox")
-    searchBox.PlaceholderText = "Search"
-    searchBox.Size = UDim2.new(0.5, 0, 0, 30) -- Размер совпадает с inventoryLabel
-    searchBox.Position = UDim2.new(0.5, 0, 0, 0) -- Расположен правее inventoryLabel
-    searchBox.TextColor3 = Color3.fromRGB(0, 0, 0)
-    searchBox.BackgroundColor3 = Color3.fromRGB(169, 169, 169) -- Серый фон
+    searchBox.Size = UDim2.new(0, 200, 0, 30) -- Укажите размер и высоту, совпадающие с высотой Label
+    searchBox.Position = UDim2.new(0, inventoryLabel.Size.X.Offset + 10, 0, 0) -- Разместите справа от Label с небольшим отступом
+    searchBox.PlaceholderText = "Search..."
+    searchBox.Text = "" -- Изначально поле пустое
+    searchBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+    searchBox.BackgroundColor3 = Color3.fromRGB(58, 58, 58)
     searchBox.Font = Enum.Font.SourceSans
     searchBox.TextSize = 18
     searchBox.TextXAlignment = Enum.TextXAlignment.Left
-    searchBox.ClearTextOnFocus = false -- Поле будет оставаться пустым при нажатии
+    searchBox.TextYAlignment = Enum.TextYAlignment.Top
     searchBox.Parent = expandedFrame
 
     local function createFilterButton(name, position, parent)
@@ -1281,6 +1282,10 @@ local function createPlayerProfile(playerName, index)
         for name, count in pairs(items) do
             table.insert(itemList, {name = name, count = count})
         end
+
+        table.sort(itemList, function(a, b)
+            return a.name < b.name
+        end)
     
         -- Функция для получения цвета и приоритета Маунтов
         local function getMountColor(itemName)
@@ -1407,7 +1412,7 @@ local function createPlayerProfile(playerName, index)
         expandedFrame.Visible = not expandedFrame.Visible
         expandButton.Text = expandedFrame.Visible and "-" or "+"
         if expandedFrame.Visible then
-            updateInventoryItems("All")
+            updateInventoryItems(searchBox.Text)
             for _, frame in ipairs(profileList:GetChildren()) do
                 if frame:IsA("Frame") and frame ~= playerFrame then
                     frame.Position = frame.Position + UDim2.new(0, 0, 0, expandedFrame.Size.Y.Offset)
@@ -1424,7 +1429,6 @@ local function createPlayerProfile(playerName, index)
         end
     end)
 end
-
 -- Функция обновления профилей игроков
 local function updatePlayerProfiles()
     if not isUpdating then
