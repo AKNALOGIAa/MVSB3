@@ -1393,7 +1393,6 @@ searchBox.Parent = expandedFrame
         end
     
         itemsListFrame.Size = UDim2.new(1, 0, 0, yOffset)
-        inventoryScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, yOffset)
     end
     
     local filterButtons = {
