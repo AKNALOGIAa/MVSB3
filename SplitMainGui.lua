@@ -1396,6 +1396,14 @@ searchBox.Parent = expandedFrame
         inventoryScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, yOffset)
     end
     
+    local filterButtons = {
+        ["All"] = allButton,
+        ["Aura"] = auraButton,
+        ["Mount"] = mountButton,
+        ["Weapon/Armor"] = weaponArmorButton,
+        ["OG Cosmetic"] = ogCosmeticButton,
+    }
+
     -- Установка обработчиков событий для кнопок фильтрации и строки поиска
 for filter, button in pairs(filterButtons) do
     button.MouseButton1Click:Connect(function()
