@@ -1211,6 +1211,17 @@ local function createPlayerProfile(playerName, index)
     inventoryLabel.TextYAlignment = Enum.TextYAlignment.Top
     inventoryLabel.Parent = expandedFrame
 
+    local searchBox = Instance.new("TextBox")
+    searchBox.PlaceholderText = "Search..."
+    searchBox.Size = UDim2.new(0.5, 0, 0, 30) -- Размер совпадает с inventoryLabel
+    searchBox.Position = UDim2.new(0.5, 0, 0, 0) -- Расположен правее inventoryLabel
+    searchBox.TextColor3 = Color3.fromRGB(0, 0, 0)
+    searchBox.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    searchBox.Font = Enum.Font.SourceSans
+    searchBox.TextSize = 18
+    searchBox.TextXAlignment = Enum.TextXAlignment.Left
+    searchBox.Parent = expandedFrame
+
     local function createFilterButton(name, position, parent)
         local button = Instance.new("TextButton")
         button.Name = name .. "Button"
