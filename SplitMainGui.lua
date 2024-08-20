@@ -1211,25 +1211,11 @@ local function createPlayerProfile(playerName, index)
     inventoryLabel.TextYAlignment = Enum.TextYAlignment.Top
     inventoryLabel.Parent = expandedFrame
 
-    -- Создаем строку поиска
-local searchBox = Instance.new("TextBox")
-searchBox.PlaceholderText = "Search..."
-searchBox.Size = UDim2.new(1, -10, 0, 30)
-searchBox.Position = UDim2.new(0, 5, 0, 35)
-searchBox.TextColor3 = Color3.fromRGB(255, 255, 255)
-searchBox.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-searchBox.BorderSizePixel = 0
-searchBox.Font = Enum.Font.SourceSans
-searchBox.TextSize = 18
-searchBox.ClearTextOnFocus = false
-searchBox.Parent = expandedFrame
-
-
     local function createFilterButton(name, position, parent)
         local button = Instance.new("TextButton")
         button.Name = name .. "Button"
         button.Size = UDim2.new(0.2, -10, 0, 30)
-        button.Position = UDim2.new(position, 5, 0, 70)
+        button.Position = UDim2.new(position, 5, 0, 35)
         button.Text = name
         button.TextColor3 = Color3.fromRGB(255, 255, 255)
         button.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
@@ -1239,26 +1225,26 @@ searchBox.Parent = expandedFrame
         button.Parent = parent
         return button
     end
-    
+
     local allButton = createFilterButton("All", 0, expandedFrame)
     local auraButton = createFilterButton("Aura", 0.2, expandedFrame)
     local mountButton = createFilterButton("Mount", 0.4, expandedFrame)
     local weaponArmorButton = createFilterButton("Weapon/Armor", 0.6, expandedFrame)
     local ogCosmeticButton = createFilterButton("OG Cosmetic", 0.8, expandedFrame)
-    
+
     local inventoryScrollingFrame = Instance.new("ScrollingFrame")
-    inventoryScrollingFrame.Size = UDim2.new(1, 0, 1, -110)
-    inventoryScrollingFrame.Position = UDim2.new(0, 0, 0, 110)
+    inventoryScrollingFrame.Size = UDim2.new(1, 0, 1, -70)
+    inventoryScrollingFrame.Position = UDim2.new(0, 0, 0, 70)
     inventoryScrollingFrame.BackgroundTransparency = 1
     inventoryScrollingFrame.ScrollBarThickness = 8
     inventoryScrollingFrame.Parent = expandedFrame
-    
+
     local itemsListFrame = Instance.new("Frame")
     itemsListFrame.Size = UDim2.new(1, 0, 1, 0)
     itemsListFrame.BackgroundTransparency = 1
     itemsListFrame.Parent = inventoryScrollingFrame
-    
-    local function updateInventoryItems(filter, searchQuery)
+
+    local function updateInventoryItems(filter)
         local inventory = profile:WaitForChild("Inventory")
         local items = {}
     
@@ -1281,9 +1267,7 @@ searchBox.Parent = expandedFrame
     
         local itemList = {}
         for name, count in pairs(items) do
-            if string.find(name:lower(), searchQuery:lower()) then
-                table.insert(itemList, {name = name, count = count})
-            end
+            table.insert(itemList, {name = name, count = count})
         end
     
         -- Функция для получения цвета и приоритета Маунтов
@@ -1371,7 +1355,8 @@ searchBox.Parent = expandedFrame
                         local legendEnchantValue = legendEnchantObject.Value
                         displayText = displayText .. "/" .. (legendEnchantValue == 1 and "MVP" or (legendEnchantValue == 2 and "ATK" or (legendEnchantValue == 3 and "HPR" or (legendEnchantValue == 4 and "MHP" or (legendEnchantValue == 5 and "CRI" or (legendEnchantValue == 6 and "SPR" or (legendEnchantValue == 7 and "CRDI" or (legendEnchantValue == 8 and "BUR" or "STA"))))))))
                     end
-                elseif filter == "OG Cosmetic" and table.find(ogCosmeticItems, itemInfo.name) then
+                -- Предположим, что itemInfo имеет свойство "Children", которое содержит дочерние объекты
+ elseif filter == "OG Cosmetic" and table.find(ogCosmeticItems, itemInfo.name) then
                     itemLabel.TextColor3 = Color3.fromRGB(255, 0, 255) -- Розовый цвет для OG Cosmetic
                     displayItem = true
                 end
@@ -1393,26 +1378,10 @@ searchBox.Parent = expandedFrame
         end
     
         itemsListFrame.Size = UDim2.new(1, 0, 0, yOffset)
+        inventoryScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, yOffset)
     end
     
-    local filterButtons = {
-        ["All"] = allButton,
-        ["Aura"] = auraButton,
-        ["Mount"] = mountButton,
-        ["Weapon/Armor"] = weaponArmorButton,
-        ["OG Cosmetic"] = ogCosmeticButton,
-    }
-
-    -- Установка обработчиков событий для кнопок фильтрации и строки поиска
-for filter, button in pairs(filterButtons) do
-    button.MouseButton1Click:Connect(function()
-        updateInventoryItems(filter, searchBox.Text)
-    end)
-end
-
-searchBox:GetPropertyChangedSignal("Text"):Connect(function()
-    updateInventoryItems("All", searchBox.Text)
-end)
+    
 
     allButton.MouseButton1Click:Connect(function() updateInventoryItems("All") end)
     auraButton.MouseButton1Click:Connect(function() updateInventoryItems("Aura") end)
@@ -1505,7 +1474,6 @@ end
 
 game:GetService("Players").PlayerAdded:Connect(updatePlayerProfiles)
 game:GetService("Players").PlayerRemoving:Connect(updatePlayerProfiles)
-    
 ---------------------------------------------------------
 
 
