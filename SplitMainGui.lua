@@ -798,7 +798,7 @@ TextLabel.Parent = Container
 
 -- Создаем текстовое поле посередине
 local PlayerNameInput = Instance.new("TextBox")
-PlayerNameInput.Size = UDim2.new(0.4, 0, 1, 0)
+PlayerNameInput.Size = UDim2.new(0.2, 0, 1, 0)
 PlayerNameInput.Position = UDim2.new(0.4, 0, 0, 0)
 PlayerNameInput.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
 PlayerNameInput.Text = "AKNALOGIA11" -- начальное значение
@@ -872,7 +872,7 @@ ToggleButton.Parent = AutoTradeContainer
 -- Создаем кнопку "Reset"
 local ResetButton = Instance.new("TextButton")
 ResetButton.Size = UDim2.new(0.3, 0, 1, 0)
-ResetButton.Position = UDim2.new(1, 0, 0, 0) -- Размещаем кнопку справа от переключателя
+ResetButton.Position = UDim2.new(0.4, 0, 0, 0) -- Размещаем кнопку справа от переключателя
 ResetButton.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
 ResetButton.Text = "Reset"
 ResetButton.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -1226,25 +1226,6 @@ local function createPlayerProfile(playerName, index)
         return button
     end
 
-    local searchBox = Instance.new("TextBox")
-    searchBox.Size = UDim2.new(0.4, 0, 0, 30)
-    searchBox.Position = UDim2.new(0.6, 5, 0, 0)
-    searchBox.PlaceholderText = "Search..."
-    searchBox.Text = ""
-    searchBox.TextColor3 = Color3.fromRGB(0, 0, 0)
-    searchBox.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-    searchBox.BorderSizePixel = 0
-    searchBox.Font = Enum.Font.SourceSans
-    searchBox.TextSize = 18
-    searchBox.ClearTextOnFocus = false
-    searchBox.Parent = expandedFrame
-    
-    searchBox.Changed:Connect(function(property)
-        if property == "Text" then
-            updateInventoryItems("Search", searchBox.Text)
-        end
-    end)
-
     local allButton = createFilterButton("All", 0, expandedFrame)
     local auraButton = createFilterButton("Aura", 0.2, expandedFrame)
     local mountButton = createFilterButton("Mount", 0.4, expandedFrame)
@@ -1263,7 +1244,7 @@ local function createPlayerProfile(playerName, index)
     itemsListFrame.BackgroundTransparency = 1
     itemsListFrame.Parent = inventoryScrollingFrame
 
-    local function updateInventoryItems(filter, searchText)
+    local function updateInventoryItems(filter)
         local inventory = profile:WaitForChild("Inventory")
         local items = {}
     
@@ -1286,13 +1267,7 @@ local function createPlayerProfile(playerName, index)
     
         local itemList = {}
         for name, count in pairs(items) do
-            if filter == "Search" then
-                if string.find(string.lower(name), string.lower(searchText)) then
-                    table.insert(itemList, {name = name, count = count})
-                end
-            else
-                table.insert(itemList, {name = name, count = count})
-            end
+            table.insert(itemList, {name = name, count = count})
         end
     
         -- Функция для получения цвета и приоритета Маунтов
@@ -1338,92 +1313,73 @@ local function createPlayerProfile(playerName, index)
     
         itemsListFrame:ClearAllChildren()
         local yOffset = 0
-
-        local itemList = {}
-        for name, count in pairs(items) do
-            local shouldIncludeItem = true
-    
-            -- Условие для фильтрации по поисковому запросу
-            if filter == "Search" then
-                shouldIncludeItem = string.find(string.lower(name), string.lower(searchText)) ~= nil
-            end
-    
-            -- Дополнительные фильтры (Aura, Mount, Weapon/Armor, OG Cosmetic)
-            if filter ~= "Search" and filter ~= "All" then
-                if filter == "Aura" and not string.find(name, "Aura") then
-                    shouldIncludeItem = false
-                elseif filter == "Mount" and not string.find(name, "Mount") then
-                    shouldIncludeItem = false
-                elseif filter == "Weapon/Armor" then
-                    -- Условие для отображения Weapon/Armor
-                    local enchantObject = item:FindFirstChild("Enchant")
-                    local legendEnchantObject = item:FindFirstChild("LegendEnchant")
-                    local upgradeObject = item:FindFirstChild("Upgrade")
-                    
-                    shouldIncludeItem = (enchantObject ~= nil or legendEnchantObject ~= nil or upgradeObject ~= nil)
-                elseif filter == "OG Cosmetic" and not table.find(ogCosmeticItems, name) then
-                    shouldIncludeItem = false
-                end
-            end
-    
-            if shouldIncludeItem then
-                table.insert(itemList, {name = name, count = count})
-            end
-        end
-
     
         -- Отображение предметов
         for _, itemInfo in ipairs(itemList) do
+            local displayItem = false
             local displayText = itemInfo.name .. " :" .. itemInfo.count
             local itemLabel = Instance.new("TextLabel")
+            itemLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
     
-            -- Дополнительные настройки отображения в зависимости от фильтра
-            if filter == "Aura" then
-                itemLabel.TextColor3, _ = getAuraColor(itemInfo.name)
-            elseif filter == "Mount" then
-                itemLabel.TextColor3 = getMountColor(itemInfo.name)
-            elseif filter == "Weapon/Armor" then
-                local item = inventory:FindFirstChild(itemInfo.name)
-                if item then
+            -- Найти соответствующий объект в инвентаре
+            local item = inventory:FindFirstChild(itemInfo.name)
+    
+            if item then
+                if filter == "All" then
+                    displayItem = true
+                elseif filter == "Aura" and string.find(itemInfo.name, "Aura") then
+                    itemLabel.TextColor3, _ = getAuraColor(itemInfo.name)
+                    displayItem = true
+                elseif filter == "Mount" and string.find(itemInfo.name, "Mount") then
+                    displayItem = true
+                    itemLabel.TextColor3 = getMountColor(itemInfo.name)
+                elseif filter == "Weapon/Armor" then
                     local enchantObject = item:FindFirstChild("Enchant")
                     local legendEnchantObject = item:FindFirstChild("LegendEnchant")
                     local upgradeObject = item:FindFirstChild("Upgrade")
-        
+    
+                    -- Проверка и обновление текста, если объекты существуют
                     if upgradeObject then
                         displayText = displayText .. " +" .. upgradeObject.Value
                     end
-        
+    
                     if enchantObject and enchantObject.Value >= 1 and enchantObject.Value <= 9 then
+                        displayItem = true
                         local enchantValue = enchantObject.Value
                         displayText = displayText .. " " .. (enchantValue == 1 and "MVP" or (enchantValue == 2 and "ATK" or (enchantValue == 3 and "HPR" or (enchantValue == 4 and "MHP" or (enchantValue == 5 and "CRI" or (enchantValue == 6 and "SPR" or (enchantValue == 7 and "CRD" or (enchantValue == 8 and "BUR" or "STA"))))))))
                     end
-        
+    
                     if legendEnchantObject and legendEnchantObject.Value >= 1 and legendEnchantObject.Value <= 9 then
                         itemLabel.TextColor3 = Color3.fromRGB(255, 140, 0) -- Оранжевый для предметов с LegendEnchant
+                        displayItem = true
                         local legendEnchantValue = legendEnchantObject.Value
                         displayText = displayText .. "/" .. (legendEnchantValue == 1 and "MVP" or (legendEnchantValue == 2 and "ATK" or (legendEnchantValue == 3 and "HPR" or (legendEnchantValue == 4 and "MHP" or (legendEnchantValue == 5 and "CRI" or (legendEnchantValue == 6 and "SPR" or (legendEnchantValue == 7 and "CRDI" or (legendEnchantValue == 8 and "BUR" or "STA"))))))))
                     end
+                -- Предположим, что itemInfo имеет свойство "Children", которое содержит дочерние объекты
+ elseif filter == "OG Cosmetic" and table.find(ogCosmeticItems, itemInfo.name) then
+                    itemLabel.TextColor3 = Color3.fromRGB(255, 0, 255) -- Розовый цвет для OG Cosmetic
+                    displayItem = true
                 end
-            elseif filter == "OG Cosmetic" then
-                itemLabel.TextColor3 = Color3.fromRGB(255, 0, 255) -- Розовый цвет для OG Cosmetic
             end
     
-    -- Если предмет соответствует условиям, выводим его
-    itemLabel.Text = displayText
-    itemLabel.Size = UDim2.new(1, -10, 0, 30)
-    itemLabel.Position = UDim2.new(0, 5, 0, yOffset)
-    itemLabel.BackgroundTransparency = 1
-    itemLabel.Font = Enum.Font.SourceSans
-    itemLabel.TextSize = 16
-    itemLabel.TextXAlignment = Enum.TextXAlignment.Left
-    itemLabel.TextYAlignment = Enum.TextYAlignment.Top
-    itemLabel.Parent = itemsListFrame
-    yOffset = yOffset + 30
-end
-
-itemsListFrame.Size = UDim2.new(1, 0, 0, yOffset)
-inventoryScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, yOffset)
-end
+            -- Если предмет соответствует условиям, выводим его
+            if displayItem then
+                itemLabel.Text = displayText
+                itemLabel.Size = UDim2.new(1, -10, 0, 30)
+                itemLabel.Position = UDim2.new(0, 5, 0, yOffset)
+                itemLabel.BackgroundTransparency = 1
+                itemLabel.Font = Enum.Font.SourceSans
+                itemLabel.TextSize = 16
+                itemLabel.TextXAlignment = Enum.TextXAlignment.Left
+                itemLabel.TextYAlignment = Enum.TextYAlignment.Top
+                itemLabel.Parent = itemsListFrame
+                yOffset = yOffset + 30
+            end
+        end
+    
+        itemsListFrame.Size = UDim2.new(1, 0, 0, yOffset)
+        inventoryScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, yOffset)
+    end
     
     
 
