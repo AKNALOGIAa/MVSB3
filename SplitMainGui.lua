@@ -189,7 +189,7 @@ content.BorderSizePixel = 0
 content.Parent = mainFrame
 
 -- Размер и отступы кнопок
-local buttonHeight = 30
+local buttonHeight = 40
 local buttonSpacing = 10
 
 -- Функция для создания кнопок в боковом меню
@@ -258,8 +258,7 @@ local categories = {
     {name = "Профиль Игроков", section = "PlayerProfile"},
     {name = "Трейды", section = "Trades"},
     {name = "Вещи", section = "Items"},
-    {name = "Настройки", section = "Settings"},
-    {name = "Логи", section = "Logs"}
+    {name = "Настройки", section = "Settings"}
 }
 
 for index, category in ipairs(categories) do
@@ -271,6 +270,8 @@ end
 local mainCategorySection = content:FindFirstChild("Main")
 
 if mainCategorySection then
+    print("Раздел 'Основные Для гильдии' найден")
+
     -- Создаем кнопку для сбора наград в гильдии
     local guildRewardButton = Instance.new("TextButton")
     guildRewardButton.Size = UDim2.new(1, 0, 0, 50)  -- Размер кнопки
@@ -880,6 +881,9 @@ ResetButton.TextSize = 18
 ResetButton.BorderSizePixel = 0
 ResetButton.Parent = AutoTradeContainer
 
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
 -- Функция сброса
 local function resetFunction(player)
     local args = {
@@ -889,6 +893,43 @@ local function resetFunction(player)
     game:GetService("ReplicatedStorage").Systems.Trading.QuitTrade:FireServer()
 end
 
+-- Функция для обработки сообщений от игрока
+local function onPlayerChatted(player, message)
+    -- Выводим все сообщения
+    print(player.Name .. ": " .. message)
+    
+    -- Проверяем, если сообщение равно "Reset T"
+    if message == "Reset T" then
+        print("Special command detected: " .. message)
+        
+        -- Выполняем функцию сброса
+        resetFunction(player)
+        
+        -- Отправляем сообщение "OK" игроку
+        local args = {
+            [1] = "/w " .. player.Name .. " OK", -- Отправляем личное сообщение с текстом "OK"
+            [2] = "To " .. player.Name
+        }
+
+        -- Отправляем сообщение
+        ReplicatedStorage.DefaultChatSystemChatEvents.SayMessageRequest:FireServer(unpack(args))
+    end
+end
+
+-- Подключаемся к событию добавления нового игрока
+Players.PlayerAdded:Connect(function(player)
+    -- Подключаемся к событию чата конкретного игрока
+    player.Chatted:Connect(function(message)
+        onPlayerChatted(player, message)
+    end)
+end)
+
+-- Обработка для уже подключенных игроков (если игроки были в игре до запуска скрипта)
+for _, player in ipairs(Players:GetPlayers()) do
+    player.Chatted:Connect(function(message)
+        onPlayerChatted(player, message)
+    end)
+end
 
 -- Привязываем функцию к кнопке "Reset"
 ResetButton.MouseButton1Click:Connect(function()
@@ -1805,45 +1846,7 @@ end
 -- Используем Heartbeat для запуска функции обновления
 RunService.Heartbeat:Connect(update)
 
---------------------КОМАНДЫ-------------------
--- Функция для обработки сообщений от игрока
-local function onPlayerChatted(player, message)
-    -- Выводим все сообщения
-    print(player.Name .. ": " .. message)
 
-    -- Проверяем, если сообщение равно "Reset T"
-    if message == "Reset T" then
-        print("Special command detected: " .. message)
-        
-        -- Выполняем функцию сброса
-        resetFunction(player)
-        
-        -- Отправляем сообщение "OK" игроку
-        local args = {
-            [1] = "/w " .. player.Name .. " OK", -- Отправляем личное сообщение с текстом "OK"
-            [2] = "To " .. player.Name
-        }
-
-        -- Отправляем сообщение
-        ReplicatedStorage.DefaultChatSystemChatEvents.SayMessageRequest:FireServer(unpack(args))
-    end
-end
-
--- Подключаемся к событию добавления нового игрока
-Players.PlayerAdded:Connect(function(player)
-    -- Подключаемся к событию чата конкретного игрока
-    player.Chatted:Connect(function(message)
-        onPlayerChatted(player, message)
-    end)
-end)
-
--- Обработка для уже подключенных игроков (если игроки были в игре до запуска скрипта)
-for _, player in ipairs(Players:GetPlayers()) do
-    player.Chatted:Connect(function(message)
-        onPlayerChatted(player, message)
-    end)
-end
----------------------------------------------------------
 
 ------------------------------------------anti afk kick
 local vu = cloneref(game:GetService("VirtualUser"))
