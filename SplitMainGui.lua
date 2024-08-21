@@ -1860,7 +1860,7 @@ profileList.ScrollBarThickness = 8
 profileList.BackgroundTransparency = 1
 profileList.Parent = content:FindFirstChild("Logs")
 
-local currentYPosition = 0 -- Переменная для отслеживания текущей Y позиции
+local messageCount = 0 -- Счётчик сообщений
 
 -- Функция для добавления лог-сообщений в консоль
 local function addLogMessage(message, messageType)
@@ -1870,7 +1870,7 @@ local function addLogMessage(message, messageType)
     -- Создаем текстовый элемент для нового лог-сообщения
     local logText = Instance.new("TextLabel")
     logText.Size = UDim2.new(1, 0, 0, 20) -- Высота строки = 20
-    logText.Position = UDim2.new(0, 0, 0, currentYPosition) -- Позиция по Y для нового текста
+    logText.Position = UDim2.new(0, 0, 0, messageCount * 20) -- Позиция по Y для нового текста
     logText.BackgroundTransparency = 1
     logText.TextXAlignment = Enum.TextXAlignment.Left
     
@@ -1886,19 +1886,23 @@ local function addLogMessage(message, messageType)
     logText.Text = time .. message
     logText.Parent = profileList
     
-    -- Обновляем позицию Y для следующего сообщения
-    currentYPosition = currentYPosition + 20
-    profileList.CanvasSize = UDim2.new(0, 0, 0, currentYPosition)
+    -- Увеличиваем счётчик сообщений и обновляем CanvasSize
+    messageCount = messageCount + 1
+    profileList.CanvasSize = UDim2.new(0, 0, 0, messageCount * 20)
 
     -- Ограничиваем количество сообщений до 200
-    if currentYPosition / 20 > 200 then
+    if messageCount > 200 then
+        -- Удаляем первое сообщение
         local firstChild = profileList:GetChildren()[1]
         firstChild:Destroy()
-        currentYPosition = currentYPosition - 20
+        
         -- Сдвигаем все оставшиеся элементы вверх
         for _, child in ipairs(profileList:GetChildren()) do
             child.Position = UDim2.new(0, 0, 0, child.Position.Y.Offset - 20)
         end
+        
+        -- Уменьшаем счетчик сообщений
+        messageCount = messageCount - 1
     end
 end
 
