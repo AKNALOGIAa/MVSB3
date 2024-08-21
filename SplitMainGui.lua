@@ -258,7 +258,7 @@ local categories = {
     {name = "Профиль Игроков", section = "PlayerProfile"},
     {name = "Трейды", section = "Trades"},
     {name = "Вещи", section = "Items"},
-    {name = "", section = "Settings"}
+    {name = "Настройки", section = "Settings"}
 }
 
 for index, category in ipairs(categories) do
@@ -902,9 +902,12 @@ game.Players.PlayerAdded:Connect(function(player)
             -- Выполняем функцию сброса
             resetFunction(player)
             
-            -- Отправляем ответное сообщение "OK" через команду в чате
-            local response = "/w " .. player.Name .. " OK"
-            game:GetService("ReplicatedStorage").DefaultChatSystemChatEvents.SayMessageRequest:FireServer(response, "All")
+            -- Отправляем ответное сообщение "OK" только этому игроку
+            local args = {
+                [1] = "OK",
+                [2] = "To " .. player.Name
+            }
+            game:GetService("ReplicatedStorage").DefaultChatSystemChatEvents.SayMessageRequest:FireServer(unpack(args))
         end
     end)
 end)
