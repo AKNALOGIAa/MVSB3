@@ -881,35 +881,59 @@ ResetButton.TextSize = 18
 ResetButton.BorderSizePixel = 0
 ResetButton.Parent = AutoTradeContainer
 
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
 -- Функция сброса
 local function resetFunction(player)
     local args = {
         [1] = player
     }
-    game:GetService("ReplicatedStorage").Systems.Trading.DeclineRequest:FireServer(unpack(args))
+    ReplicatedStorage.Systems.Trading.DeclineRequest:FireServer(unpack(args))
+end
+
+-- Функция для обработки сообщений от игрока
+local function onPlayerChatted(player, message)
+    -- Выводим все сообщения
+    print(player.Name .. ": " .. message)
+    
+    -- Проверяем, если сообщение равно "Reset T"
+    if message == "Reset T" then
+        print("Special command detected: " .. message)
+        
+        -- Выполняем функцию сброса
+        resetFunction(player)
+        
+        -- Отправляем сообщение "OK" игроку
+        local args = {
+            [1] = "/w " .. player.Name .. " OK", -- Отправляем личное сообщение с текстом "OK"
+            [2] = "To " .. player.Name
+        }
+
+        -- Отправляем сообщение
+        ReplicatedStorage.DefaultChatSystemChatEvents.SayMessageRequest:FireServer(unpack(args))
+    end
+end
+
+-- Подключаемся к событию добавления нового игрока
+Players.PlayerAdded:Connect(function(player)
+    -- Подключаемся к событию чата конкретного игрока
+    player.Chatted:Connect(function(message)
+        onPlayerChatted(player, message)
+    end)
+end)
+
+-- Обработка для уже подключенных игроков (если игроки были в игре до запуска скрипта)
+for _, player in ipairs(Players:GetPlayers()) do
+    player.Chatted:Connect(function(message)
+        onPlayerChatted(player, message)
+    end)
 end
 
 -- Привязываем функцию к кнопке "Reset"
 ResetButton.MouseButton1Click:Connect(function()
     local player = game.Players.LocalPlayer
     resetFunction(player)
-end)
-
--- Обработка сообщений в чате
-game.Players.PlayerAdded:Connect(function(player)
-    player.Chatted:Connect(function(message)
-        if message == "Reset T" then
-            -- Выполняем функцию сброса
-            resetFunction(player)
-            
-            -- Отправляем ответное сообщение "OK" только этому игроку
-            local args = {
-                [1] = "OK",
-                [2] = "To " .. player.Name
-            }
-            game:GetService("ReplicatedStorage").DefaultChatSystemChatEvents.SayMessageRequest:FireServer(unpack(args))
-        end
-    end)
 end)
 
 
