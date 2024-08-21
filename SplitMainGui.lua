@@ -1861,30 +1861,67 @@ profileList.BackgroundTransparency = 1
 profileList.Parent = content:FindFirstChild("Logs")
 
 local messageCount = 0 -- Счётчик сообщений
+local currentFilter = "Все" -- Начальный фильтр
+
+local function applyFilter()
+    for _, logText in pairs(profileList:GetChildren()) do
+        if currentFilter == "Все" or logText.Tag.Value == currentFilter then
+            logText.Visible = true
+        else
+            logText.Visible = false
+        end
+    end
+end
+
+local function createFilterButton(name)
+    local button = Instance.new("TextButton")
+    button.Text = name
+    button.Size = UDim2.new(0, 100, 0, 30)
+    button.Position = UDim2.new(0, messageCount * 110, 0, 0)
+    button.MouseButton1Click:Connect(function()
+        currentFilter = name
+        applyFilter()
+    end)
+    button.Parent = content:FindFirstChild("FilterButtons")
+end
+
+createFilterButton("Все")
+createFilterButton("Предупреждения")
+createFilterButton("Ошибки")
+createFilterButton("Чаты")
 
 -- Функция для добавления лог-сообщений в консоль
-local function addLogMessage(message, messageType)
+local function addLogMessage(message, messageType, category)
     -- Получаем текущее время
     local time = os.date("[%H:%M:%S] ")
 
     -- Создаем текстовый элемент для нового лог-сообщения
     local logText = Instance.new("TextLabel")
-    logText.Size = UDim2.new(1, 0, 0, 20) -- Высота строки = 20
-    logText.Position = UDim2.new(0, 0, 0, messageCount * 20) -- Позиция по Y для нового текста
+    logText.Size = UDim2.new(1, 0, 0, 20)
     logText.BackgroundTransparency = 1
     logText.TextXAlignment = Enum.TextXAlignment.Left
-    
+    logText.TextWrapped = true -- Перенос текста
+    logText.ClipsDescendants = true -- Обрезка текста если слишком длинный
+
     -- Настраиваем текст и цвет на основе типа сообщения
-    if messageType == Enum.MessageType.MessageOutput then
+    if messageType == "Print" then
         logText.TextColor3 = Color3.new(0, 1, 0) -- Зеленый для print
-    elseif messageType == Enum.MessageType.MessageWarning then
+    elseif messageType == "Warning" then
         logText.TextColor3 = Color3.new(1, 1, 0) -- Желтый для warn
-    elseif messageType == Enum.MessageType.MessageError then
+    elseif messageType == "Error" then
         logText.TextColor3 = Color3.new(1, 0, 0) -- Красный для error
+    elseif messageType == "Chat" then
+        logText.TextColor3 = Color3.new(0.5, 0.5, 1) -- Синий для чатов
     end
     
     logText.Text = time .. message
     logText.Parent = profileList
+    
+    -- Добавляем тег для фильтрации
+    local tag = Instance.new("StringValue")
+    tag.Name = "Tag"
+    tag.Value = category
+    tag.Parent = logText
     
     -- Увеличиваем счётчик сообщений и обновляем CanvasSize
     messageCount = messageCount + 1
@@ -1892,23 +1929,30 @@ local function addLogMessage(message, messageType)
 
     -- Ограничиваем количество сообщений до 200
     if messageCount > 200 then
-        -- Удаляем первое сообщение
         local firstChild = profileList:GetChildren()[1]
         firstChild:Destroy()
-        
-        -- Сдвигаем все оставшиеся элементы вверх
-        for _, child in ipairs(profileList:GetChildren()) do
-            child.Position = UDim2.new(0, 0, 0, child.Position.Y.Offset - 20)
-        end
-        
-        -- Уменьшаем счетчик сообщений
         messageCount = messageCount - 1
     end
+
+    -- Применяем текущий фильтр
+    applyFilter()
+end
+
+-- Функция для обработки чатов
+local function logChat(playerName, message)
+    addLogMessage(playerName .. ": " .. message, "Chat", "Чаты")
 end
 
 -- Подписка на события LogService
 LogService.MessageOut:Connect(function(message, messageType)
-    addLogMessage(message, messageType)
+    local category = "Все"
+    if messageType == Enum.MessageType.MessageOutput then
+        addLogMessage(message, "Print", category)
+    elseif messageType == Enum.MessageType.MessageWarning then
+        addLogMessage(message, "Warning", "Предупреждения")
+    elseif messageType == Enum.MessageType.MessageError then
+        addLogMessage(message, "Error", "Ошибки")
+    end
 end)
 ---------------------------------------------------------
 
