@@ -189,7 +189,7 @@ content.BorderSizePixel = 0
 content.Parent = mainFrame
 
 -- Размер и отступы кнопок
-local buttonHeight = 40
+local buttonHeight = 30
 local buttonSpacing = 10
 
 -- Функция для создания кнопок в боковом меню
@@ -258,7 +258,8 @@ local categories = {
     {name = "Профиль Игроков", section = "PlayerProfile"},
     {name = "Трейды", section = "Trades"},
     {name = "Вещи", section = "Items"},
-    {name = "Настройки", section = "Settings"}
+    {name = "Настройки", section = "Settings"},
+    {name = "Логи", section = "Logs"}
 }
 
 for index, category in ipairs(categories) do
@@ -1847,6 +1848,41 @@ end
 RunService.Heartbeat:Connect(update)
 
 
+--------------------------Логи---------------------------
+local LogService = game:GetService("LogService")
+
+local profileList = Instance.new("ScrollingFrame")
+profileList.Name = "Логи"
+profileList.Size = UDim2.new(1, 0, 1, -50)
+profileList.Position = UDim2.new(0, 0, 0, 50)
+profileList.CanvasSize = UDim2.new(0, 0, 0, 0)
+profileList.ScrollBarThickness = 8
+profileList.BackgroundTransparency = 1
+profileList.Parent = content:FindFirstChild("Logs")
+
+-- Функция для добавления лог-сообщений в консоль
+local function addLogMessage(message)
+    local logText = Instance.new("TextLabel")
+    logText.Size = UDim2.new(1, 0, 0, 20)
+    logText.BackgroundTransparency = 1
+    logText.Text = message
+    logText.TextColor3 = Color3.new(1, 1, 1)
+    logText.TextXAlignment = Enum.TextXAlignment.Left
+    logText.Parent = profileList
+    
+    profileList.CanvasSize = UDim2.new(0, 0, 0, profileList.CanvasSize.Y.Offset + 20)
+end
+
+-- Подписка на события LogService
+LogService.MessageOut:Connect(function(message, messageType)
+    addLogMessage(message)
+end)
+
+---------------------------------------------------------
+
+
+-------------------------Команды-------------------------
+---------------------------------------------------------
 
 ------------------------------------------anti afk kick
 local vu = cloneref(game:GetService("VirtualUser"))
