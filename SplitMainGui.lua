@@ -1860,117 +1860,55 @@ profileList.ScrollBarThickness = 8
 profileList.BackgroundTransparency = 1
 profileList.Parent = content:FindFirstChild("Logs")
 
-local filterButtonsFrame = Instance.new("Frame")
-filterButtonsFrame.Name = "FilterButtons"
-filterButtonsFrame.Size = UDim2.new(1, 0, 0, 30)
-filterButtonsFrame.Position = UDim2.new(0, 0, 0, 20)
-filterButtonsFrame.BackgroundTransparency = 1
-filterButtonsFrame.Parent = content
-
 local messageCount = 0 -- Счётчик сообщений
-local currentFilter = "Все" -- Начальный фильтр
-
-local function applyFilter()
-    for _, logText in pairs(profileList:GetChildren()) do
-        if logText:IsA("TextLabel") then
-            if currentFilter == "Все" or logText.Tag.Value == currentFilter then
-                logText.Visible = true
-            else
-                logText.Visible = false
-            end
-        end
-    end
-end
-
-local function createFilterButton(name, positionX)
-    local button = Instance.new("TextButton")
-    button.Text = name
-    button.Size = UDim2.new(0, 100, 1, 0)
-    button.Position = UDim2.new(0, positionX, 0, 0)
-    button.BackgroundTransparency = 0.5
-    button.MouseButton1Click:Connect(function()
-        currentFilter = name
-        applyFilter()
-    end)
-    button.Parent = filterButtonsFrame
-end
-
-createFilterButton("Все", 0)
-createFilterButton("Предупреждения", 110)
-createFilterButton("Ошибки", 220)
-createFilterButton("Чаты", 330)
 
 -- Функция для добавления лог-сообщений в консоль
-local function addLogMessage(message, messageType, category)
+local function addLogMessage(message, messageType)
     -- Получаем текущее время
     local time = os.date("[%H:%M:%S] ")
 
     -- Создаем текстовый элемент для нового лог-сообщения
     local logText = Instance.new("TextLabel")
-    logText.Size = UDim2.new(1, -10, 0, 20)
-    logText.Position = UDim2.new(0, 5, 0, messageCount * 25)
+    logText.Size = UDim2.new(1, 0, 0, 20) -- Высота строки = 20
+    logText.Position = UDim2.new(0, 0, 0, messageCount * 20) -- Позиция по Y для нового текста
     logText.BackgroundTransparency = 1
     logText.TextXAlignment = Enum.TextXAlignment.Left
-    logText.TextWrapped = true -- Перенос текста
-    logText.ClipsDescendants = true -- Обрезка текста если слишком длинный
-
+    
     -- Настраиваем текст и цвет на основе типа сообщения
-    if messageType == "Print" then
+    if messageType == Enum.MessageType.MessageOutput then
         logText.TextColor3 = Color3.new(0, 1, 0) -- Зеленый для print
-    elseif messageType == "Warning" then
+    elseif messageType == Enum.MessageType.MessageWarning then
         logText.TextColor3 = Color3.new(1, 1, 0) -- Желтый для warn
-    elseif messageType == "Error" then
+    elseif messageType == Enum.MessageType.MessageError then
         logText.TextColor3 = Color3.new(1, 0, 0) -- Красный для error
-    elseif messageType == "Chat" then
-        logText.TextColor3 = Color3.new(0.5, 0.5, 1) -- Синий для чатов
     end
     
     logText.Text = time .. message
     logText.Parent = profileList
     
-    -- Добавляем тег для фильтрации
-    local tag = Instance.new("StringValue")
-    tag.Name = "Tag"
-    tag.Value = category
-    tag.Parent = logText
-    
     -- Увеличиваем счётчик сообщений и обновляем CanvasSize
     messageCount = messageCount + 1
-    profileList.CanvasSize = UDim2.new(0, 0, 0, messageCount * 25)
+    profileList.CanvasSize = UDim2.new(0, 0, 0, messageCount * 20)
 
     -- Ограничиваем количество сообщений до 200
     if messageCount > 200 then
+        -- Удаляем первое сообщение
         local firstChild = profileList:GetChildren()[1]
         firstChild:Destroy()
-        messageCount = messageCount - 1
-
-        -- Сдвигаем оставшиеся элементы вверх
+        
+        -- Сдвигаем все оставшиеся элементы вверх
         for _, child in ipairs(profileList:GetChildren()) do
-            if child:IsA("TextLabel") then
-                child.Position = UDim2.new(0, 5, 0, child.Position.Y.Offset - 25)
-            end
+            child.Position = UDim2.new(0, 0, 0, child.Position.Y.Offset - 20)
         end
+        
+        -- Уменьшаем счетчик сообщений
+        messageCount = messageCount - 1
     end
-
-    -- Применяем текущий фильтр
-    applyFilter()
-end
-
--- Функция для обработки чатов
-local function logChat(playerName, message)
-    addLogMessage(playerName .. ": " .. message, "Chat", "Чаты")
 end
 
 -- Подписка на события LogService
 LogService.MessageOut:Connect(function(message, messageType)
-    local category = "Все"
-    if messageType == Enum.MessageType.MessageOutput then
-        addLogMessage(message, "Print", category)
-    elseif messageType == Enum.MessageType.MessageWarning then
-        addLogMessage(message, "Warning", "Предупреждения")
-    elseif messageType == Enum.MessageType.MessageError then
-        addLogMessage(message, "Error", "Ошибки")
-    end
+    addLogMessage(message, messageType)
 end)
 ---------------------------------------------------------
 
