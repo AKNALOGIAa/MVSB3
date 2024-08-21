@@ -890,6 +890,7 @@ local function resetFunction(player)
         [1] = player
     }
     ReplicatedStorage.Systems.Trading.DeclineRequest:FireServer(unpack(args))
+    game:GetService("ReplicatedStorage").Systems.Trading.QuitTrade:FireServer()
 end
 
 -- Функция для обработки сообщений от игрока
