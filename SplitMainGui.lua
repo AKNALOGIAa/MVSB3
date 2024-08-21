@@ -1808,18 +1808,9 @@ RunService.Heartbeat:Connect(update)
 --------------------КОМАНДЫ-------------------
 -- Функция для обработки сообщений от игрока
 local function onPlayerChatted(player, message)
-    local recipientName = ""
-
-    -- Проверяем, есть ли в сообщении упоминание другого игрока
-    for _, otherPlayer in pairs(game.Players:GetPlayers()) do
-        if message:find(otherPlayer.Name) then
-            recipientName = " To " .. otherPlayer.Name
-            break -- Останавливаем цикл после нахождения первого совпадения
-        end
-    end
 
     -- Выводим сообщение в формате "Имя: сообщение To Имя получателя"
-    print(player.Name .. ": " .. message .. recipientName)
+    print(player.Name .. ": " .. message)
 
     -- Проверяем, если сообщение равно "Reset T"
     if message == "Reset T" then
@@ -1837,6 +1828,29 @@ local function onPlayerChatted(player, message)
         -- Отправляем сообщение
         ReplicatedStorage.DefaultChatSystemChatEvents.SayMessageRequest:FireServer(unpack(args))
     end
+
+ if string.sub(message, 1, 10) == "NewDefNick" then
+    print("Special command detected: " .. message)
+    
+    -- Извлекаем новое имя из сообщения
+    local newNick = string.sub(message, 11) -- Получаем текст после "NewDefNick"
+    
+    -- Меняем значение переменной на новое имя
+    local savedPlayerName = newNick
+    
+    -- Выполняем функцию сброса
+    resetFunction(player)
+    
+    -- Отправляем сообщение об успешном обновлении ника игроку
+    local args = {
+        [1] = "/w " .. player.Name .. " Ник успешно обновлен на: " .. savedPlayerName,
+        [2] = "To " .. player.Name
+    }
+
+    -- Отправляем сообщение
+    ReplicatedStorage.DefaultChatSystemChatEvents.SayMessageRequest:FireServer(unpack(args))
+end
+
 end
 
 -- Подключаемся к событию добавления нового игрока
