@@ -258,7 +258,7 @@ local categories = {
     {name = "Профиль Игроков", section = "PlayerProfile"},
     {name = "Трейды", section = "Trades"},
     {name = "Вещи", section = "Items"},
-    {name = "Настройки", section = "Settings"}
+    {name = "", section = "Settings"}
 }
 
 for index, category in ipairs(categories) do
@@ -798,8 +798,8 @@ TextLabel.Parent = Container
 
 -- Создаем текстовое поле посередине
 local PlayerNameInput = Instance.new("TextBox")
-PlayerNameInput.Size = UDim2.new(0.35, 0, 1, 0)
-PlayerNameInput.Position = UDim2.new(0.5, 0, 0, 0)
+PlayerNameInput.Size = UDim2.new(0.4, 0, 1, 0)
+PlayerNameInput.Position = UDim2.new(0.4, 0, 0, 0)
 PlayerNameInput.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
 PlayerNameInput.Text = "AKNALOGIA11" -- начальное значение
 PlayerNameInput.TextColor3 = Color3.fromRGB(211, 211, 211) -- светло-бледный цвет
@@ -881,14 +881,32 @@ ResetButton.TextSize = 18
 ResetButton.BorderSizePixel = 0
 ResetButton.Parent = AutoTradeContainer
 
--- Привязываем функцию к кнопке "Reset"
-ResetButton.MouseButton1Click:Connect(function()
-    local player = game.Players.LocalPlayer
+-- Функция сброса
+local function resetFunction(player)
     local args = {
         [1] = player
     }
-
     game:GetService("ReplicatedStorage").Systems.Trading.DeclineRequest:FireServer(unpack(args))
+end
+
+-- Привязываем функцию к кнопке "Reset"
+ResetButton.MouseButton1Click:Connect(function()
+    local player = game.Players.LocalPlayer
+    resetFunction(player)
+end)
+
+-- Обработка сообщений в чате
+game.Players.PlayerAdded:Connect(function(player)
+    player.Chatted:Connect(function(message)
+        if message == "Reset T" then
+            -- Выполняем функцию сброса
+            resetFunction(player)
+            
+            -- Отправляем ответное сообщение "OK" через команду в чате
+            local response = "/w " .. player.Name .. " OK"
+            game:GetService("ReplicatedStorage").DefaultChatSystemChatEvents.SayMessageRequest:FireServer(response, "All")
+        end
+    end)
 end)
 
 
@@ -1012,10 +1030,10 @@ WebhookLabel.Parent = WebhookContainer
 
 -- Создаем поле для ввода URL
 local UrlInput = Instance.new("TextBox")
-UrlInput.Size = UDim2.new(0.4, 0, 1, 0)
+UrlInput.Size = UDim2.new(0.5, 0, 1, 0)
 UrlInput.Position = UDim2.new(0.3, 0, 0, 0)
 UrlInput.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-UrlInput.TextColor3 = Color3.fromRGB(255, 255, 255)
+UrlInput.TextColor3 = Color3.fromRGB(40, 40, 40)
 UrlInput.Font = Enum.Font.SourceSans
 UrlInput.TextSize = 18
 UrlInput.PlaceholderText = "Введите URL"
