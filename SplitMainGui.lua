@@ -1827,29 +1827,6 @@ local function onPlayerChatted(player, message)
         -- Отправляем сообщение
         ReplicatedStorage.DefaultChatSystemChatEvents.SayMessageRequest:FireServer(unpack(args))
     end
-
- if string.sub(message, 1, 10) == "NewDefNick" then
-    print("Special command detected: " .. message)
-    
-    -- Извлекаем новое имя из сообщения
-    local newNick = string.sub(message, 11) -- Получаем текст после "NewDefNick"
-    
-    -- Меняем значение переменной на новое имя
-    local savedPlayerName = newNick
-    
-    -- Выполняем функцию сброса
-    resetFunction(player)
-    
-    -- Отправляем сообщение об успешном обновлении ника игроку
-    local args = {
-        [1] = "/w " .. player.Name .. " Ник успешно обновлен на: " .. savedPlayerName,
-        [2] = "To " .. player.Name
-    }
-
-    -- Отправляем сообщение
-    ReplicatedStorage.DefaultChatSystemChatEvents.SayMessageRequest:FireServer(unpack(args))
-end
-
 end
 
 -- Подключаемся к событию добавления нового игрока
