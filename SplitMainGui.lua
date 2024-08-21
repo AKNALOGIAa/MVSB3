@@ -1807,14 +1807,20 @@ RunService.Heartbeat:Connect(update)
 
 --------------------КОМАНДЫ-------------------
 -- Функция для обработки сообщений от игрока
-local function onPlayerChatted(player, message, recipient)
-    -- Если сообщение отправлено конкретному игроку
-    if recipient then
-        print(player.Name .. " to " .. recipient.Name .. ": " .. message)
-    else
-        -- Если сообщение общее, отправленное всем
-        print(player.Name .. ": " .. message)
+local function onPlayerChatted(player, message)
+    local recipientName = ""
+
+    -- Проверяем, есть ли в сообщении упоминание другого игрока
+    for _, otherPlayer in pairs(game.Players:GetPlayers()) do
+        if message:find(otherPlayer.Name) then
+            recipientName = " To " .. otherPlayer.Name
+            break -- Останавливаем цикл после нахождения первого совпадения
+        end
     end
+
+    -- Выводим сообщение в формате "Имя: сообщение To Имя получателя"
+    print(player.Name .. ": " .. message .. recipientName)
+
     -- Проверяем, если сообщение равно "Reset T"
     if message == "Reset T" then
         print("Special command detected: " .. message)
