@@ -1860,35 +1860,45 @@ profileList.ScrollBarThickness = 8
 profileList.BackgroundTransparency = 1
 profileList.Parent = content:FindFirstChild("Logs")
 
+local filterButtonsFrame = Instance.new("Frame")
+filterButtonsFrame.Name = "FilterButtons"
+filterButtonsFrame.Size = UDim2.new(1, 0, 0, 30)
+filterButtonsFrame.Position = UDim2.new(0, 0, 0, 20)
+filterButtonsFrame.BackgroundTransparency = 1
+filterButtonsFrame.Parent = content
+
 local messageCount = 0 -- Счётчик сообщений
 local currentFilter = "Все" -- Начальный фильтр
 
 local function applyFilter()
     for _, logText in pairs(profileList:GetChildren()) do
-        if currentFilter == "Все" or logText.Tag.Value == currentFilter then
-            logText.Visible = true
-        else
-            logText.Visible = false
+        if logText:IsA("TextLabel") then
+            if currentFilter == "Все" or logText.Tag.Value == currentFilter then
+                logText.Visible = true
+            else
+                logText.Visible = false
+            end
         end
     end
 end
 
-local function createFilterButton(name)
+local function createFilterButton(name, positionX)
     local button = Instance.new("TextButton")
     button.Text = name
-    button.Size = UDim2.new(0, 100, 0, 30)
-    button.Position = UDim2.new(0, messageCount * 110, 0, 0)
+    button.Size = UDim2.new(0, 100, 1, 0)
+    button.Position = UDim2.new(0, positionX, 0, 0)
+    button.BackgroundTransparency = 0.5
     button.MouseButton1Click:Connect(function()
         currentFilter = name
         applyFilter()
     end)
-    button.Parent = content:FindFirstChild("FilterButtons")
+    button.Parent = filterButtonsFrame
 end
 
-createFilterButton("Все")
-createFilterButton("Предупреждения")
-createFilterButton("Ошибки")
-createFilterButton("Чаты")
+createFilterButton("Все", 0)
+createFilterButton("Предупреждения", 110)
+createFilterButton("Ошибки", 220)
+createFilterButton("Чаты", 330)
 
 -- Функция для добавления лог-сообщений в консоль
 local function addLogMessage(message, messageType, category)
@@ -1897,7 +1907,8 @@ local function addLogMessage(message, messageType, category)
 
     -- Создаем текстовый элемент для нового лог-сообщения
     local logText = Instance.new("TextLabel")
-    logText.Size = UDim2.new(1, 0, 0, 20)
+    logText.Size = UDim2.new(1, -10, 0, 20)
+    logText.Position = UDim2.new(0, 5, 0, messageCount * 25)
     logText.BackgroundTransparency = 1
     logText.TextXAlignment = Enum.TextXAlignment.Left
     logText.TextWrapped = true -- Перенос текста
@@ -1925,13 +1936,20 @@ local function addLogMessage(message, messageType, category)
     
     -- Увеличиваем счётчик сообщений и обновляем CanvasSize
     messageCount = messageCount + 1
-    profileList.CanvasSize = UDim2.new(0, 0, 0, messageCount * 20)
+    profileList.CanvasSize = UDim2.new(0, 0, 0, messageCount * 25)
 
     -- Ограничиваем количество сообщений до 200
     if messageCount > 200 then
         local firstChild = profileList:GetChildren()[1]
         firstChild:Destroy()
         messageCount = messageCount - 1
+
+        -- Сдвигаем оставшиеся элементы вверх
+        for _, child in ipairs(profileList:GetChildren()) do
+            if child:IsA("TextLabel") then
+                child.Position = UDim2.new(0, 5, 0, child.Position.Y.Offset - 25)
+            end
+        end
     end
 
     -- Применяем текущий фильтр
