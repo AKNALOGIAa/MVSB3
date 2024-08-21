@@ -1861,23 +1861,42 @@ profileList.BackgroundTransparency = 1
 profileList.Parent = content:FindFirstChild("Logs")
 
 -- Функция для добавления лог-сообщений в консоль
-local function addLogMessage(message)
+local function addLogMessage(message, messageType)
+    -- Получаем текущее время
+    local time = os.date("[%H:%M:%S] ")
+
+    -- Создаем текстовый элемент для нового лог-сообщения
     local logText = Instance.new("TextLabel")
-    logText.Size = UDim2.new(1, 0, 0, 20)
+    logText.Size = UDim2.new(1, 0, 0, 20) -- Высота строки = 20
     logText.BackgroundTransparency = 1
-    logText.Text = message
-    logText.TextColor3 = Color3.new(1, 1, 1)
     logText.TextXAlignment = Enum.TextXAlignment.Left
+    
+    -- Настраиваем текст и цвет на основе типа сообщения
+    if messageType == Enum.MessageType.MessageOutput then
+        logText.TextColor3 = Color3.new(0, 1, 0) -- Зеленый для print
+    elseif messageType == Enum.MessageType.MessageWarning then
+        logText.TextColor3 = Color3.new(1, 1, 0) -- Желтый для warn
+    elseif messageType == Enum.MessageType.MessageError then
+        logText.TextColor3 = Color3.new(1, 0, 0) -- Красный для error
+    end
+    
+    logText.Text = time .. message
     logText.Parent = profileList
     
+    -- Обновляем CanvasSize, чтобы вместить все сообщения
     profileList.CanvasSize = UDim2.new(0, 0, 0, profileList.CanvasSize.Y.Offset + 20)
+
+    -- Ограничиваем количество сообщений до 200
+    if #profileList:GetChildren() > 200 then
+        profileList:GetChildren()[1]:Destroy()
+        profileList.CanvasSize = UDim2.new(0, 0, 0, profileList.CanvasSize.Y.Offset - 20)
+    end
 end
 
 -- Подписка на события LogService
 LogService.MessageOut:Connect(function(message, messageType)
-    addLogMessage(message)
+    addLogMessage(message, messageType)
 end)
-
 ---------------------------------------------------------
 
 
