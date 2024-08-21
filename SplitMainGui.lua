@@ -1808,8 +1808,7 @@ RunService.Heartbeat:Connect(update)
 --------------------КОМАНДЫ-------------------
 -- Функция для обработки сообщений от игрока
 local function onPlayerChatted(player, message)
-
-    -- Выводим сообщение в формате "Имя: сообщение To Имя получателя"
+    -- Выводим все сообщения
     print(player.Name .. ": " .. message)
 
     -- Проверяем, если сообщение равно "Reset T"
