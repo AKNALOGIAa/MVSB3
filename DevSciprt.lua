@@ -247,69 +247,60 @@ local function createScript()
 end
 
 AddScriptButton.MouseButton1Click:Connect(createScript)
-local function displayDEXContents(parent, container, indent)
-	container:ClearAllChildren()
-	indent = indent or 0
 
+
+-- Функция для отображения содержимого DEX с улучшенным отображением папок
+local function displayDEXContents(parent, container, indent)
+	indent = indent or 0
 	local yPos = 0
+
 	for _, item in pairs(parent:GetChildren()) do
 		local isFolder = #item:GetChildren() > 0
 		local itemButton = Instance.new("TextButton")
 		itemButton.Parent = container
-		itemButton.Size = UDim2.new(1, 0, 0, 30)
-		itemButton.Position = UDim2.new(0, 0, 0, yPos)
-		itemButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+		itemButton.Size = UDim2.new(1, -10, 0, 30)
+		itemButton.Position = UDim2.new(0, 5 * indent, 0, yPos)
+		itemButton.BackgroundColor3 = isFolder and Color3.fromRGB(70, 70, 70) or Color3.fromRGB(50, 50, 50)
 		itemButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 		itemButton.TextSize = 18
-		itemButton.Text = string.rep("----", indent) .. (isFolder and "[+]" or "") .. item.Name
+		itemButton.Text = (isFolder and "[+]" or "") .. item.Name
 		itemButton.TextXAlignment = Enum.TextXAlignment.Left
 		
 		yPos = yPos + 30
 
 		if isFolder then
 			local expanded = false
+			local subContainer = Instance.new("Frame")
+			subContainer.Parent = container
+			subContainer.Size = UDim2.new(1, 0, 0, 0)
+			subContainer.Position = UDim2.new(0, 0, 0, yPos)
+			subContainer.BackgroundTransparency = 1
+
 			itemButton.MouseButton1Click:Connect(function()
 				expanded = not expanded
-				itemButton.Text = string.rep("----", indent) .. (expanded and "[-]" or "[+]") .. item.Name
+				itemButton.Text = (expanded and "[-]" or "[+]") .. item.Name
 
 				if expanded then
-					local subContainer = Instance.new("Frame")
-					subContainer.Parent = container
-					subContainer.Size = UDim2.new(1, 0, 0, 0)
-					subContainer.Position = UDim2.new(0, 0, 0, yPos)
-					subContainer.BackgroundTransparency = 1
-
-					displayDEXContents(item, subContainer, indent + 1)
-
-					subContainer.Size = UDim2.new(1, 0, 0, subContainer.CanvasSize.Y.Offset)
-					yPos = yPos + subContainer.CanvasSize.Y.Offset
+					local subHeight = displayDEXContents(item, subContainer, indent + 1)
+					subContainer.Size = UDim2.new(1, 0, 0, subHeight)
+					yPos = yPos + subHeight
 				else
-					for _, child in pairs(container:GetChildren()) do
-						if child.Position.Y.Offset > itemButton.Position.Y.Offset then
-							child:Destroy()
-						end
-					end
+					subContainer:ClearAllChildren()
+					subContainer.Size = UDim2.new(1, 0, 0, 0)
+					yPos = yPos - subContainer.Size.Y.Offset
 				end
 
 				container.CanvasSize = UDim2.new(0, 0, 0, yPos)
 			end)
 		else
 			itemButton.MouseButton1Click:Connect(function()
-				-- Отображение данных файла
-				local fileContent = Instance.new("TextLabel")
-				fileContent.Parent = container
-				fileContent.Size = UDim2.new(1, 0, 0, 30)
-				fileContent.Position = UDim2.new(0, 0, 0, yPos)
-				fileContent.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-				fileContent.TextColor3 = Color3.fromRGB(255, 255, 255)
-				fileContent.TextSize = 18
-				fileContent.Text = "Файл: " .. item.Name
-				yPos = yPos + 30
-				container.CanvasSize = UDim2.new(0, 0, 0, yPos)
+				print("Открыт файл: " .. item.Name)
 			end)
 		end
 	end
+
 	container.CanvasSize = UDim2.new(0, 0, 0, yPos)
+	return yPos
 end
 
 
