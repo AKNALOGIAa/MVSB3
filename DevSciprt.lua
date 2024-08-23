@@ -4,15 +4,13 @@ local MainFrame = Instance.new("Frame")
 local TitleBar = Instance.new("Frame")
 local TitleLabel = Instance.new("TextLabel")
 local CloseButton = Instance.new("TextButton")
+local MinimizeButton = Instance.new("TextButton")
 local CyclesButton = Instance.new("TextButton")
 local ScriptButton = Instance.new("TextButton")
 local CyclesFrame = Instance.new("Frame")
-local StartLoopButton = Instance.new("TextButton")
-local StopLoopButton = Instance.new("TextButton")
-local SpeedSlider = Instance.new("TextBox")
+local AddLoopButton = Instance.new("TextButton")
 local ScriptFrame = Instance.new("Frame")
-local ScriptBox = Instance.new("TextBox")
-local ExecuteButton = Instance.new("TextButton")
+local AddScriptButton = Instance.new("TextButton")
 
 -- Настройка свойств объектов
 ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
@@ -24,6 +22,7 @@ MainFrame.Size = UDim2.new(0, 400, 0, 300)
 MainFrame.Position = UDim2.new(0.5, -200, 0.5, -150)
 MainFrame.Active = true
 MainFrame.Draggable = true
+MainFrame.BackgroundTransparency = 0.3
 
 TitleBar.Name = "TitleBar"
 TitleBar.Parent = MainFrame
@@ -33,11 +32,21 @@ TitleBar.Size = UDim2.new(1, 0, 0, 30)
 TitleLabel.Name = "TitleLabel"
 TitleLabel.Parent = TitleBar
 TitleLabel.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-TitleLabel.Size = UDim2.new(1, -30, 1, 0)
+TitleLabel.Size = UDim2.new(1, -60, 1, 0)
 TitleLabel.Font = Enum.Font.SourceSans
 TitleLabel.Text = "Roblox Executor"
 TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 TitleLabel.TextSize = 18
+
+MinimizeButton.Name = "MinimizeButton"
+MinimizeButton.Parent = TitleBar
+MinimizeButton.BackgroundColor3 = Color3.fromRGB(255, 255, 0)
+MinimizeButton.Size = UDim2.new(0, 30, 1, 0)
+MinimizeButton.Position = UDim2.new(1, -60, 0, 0)
+MinimizeButton.Font = Enum.Font.SourceSans
+MinimizeButton.Text = "-"
+MinimizeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+MinimizeButton.TextSize = 18
 
 CloseButton.Name = "CloseButton"
 CloseButton.Parent = TitleBar
@@ -76,36 +85,15 @@ CyclesFrame.Size = UDim2.new(1, 0, 1, -60)
 CyclesFrame.Position = UDim2.new(0, 0, 0, 60)
 CyclesFrame.Visible = false
 
-StartLoopButton.Name = "StartLoopButton"
-StartLoopButton.Parent = CyclesFrame
-StartLoopButton.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-StartLoopButton.Size = UDim2.new(0.5, -5, 0, 30)
-StartLoopButton.Position = UDim2.new(0, 0, 0, 0)
-StartLoopButton.Font = Enum.Font.SourceSans
-StartLoopButton.Text = "Начать Цикл"
-StartLoopButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-StartLoopButton.TextSize = 18
-
-StopLoopButton.Name = "StopLoopButton"
-StopLoopButton.Parent = CyclesFrame
-StopLoopButton.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-StopLoopButton.Size = UDim2.new(0.5, -5, 0, 30)
-StopLoopButton.Position = UDim2.new(0.5, 5, 0, 0)
-StopLoopButton.Font = Enum.Font.SourceSans
-StopLoopButton.Text = "Остановить Цикл"
-StopLoopButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-StopLoopButton.TextSize = 18
-
-SpeedSlider.Name = "SpeedSlider"
-SpeedSlider.Parent = CyclesFrame
-SpeedSlider.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-SpeedSlider.Size = UDim2.new(1, 0, 0, 30)
-SpeedSlider.Position = UDim2.new(0, 0, 0, 40)
-SpeedSlider.Font = Enum.Font.SourceSans
-SpeedSlider.PlaceholderText = "Введите скорость (в секундах)"
-SpeedSlider.Text = ""
-SpeedSlider.TextColor3 = Color3.fromRGB(255, 255, 255)
-SpeedSlider.TextSize = 18
+AddLoopButton.Name = "AddLoopButton"
+AddLoopButton.Parent = CyclesFrame
+AddLoopButton.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+AddLoopButton.Size = UDim2.new(1, 0, 0, 30)
+AddLoopButton.Position = UDim2.new(0, 0, 0, 0)
+AddLoopButton.Font = Enum.Font.SourceSans
+AddLoopButton.Text = "Добавить Цикл"
+AddLoopButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+AddLoopButton.TextSize = 18
 
 ScriptFrame.Name = "ScriptFrame"
 ScriptFrame.Parent = MainFrame
@@ -114,54 +102,116 @@ ScriptFrame.Size = UDim2.new(1, 0, 1, -60)
 ScriptFrame.Position = UDim2.new(0, 0, 0, 60)
 ScriptFrame.Visible = true
 
-ScriptBox.Name = "ScriptBox"
-ScriptBox.Parent = ScriptFrame
-ScriptBox.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-ScriptBox.Size = UDim2.new(1, 0, 0.8, 0)
-ScriptBox.Font = Enum.Font.SourceSans
-ScriptBox.PlaceholderText = "Введите ваш скрипт здесь..."
-ScriptBox.Text = ""
-ScriptBox.TextColor3 = Color3.fromRGB(255, 255, 255)
-ScriptBox.TextSize = 18
-ScriptBox.TextWrapped = true
-ScriptBox.TextXAlignment = Enum.TextXAlignment.Left
-ScriptBox.TextYAlignment = Enum.TextYAlignment.Top
-
-ExecuteButton.Name = "ExecuteButton"
-ExecuteButton.Parent = ScriptFrame
-ExecuteButton.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-ExecuteButton.Size = UDim2.new(1, 0, 0.2, -10)
-ExecuteButton.Position = UDim2.new(0, 0, 0.8, 10)
-ExecuteButton.Font = Enum.Font.SourceSans
-ExecuteButton.Text = "Выполнить"
-ExecuteButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-ExecuteButton.TextSize = 18
+AddScriptButton.Name = "AddScriptButton"
+AddScriptButton.Parent = ScriptFrame
+AddScriptButton.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+AddScriptButton.Size = UDim2.new(1, 0, 0, 30)
+AddScriptButton.Position = UDim2.new(0, 0, 0, 0)
+AddScriptButton.Font = Enum.Font.SourceSans
+AddScriptButton.Text = "Добавить Скрипт"
+AddScriptButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+AddScriptButton.TextSize = 18
 
 -- Логика кнопок
 local loopRunning = false
-local loopSpeed = 1 -- По умолчанию 1 секунда
+local loops = {}
 
-StartLoopButton.MouseButton1Click:Connect(function()
-    loopRunning = true
-    local speed = tonumber(SpeedSlider.Text)
-    if speed and speed > 0 then
-        loopSpeed = speed
-    end
-    while loopRunning do
-        -- Ваш цикл здесь
-        wait(loopSpeed)
-    end
-end)
+local function createLoop()
+    local loopFrame = Instance.new("Frame")
+    local loopInput = Instance.new("TextBox")
+    local startLoopButton = Instance.new("TextButton")
+    local stopLoopButton = Instance.new("TextButton")
+    
+    loopFrame.Parent = CyclesFrame
+    loopFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    loopFrame.Size = UDim2.new(1, 0, 0, 60)
+    
+    loopInput.Parent = loopFrame
+    loopInput.Size = UDim2.new(1, 0, 0.5, 0)
+    loopInput.PlaceholderText = "Введите команду цикла..."
+    loopInput.Text = ""
+    loopInput.TextColor3 = Color3.fromRGB(255, 255, 255)
+    loopInput.TextSize = 18
+    
+    startLoopButton.Parent = loopFrame
+    startLoopButton.Size = UDim2.new(0.5, 0, 0.5, 0)
+    startLoopButton.Position = UDim2.new(0, 0, 0.5, 0)
+    startLoopButton.Text = "Начать"
+    startLoopButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    
+    stopLoopButton.Parent = loopFrame
+    stopLoopButton.Size = UDim2.new(0.5, 0, 0.5, 0)
+    stopLoopButton.Position = UDim2.new(0.5, 0, 0.5, 0)
+    stopLoopButton.Text = "Остановить"
+    stopLoopButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 
-StopLoopButton.MouseButton1Click:Connect(function()
-    loopRunning = false
-end)
+    local loop = {
+        frame = loopFrame,
+        input = loopInput,
+        startButton = startLoopButton,
+        stopButton = stopLoopButton,
+        running = false,
+        speed = 1
+    }
+    
+    table.insert(loops, loop)
+    
+    startLoopButton.MouseButton1Click:Connect(function()
+        if not loop.running then
+            loop.running = true
+            loop.speed = tonumber(loopInput.Text) or 1
+            while loop.running do
+                -- Ваш цикл здесь
+                wait(loop.speed)
+            end
+        end
+    end)
+    
+    stopLoopButton.MouseButton1Click:Connect(function()
+        loop.running = false
+    end)
+end
 
-ExecuteButton.MouseButton1Click:Connect(function()
-    local scriptText = ScriptBox.Text
-    loadstring(scriptText)()
-end)
+AddLoopButton.MouseButton1Click:Connect(createLoop)
 
+local scripts = {}
+
+local function createScript()
+    local scriptFrame = Instance.new("Frame")
+    local scriptInput = Instance.new("TextBox")
+    local executeButton = Instance.new("TextButton")
+    
+    scriptFrame.Parent = ScriptFrame
+    scriptFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    scriptFrame.Size = UDim2.new(1, 0, 0, 60)
+    
+    scriptInput.Parent = scriptFrame
+    scriptInput.Size = UDim2.new(1, 0, 0.5, 0)
+    scriptInput.PlaceholderText = "Введите скрипт..."
+    scriptInput.Text = ""
+    scriptInput.TextColor3 = Color3.fromRGB(255, 255, 255)
+    scriptInput.TextSize = 18
+    
+    executeButton.Parent = scriptFrame
+    executeButton.Size = UDim2.new(1, 0, 0.5, 0)
+    executeButton.Position = UDim2.new(0, 0, 0.5, 0)
+    executeButton.Text = "Выполнить"
+    executeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    
+    table.insert(scripts, {frame = scriptFrame, input = scriptInput, button = executeButton})
+    
+    executeButton.MouseButton1Click:Connect(function()
+        local scriptText = scriptInput.Text
+        if scriptText ~= "" then
+            -- Выполнение скрипта
+            loadstring(scriptText)()
+        end
+    end)
+end
+
+AddScriptButton.MouseButton1Click:Connect(createScript)
+
+-- Переключение между вкладками
 CyclesButton.MouseButton1Click:Connect(function()
     CyclesFrame.Visible = true
     ScriptFrame.Visible = false
@@ -172,6 +222,18 @@ ScriptButton.MouseButton1Click:Connect(function()
     ScriptFrame.Visible = true
 end)
 
+-- Закрытие GUI
 CloseButton.MouseButton1Click:Connect(function()
     ScreenGui:Destroy()
+end)
+
+-- Сворачивание GUI
+local minimized = false
+MinimizeButton.MouseButton1Click:Connect(function()
+    minimized = not minimized
+    if minimized then
+        MainFrame.Size = UDim2.new(0, 400, 0, 30)
+    else
+        MainFrame.Size = UDim2.new(0, 400, 0, 300)
+    end
 end)
