@@ -247,13 +247,13 @@ local function createScript()
 end
 
 AddScriptButton.MouseButton1Click:Connect(createScript)
-
--- Функция для отображения содержимого DEX
-local function displayDEXContents(parent, container)
+local function displayDEXContents(parent, container, indent)
 	container:ClearAllChildren()
+	indent = indent or 0
 
 	local yPos = 0
 	for _, item in pairs(parent:GetChildren()) do
+		local isFolder = #item:GetChildren() > 0
 		local itemButton = Instance.new("TextButton")
 		itemButton.Parent = container
 		itemButton.Size = UDim2.new(1, 0, 0, 30)
@@ -261,26 +261,57 @@ local function displayDEXContents(parent, container)
 		itemButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
 		itemButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 		itemButton.TextSize = 18
-		itemButton.Text = item.Name
-		itemButton.MouseButton1Click:Connect(function()
-			if #item:GetChildren() > 0 then
-				displayDEXContents(item, container)
-			else
+		itemButton.Text = string.rep("----", indent) .. (isFolder and "[+]" or "") .. item.Name
+		itemButton.TextXAlignment = Enum.TextXAlignment.Left
+		
+		yPos = yPos + 30
+
+		if isFolder then
+			local expanded = false
+			itemButton.MouseButton1Click:Connect(function()
+				expanded = not expanded
+				itemButton.Text = string.rep("----", indent) .. (expanded and "[-]" or "[+]") .. item.Name
+
+				if expanded then
+					local subContainer = Instance.new("Frame")
+					subContainer.Parent = container
+					subContainer.Size = UDim2.new(1, 0, 0, 0)
+					subContainer.Position = UDim2.new(0, 0, 0, yPos)
+					subContainer.BackgroundTransparency = 1
+
+					displayDEXContents(item, subContainer, indent + 1)
+
+					subContainer.Size = UDim2.new(1, 0, 0, subContainer.CanvasSize.Y.Offset)
+					yPos = yPos + subContainer.CanvasSize.Y.Offset
+				else
+					for _, child in pairs(container:GetChildren()) do
+						if child.Position.Y.Offset > itemButton.Position.Y.Offset then
+							child:Destroy()
+						end
+					end
+				end
+
+				container.CanvasSize = UDim2.new(0, 0, 0, yPos)
+			end)
+		else
+			itemButton.MouseButton1Click:Connect(function()
 				-- Отображение данных файла
 				local fileContent = Instance.new("TextLabel")
 				fileContent.Parent = container
 				fileContent.Size = UDim2.new(1, 0, 0, 30)
-				fileContent.Position = UDim2.new(0, 0, 0, yPos + 30)
+				fileContent.Position = UDim2.new(0, 0, 0, yPos)
 				fileContent.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
 				fileContent.TextColor3 = Color3.fromRGB(255, 255, 255)
 				fileContent.TextSize = 18
 				fileContent.Text = "Файл: " .. item.Name
-			end
-		end)
-		yPos = yPos + 30
+				yPos = yPos + 30
+				container.CanvasSize = UDim2.new(0, 0, 0, yPos)
+			end)
+		end
 	end
 	container.CanvasSize = UDim2.new(0, 0, 0, yPos)
 end
+
 
 -- Добавление логики переключения между вкладками
 CyclesButton.MouseButton1Click:Connect(function()
